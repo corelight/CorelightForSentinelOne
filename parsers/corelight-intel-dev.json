@@ -1,0 +1,117 @@
+{
+  attributes: {
+    "dataSource.category": "security",
+    "dataSource.name": "Corelight",
+    "dataSource.vendor": "Corelight",
+    "class_uid": 4001,
+    "category_uid": 4,
+    "severity_id": 1,
+    //    "severity": "Informational",
+    "class_name": "Network Activity",
+    "category_name": "Network Activity",
+    "metadata.product.name": "Corelight",
+    "metadata.product.vendor_name": "Corelight",
+    "metadata.version": "27.12.0",
+    "app_name": "Corelight"
+  },
+  formats: [
+    {
+      format: "${parse=dottedJson}$",
+      repeat: true
+      rewrites: [
+        {
+          input: "_path",
+          output: "metadata.log_name",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "severity.name",
+          output: "severity",
+          match: "(\\w+).*",
+          replace: "$1",
+          outputIfNoMatch: false
+        }, {
+          input: "ts",
+          output: "timestamp",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "ts",
+          output: "time",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "uid",
+          output: "metadata.uid",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "uid",
+          output: "uuid",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.orig_ep_uid",
+          output: "agent.uuid",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.orig_ep_name",
+          output: "endpoint.name",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.orig_h",
+          output: "src_endpoint.ip",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.orig_p",
+          output: "src_endpoint.port",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.orig_ep_uid",
+          output: "src_endpoint.uid",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.orig_ep_name",
+          output: "src_endpoint.name",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.resp_h",
+          output: "dst_endpoint.ip",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.resp_p",
+          output: "dst_endpoint.port",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.resp_ep_uid",
+          output: "dst_endpoint.uid",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.resp_ep_name",
+          output: "dst_endpoint.name",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.vlan",
+          output: "dst_endpoint.vlan_uid",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.inner_vlan",
+          output: "src_endpoint.vlan_uid",
+          match: ".*",
+          replace: "$0"
+        }
+      ]
+    }
+  ]
+}

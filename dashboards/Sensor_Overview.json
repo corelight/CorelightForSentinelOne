@@ -1,0 +1,487 @@
+{
+    tabs: [{"tabName":"Rates",
+  graphs : [
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_bro'\n| group 'Conn'=avg(logs.conn.entries.per-second), \n        'DCE/RPC'=avg(logs.dce_rpc.entries.per-second),\n        'DHCP'=avg(logs.DHCP.entries.per-second),\n        'DNP3'= avg(logs.dnp3.entries.per-second),\n        'DNS'=avg(logs.dns.entries.per-second),\n        'DPD'=avg(logs.dpd.entries.per-second),\n        'Files'=avg(logs.files.entries.per-second),\n        'FTP'=avg(logs.ftp.entries.per-second),\n        'HTTP'=avg(logs.http.entries.per-second),\n        'IRC'=avg(logs.irc.entries.per-second),\n        'Kerberos'=avg(logs.kerberos.entries.per-second),\n        'Modbus'=avg(logs.modbus.entries.per-second),\n        'MYSQL'=avg(logs.mysql.entries.per-second),\n        'NTLM'=avg(logs.ntlm.entries.per-second),\n        'PE'=avg(logs.pe.entries.per-second),\n        'Radius'=avg(logs.radius.entries.per-second),\n        'RDP'=avg(logs.rdp.entries.per-second),\n        'RFB'=avg(logs.rfb.entries.per-second),\n        'SIP'=avg(logs.sip.entries.per-second),\n        'SMB Files'=avg(logs.smb_files.entries.per-second),\n        'SMB Mapping'=avg(logs.smb_mapping.entries.per-second),\n        'SMTP'=avg(logs.smtp.entries.per-second),\n        'SNMP'=avg(logs.snmp.entries.per-second),\n        'SOCKS'=avg(logs.socks.entries.per-second),\n        'Software'=avg(logs.software.entries.per-second),\n        'SSH'=avg(logs.ssh.entries.per-second),\n        'SSL'=avg(logs.ssl.entries.per-second),\n        'Syslog'=avg(logs.syslog.entries.per-second),\n        'Traceroute'=avg(logs.traceroute.entries.per-second),\n        'Tunnel'=avg(logs.tunnel.entries.per-second),\n        'Weird'=avg(logs.weird.entries.per-second),\n        'X509'=avg(logs.x509.entries.per-second) by timestamp = timebucket()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Log Rates",
+      yScale: "linear",
+      layout: {
+    h: 13,
+    w: 60,
+    x: 0,
+    y: 0
+  }
+    },
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_iface'\n| group Mbps=avg(monitor.total.mbps) by timestamp=timebucket()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Combined Traffic Volume - Monitor Interfaces",
+      yScale: "linear",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 13
+  }
+    },
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_iface'\n| group 'Monitor Traffic Packet Rate'=max(monitor.total.kpps), 'Monitor Traffic Drop Rate'=avg(monitor.total.drops.kpps) by timestamp=timebucket()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Combined Traffic Volume - Monitor Interfaces - Packets",
+      yScale: "linear",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 13
+  }
+    },
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_iface'\n| group 'Inbound Traffic Rate'=avg(mgmt.in.bytes.mbps), 'Outbound Traffic Rate'=avg(mgmt.out.bytes.mbps) by timestamp=timebucket()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Traffic Volume - Management Interface",
+      yScale: "linear",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 27
+  }
+    },
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_iface'\n| group 'Inbound Traffic Packet Rate'=avg(mgmt.in.packets.kpps), 'Outbound Traffic Packet Rate'=avg(mgmt.out.packets.kpps) by timestamp=timebucket()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Traffic Volume - Management Interface - Packets",
+      yScale: "linear",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 27
+  }
+    },
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_bro'\n| group \"Extracted Files\" = avg(files.total), \"Queued Files for SFTP\" = avg(files.queued.s3), \"Queued Files for Amazon S3\" = avg(files.queued.s3) by timestamp = timebucket()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "File Extraction",
+      yScale: "linear",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 41
+  }
+    },
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_bro'\n| group \"Splunk\" = avg(logs.splunk_export.lag), \n        \"Syslog\" = avg(logs.syslog_export.lag), \n        \"JSON\" = avg(logs.json_export.lag), \n        \"Kafka\" = avg(logs.kafka_export.lag),\n        \"Investigator\" = avg(logs.investigator_export.lag),\n        \"Kinesis\" = avg(logs.kinesis_export.lag),\n        \"HEC\" = avg(logs.hec_export.lag),\n        \"Elasticsearcg\" = avg(logs.elasticsearch_export.lag) by timestamp=timebucket()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Log Entries Export Queue",
+      yScale: "linear",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 41
+  }
+    }
+  ],
+  options: {layout: {locked: 1}},
+  filters: [
+    {
+      facet: "_system_name",
+      name: "Corelight Sensor"
+    }
+  ]
+  },
+  {"tabName":"System","graphs":[
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_memory'\n| group \"Memory Usage\" = avg(usage) by timestamp=timebucket()\n",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Memory Usage",
+      yScale: "linear",
+      layout: {
+    h: 13,
+    w: 30,
+    x: 0,
+    y: 0
+  }
+    },
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_bro'\n| group \"Bro CPU Usage\" = avg(cpu) by timestamp = timebucket()\n",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Bro CPU Usage",
+      yScale: "linear",
+      layout: {
+    h: 13,
+    w: 30,
+    x: 30,
+    y: 0
+  }
+    },
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_system'\n| group \"CPU* Temperature\" = avg(cpu.1.temperature) by timestamp = timebucket()\n",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "System Temperature",
+      yScale: "linear",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 13
+  }
+    },
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_disk'\n| group \"OS Disk Usage\" = avg(usage.os), \"Data Disk Usage\" = avg(usage.data) by timestamp = timebucket()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Disk Usage",
+      yScale: "linear",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 13
+  }
+    }
+  ],
+  options: {layout: {locked: 1}},
+  filters: [
+    {
+      facet: "_system_name",
+      name: "Corelight Sensor"
+    }
+  ]
+  },
+  {"tabName":"Zeek Doctor","graphs":[
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.tcp_retransmissions.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg TCP Retransmissions",
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+    h: 7,
+    w: 15,
+    x: 0,
+    y: 0
+  }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.remote_to_remote.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg Remote to Remote",
+      layout: {
+    h: 7,
+    w: 15,
+    x: 15,
+    y: 0
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.local_to_local.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg Local to Local",
+      layout: {
+    h: 7,
+    w: 15,
+    x: 30,
+    y: 0
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.tcp_missed_bytes.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg TCP Missed Bytes",
+      layout: {
+    h: 7,
+    w: 15,
+    x: 45,
+    y: 0
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.tcp_scan.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg TCP Scan",
+      layout: {
+    h: 7,
+    w: 15,
+    x: 0,
+    y: 7
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.tcp_backscatter.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg TCP Backscatter",
+      layout: {
+    h: 7,
+    w: 15,
+    x: 15,
+    y: 7
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.tcp_no_ssl_on_443.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg NO SSL ON 443",
+      layout: {
+    h: 7,
+    w: 15,
+    x: 30,
+    y: 7
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.bursty.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg Bursty",
+      layout: {
+    h: 7,
+    w: 15,
+    x: 45,
+    y: 7
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.dns_half_duplex_orig.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg DNS Half Duplex Orig",
+      layout: {
+    h: 8,
+    w: 20,
+    x: 0,
+    y: 14
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.dns_half_duplex_resp.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg DNS Half Duplex Resp",
+      layout: {
+    h: 8,
+    w: 20,
+    x: 20,
+    y: 14
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.tcp_half_duplex.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg TCP Half Duplex",
+      layout: {
+    h: 8,
+    w: 20,
+    x: 40,
+    y: 14
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.tcp_no_three_way_handshake.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg TCP No Three Way Handshake",
+      layout: {
+    h: 7,
+    w: 30,
+    x: 0,
+    y: 22
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'corelight_metrics_zeek_doctor'\n| group avg(check.tcp_byte_counts_wrong.percent)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Avg TCP Byte Counts Wrong",
+      layout: {
+    h: 7,
+    w: 30,
+    x: 30,
+    y: 22
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    }
+  ],
+  filters: [
+    {
+      facet: "_system_name",
+      name: "Sensor"
+    }
+  ],
+  options: {layout: {locked: 1}}
+  }],
+    configType: "TABBED"
+  }

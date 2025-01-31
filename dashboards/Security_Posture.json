@@ -1,0 +1,1786 @@
+{
+    duration: "24h",
+    description: "",
+    tabs: [{"tabName":"Security Posture",
+  filters : [
+      {
+        facet: "_system_name",
+        name: "Sensor"
+      }
+    ],
+  graphs : [
+      {
+        graphStyle: "markdown",
+        title: "Encrypted Traffic Hygiene",
+        layout: {
+    h: 5,
+    w: 44,
+    x: 0,
+    y: 54
+  },
+        markdown: ""
+      },
+      {
+        graphStyle: "number",
+        query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' AND validation_status = 'self signed certificate' AND server_name=* | columns uid, server_name),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND local_resp = true | columns uid) on uid\n| group estimate_distinct(server_name)",
+        title: "Self Signed Certs",
+        layout: {
+    h: 6,
+    w: 12,
+    x: 0,
+    y: 59
+  },
+        trendConfig: {
+          enabled: false,
+          indicators: {
+            arrow: {enabled: true},
+            number: {
+              calculationType: "ABSOLUTE",
+              enabled: true
+            },
+            upwardsMeaning: "POSITIVE"
+          }
+        }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509' AND certificate.key_length < 2048\n| group estimate_distinct(fingerprint)",
+        title: "Certs w/Low Keys",
+        layout: {
+    h: 6,
+    w: 12,
+    x: 12,
+    y: 59
+  }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509'\n| columns fingerprint, not_valid_after_epoch = strptime(certificate.not_valid_after, \"%Y-%m-%dT%H:%M:%S.000000Z\"),  current_time_epoch = now()\n| let days_to_expire = ((not_valid_after_epoch - current_time_epoch) / (86400 * 1000 * 1000 * 1000))\n| filter days_to_expire > 0 AND days_to_expire <= 15 \n| group estimate_distinct(fingerprint)",
+        title: "Expiring Certs",
+        layout: {
+    h: 6,
+    w: 12,
+    x: 24,
+    y: 59
+  }
+      },
+      {
+        graphStyle: "stacked",
+        lineSmoothing: "straightLines",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl'\n| group \"count\"=count() by timestamp=timebucket()",
+        teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+        title: "Encrypted Traffic Over Time",
+        yScale: "linear",
+        layout: {
+    h: 11,
+    w: 60,
+    x: 0,
+    y: 76
+  }
+      },
+      {
+        graphStyle: "pie",
+        maxPieSlices: 10,
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl'\n| columns version_status = ( version==\"TLSv13\") ? \"Most Secure\" :  (version==\"TLSv12\") ? \"Secure\" : (version==\"DTLSv12\") ? \"Secure\" : (version==\"unknown-64282\") ? \"Unknown\" :  \"Old Version\" \n| group count() by version_status",
+        title: " TLS Versions",
+        layout: {
+    h: 17,
+    w: 24,
+    x: 36,
+    y: 59
+  }
+      },
+      {
+        graphStyle: "stacked_bar",
+        query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' | columns uid, version_status = (version==\"TLSv13\") ? \"Most Secure\" :  (version==\"TLSv12\") ? \"Secure\" : (version==\"DTLSv12\") ? \"Secure\" : (version==\"unknown-64282\") ? \"Unknown\" :  \"Old Version\"),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND local_resp = true | columns uid, local_resp) on uid\n| group \"count\"=count() by version_status\n| sort -count",
+        teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+        title: "Internal TLS Versions Profile ",
+        xAxis: "grouped_data",
+        yScale: "linear",
+        layout: {
+    h: 11,
+    w: 36,
+    x: 0,
+    y: 65
+  },
+        barWidth: "auto"
+      },
+      {
+        graphStyle: "markdown",
+        title: "Unencrypted Traffic Hygiene",
+        layout: {
+    h: 5,
+    w: 44,
+    x: 0,
+    y: 87
+  }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'etc_viz' AND (viz_stat = \"C\" OR viz_stat = \"Cc\" OR viz_stat = \"C!\" OR viz_stat = \"cc\")\n| group count=count() by uid, server_a, server_p\n| group sum(count)",
+        title: "Unencrypted Connections",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 0,
+    y: 92
+  }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND (metadata.log_name = 'smb_mapping' OR metadata.log_name = 'smb_files')\n| let smb_version = (dst_endpoint.port==139) ? \"SMBv1\" :  (dst_endpoint.port==445) ? \"SMBv2_or_SMBv3\" :  \"unknown\"\n| filter smb_version = \"SMBv1\"\n| group count() ",
+        title: "SMB v1 Connections",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 15,
+    y: 92
+  }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND id.resp_p = 23\n| group count()",
+        title: "Telnet Sessions",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 30,
+    y: 92
+  }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ftp'\n| group estimate_distinct(uid)",
+        title: "FTP Sessions",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 45,
+    y: 92
+  }
+      },
+      {
+        graphStyle: "markdown",
+        title: "DNS Hygiene",
+        layout: {
+    h: 5,
+    w: 44,
+    x: 0,
+    y: 98
+  }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND (rcode_name = \"SERVFAIL\" OR rcode_name = \"REFUSED\" OR rcode_name = \"FORMERR\" OR rcode_name = \"NOTIMP\" OR rcode_name = \"NOTAUTH\")\n| group \"dns_fails\"=count(rcode_name)",
+        title: "Failed DNS Queries",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 0,
+    y: 116
+  }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND (qtype_name = \"AXFR\" OR qtype_name = \"IXFR\" OR qtype_name = \"ANY\" OR qtype_name = \"TXT\")\n| group count()",
+        title: "Unusual Qtypes",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 15,
+    y: 116
+  }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND (rcode_name = \"NXDOMAIN\" OR rcode_name = \"NOERROR\")\n| group count()",
+        title: "NXDOMAIN Responses",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 30,
+    y: 116
+  }
+      },
+      {
+        graphStyle: "number",
+        query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND dst_endpoint.ip = * AND (dst_endpoint.port = 53 OR dst_endpoint.port = 5353) | columns uid, dst_endpoint.ip),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND local_resp = true | columns uid, local_resp) on uid\n| group estimate_distinct(dst_endpoint.ip)",
+        title: "Internal DNS Servers",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 45,
+    y: 116
+  },
+        trendConfig: {
+          enabled: false,
+          indicators: {
+            arrow: {enabled: true},
+            number: {
+              calculationType: "ABSOLUTE",
+              enabled: true
+            },
+            upwardsMeaning: "POSITIVE"
+          }
+        }
+      },
+      {
+        graphStyle: "stacked_bar",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns'\n| let Country=geo_ip_country(dst_endpoint.ip)\n| filter Country = *\n| group count=count() by Country\n| sort -count",
+        teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+        title: "Geolocation of DNS Responses",
+        xAxis: "grouped_data",
+        yScale: "linear",
+        layout: {
+    h: 13,
+    w: 60,
+    x: 0,
+    y: 122
+  },
+        barWidth: "auto"
+      },
+      {
+        graphStyle: "markdown",
+        title: "Remote Management Hygiene",
+        layout: {
+    h: 5,
+    w: 44,
+    x: 0,
+    y: 135
+  }
+      },
+      {
+        graphStyle: "stacked_bar",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn'\n| let Country=geo_ip_country(dst_endpoint.ip)\n| filter Country = *\n| group count=estimate_distinct(dst_endpoint.ip), percentage=percent_of_total(estimate_distinct(dst_endpoint.ip)) by Country\n| sort -count\n| limit 10",
+        teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+        title: "Top VPN destinations by Country",
+        xAxis: "grouped_data",
+        yScale: "logarithmic",
+        layout: {
+    h: 12,
+    w: 30,
+    x: 0,
+    y: 140
+  },
+        barWidth: "auto"
+      },
+      {
+        graphStyle: "line",
+        lineSmoothing: "straightLines",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp' AND auth_success = *\n| let auth_result = (auth_success=true) ? \"Success\" : (auth_success=false) ? \"Failure\" : \"Unknown\"\n| group \"Success\"=count(auth_result = \"Success\"), \"Failure\"=count(auth_result = \"Failure\") by timebucket()",
+        teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+        title: "RDP Authentication Attempts",
+        yScale: "linear",
+        layout: {
+    h: 12,
+    w: 60,
+    x: 0,
+    y: 152
+  }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight'\n| group count()",
+        title: "Suricata Alerts",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 0,
+    y: 3
+  },
+        trendConfig: {
+          enabled: false,
+          indicators: {
+            arrow: {enabled: true},
+            number: {
+              calculationType: "ABSOLUTE",
+              enabled: true
+            },
+            upwardsMeaning: "POSITIVE"
+          }
+        },
+        description: "All Suricata Alerts"
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight'\n| group estimate_distinct(src_endpoint.ip)",
+        title: "Unique Source IPs",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 15,
+    y: 3
+  },
+        trendConfig: {
+          enabled: false,
+          indicators: {
+            arrow: {enabled: true},
+            number: {
+              calculationType: "ABSOLUTE",
+              enabled: true
+            },
+            upwardsMeaning: "POSITIVE"
+          }
+        },
+        description: ""
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight'\n| group estimate_distinct(dst_endpoint.ip)",
+        title: "Unique Dest. IPs",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 30,
+    y: 3
+  },
+        trendConfig: {
+          enabled: false,
+          indicators: {
+            arrow: {enabled: true},
+            number: {
+              calculationType: "ABSOLUTE",
+              enabled: true
+            },
+            upwardsMeaning: "POSITIVE"
+          }
+        },
+        description: ""
+      },
+      {
+        graphStyle: "number",
+        layout: {
+    h: 6,
+    w: 12,
+    x: 0,
+    y: 20
+  },
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice' AND !(note matches '^Intel.*') AND src_endpoint.ip = *\n| group count()",
+        title: "Notices",
+        description: "Messages Excluding Intel",
+        trendConfig: {
+          enabled: false,
+          indicators: {
+            arrow: {enabled: true},
+            number: {
+              calculationType: "ABSOLUTE",
+              enabled: true
+            },
+            upwardsMeaning: "POSITIVE"
+          }
+        }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice' AND !(note matches '^Intel.*') AND id.orig_h=* \n| parse \"$attack_type{regex=^(\\\\S+)}$\" from note \n| let ATTACK_Types = attack_type matches:matchcase \"^ATTACK::.*\"\n| group ATTACK_Types=count(ATTACK_Types)",
+        title: "Attack Count",
+        layout: {
+    h: 6,
+    w: 12,
+    x: 12,
+    y: 20
+  }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice' AND (note = 'SSL::Certificate_Expired' OR note = 'SSL::Invalid_Server_Cert' OR note = 'SSL::Old_Version')\n| group \"SSL_issues_count\"=count()",
+        title: "SSL Certs. Issue",
+        layout: {
+    h: 6,
+    w: 12,
+    x: 36,
+    y: 20
+  },
+        trendConfig: {
+          enabled: false,
+          indicators: {
+            arrow: {enabled: true},
+            number: {
+              calculationType: "ABSOLUTE",
+              enabled: true
+            },
+            upwardsMeaning: "POSITIVE"
+          }
+        }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice' AND note = 'MeterpreterDetection::Meterpreter_Detected'\n| group \"Meterpreter_Count\"=count()",
+        title: "Meterpreter Count",
+        layout: {
+    h: 6,
+    w: 12,
+    x: 24,
+    y: 20
+  }
+      },
+      {
+        graphStyle: "stacked",
+        lineSmoothing: "straightLines",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice' AND !(note matches '^Intel.*')\n| group count() by timestamp=timebucket()",
+        teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+        title: "Notices Over Time",
+        yScale: "linear",
+        layout: {
+    h: 11,
+    w: 60,
+    x: 0,
+    y: 26
+  },
+        description: ""
+      },
+      {
+        graphStyle: "number",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 0,
+    y: 37
+  },
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'intel'\n| group \"Intel_Count\"=count()",
+        title: "Threat Intel",
+        trendConfig: {
+          enabled: false,
+          indicators: {
+            arrow: {enabled: true},
+            number: {
+              calculationType: "ABSOLUTE",
+              enabled: true
+            },
+            upwardsMeaning: "POSITIVE"
+          }
+        },
+        description: "Intel Indicators"
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice'\n| group \"Unique_Note\"=estimate_distinct(note)",
+        title: "Unique Note Count",
+        layout: {
+    h: 6,
+    w: 12,
+    x: 48,
+    y: 20
+  },
+        trendConfig: {
+          enabled: false,
+          indicators: {
+            arrow: {enabled: true},
+            number: {
+              calculationType: "ABSOLUTE",
+              enabled: true
+            },
+            upwardsMeaning: "POSITIVE"
+          }
+        }
+      },
+      {
+        graphStyle: "number",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'intel'\n| group \"UniqueIndicators\"=estimate_distinct(seen.indicator)",
+        title: "Unique Indicators",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 15,
+    y: 37
+  }
+      },
+      {
+        graphStyle: "stacked",
+        lineSmoothing: "straightLines",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight'\n| group \"count\"=count() by timestamp = timebucket()",
+        teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+        title: "Suricata Alerts Over Time",
+        layout: {
+    h: 11,
+    w: 60,
+    x: 0,
+    y: 9
+  },
+        description: ""
+      },
+      {
+        graphStyle: "stacked",
+        layout: {
+    h: 11,
+    w: 60,
+    x: 0,
+    y: 43
+  },
+        lineSmoothing: "straightLines",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'intel'\n| group \"intelalerts\"=count() by timestamp=timebucket()",
+        teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+        title: "Intel Alerts Over Time",
+        yScale: "linear"
+      },
+      {
+        graphStyle: "number",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 30,
+    y: 37
+  },
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'intel'\n| group \"TotalAlerts\"=count(), \"UniqueIndicators\"=estimate_distinct(seen.indicator)\n| columns AvgAlertsPerIndicator=(TotalAlerts / UniqueIndicators)",
+        title: "Avg Alerts Per Indicator"
+      },
+      {
+        graphStyle: "number",
+        layout: {
+    h: 6,
+    w: 15,
+    x: 45,
+    y: 37
+  },
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'intel'\n| group \"TotalAlerts\"=count(), \"UniqueSourceIPs\"=estimate_distinct(src_endpoint.ip)\n| columns AvgAlertsPerIndicator=(TotalAlerts / UniqueSourceIPs)",
+        title: "Avg Alerts Per Source IP",
+        trendConfig: {
+          enabled: false,
+          indicators: {
+            arrow: {enabled: true},
+            number: {
+              calculationType: "ABSOLUTE",
+              enabled: true
+            },
+            upwardsMeaning: "POSITIVE"
+          }
+        }
+      },
+      {
+        graphStyle: "stacked",
+        lineSmoothing: "straightLines",
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name matches '^conn.*' AND !(service = 'ssl' OR service = 'tls' OR service = 'dns' OR service = 'ssl,http' OR service = 'http,ssl') AND service = *\n| group \"Unencrypted Traffic Volume\"=count() by timestamp=timebucket(), service\n| transpose service on timestamp ",
+        teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+        title: "Top Unencrypted Protocols Used",
+        yScale: "linear",
+        layout: {
+    h: 13,
+    w: 60,
+    x: 0,
+    y: 103
+  }
+      },
+      {
+        graphStyle: "line",
+        lineSmoothing: "straightLines",
+        query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn' | columns uid, timestamp),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND local_resp = false | columns uid, local_resp) on uid\n| group \"count\"=count() by timestamp=timebucket()",
+        teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+        title: "Outbound VPN Connections",
+        yScale: "linear",
+        layout: {
+    h: 12,
+    w: 30,
+    x: 30,
+    y: 140
+  }
+      },
+      {
+        description: "Secure Channel Insights Statistics.",
+        graphStyle: "markdown",
+        layout: {
+    h: 5,
+    w: 16,
+    x: 44,
+    y: 87
+  },
+        markdown: "[**More Info**](/dashboards/Security%20Posture?activeTab=Secure+Channel+Insights)",
+        title: "Secure Channel Insights."
+      },
+      {
+        description: "Name Resolution Insights Statistics.",
+        graphStyle: "markdown",
+        layout: {
+    h: 5,
+    w: 16,
+    x: 44,
+    y: 98
+  },
+        markdown: "[**More Info**](/dashboards/Security%20Posture?activeTab=Name+Resolution+Insights)",
+        title: "Name Resolution Insights."
+      },
+      {
+        description: "Remote Activity Insights Statistics.",
+        graphStyle: "markdown",
+        layout: {
+    h: 5,
+    w: 16,
+    x: 44,
+    y: 135
+  },
+        markdown: "[**More Info**](/dashboards/Security%20Posture?activeTab=Remote+Activity+Insights)",
+        title: "Remote Activity Insights."
+      },
+      {
+        graphStyle: "markdown",
+        layout: {
+    h: 3,
+    w: 60,
+    x: 0,
+    y: 0
+  },
+        markdown: "",
+        title: "Alerts Insights"
+      },
+      {
+        description: "Secure Channel Insights Statistics.",
+        graphStyle: "markdown",
+        layout: {
+    h: 5,
+    w: 16,
+    x: 44,
+    y: 54
+  },
+        markdown: "[**More Info**](/dashboards/Security%20Posture?activeTab=Secure+Channel+Insights)",
+        title: "Secure Channel Insights."
+      },
+      {
+        query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight'\n| group estimate_distinct(alert.signature_id)",
+        teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+        title: "Unique Signatures",
+        graphStyle: "number",
+        trendConfig: {
+          enabled: false,
+          indicators: {
+            arrow: {enabled: true},
+            number: {
+              calculationType: "ABSOLUTE",
+              enabled: true
+            },
+            upwardsMeaning: "POSITIVE"
+          }
+        },
+        layout: {
+    h: 6,
+    w: 15,
+    x: 45,
+    y: 3
+  },
+        description: ""
+      },
+    ],
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}}
+  },
+  {"tabName":"Name Resolution Insights","graphs":[
+    {
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns'  AND dst_endpoint.ip=*\n| group estimate_distinct(dst_endpoint.ip)",
+      title: "Responding DNS Servers",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+    h: 8,
+    w: 12,
+    x: 0,
+    y: 3
+  },
+      description: "Responding DNS Servers"
+    },
+    {
+      graphStyle: "markdown",
+      markdown: ".",
+      title: "DNS Hygiene",
+      layout: {
+    h: 3,
+    w: 60,
+    x: 0,
+    y: 0
+  }
+    },
+    {
+      graphStyle: "markdown",
+      markdown: "DNS servers actively responding in the network are key to secure operations, translating domain names to IP addresses and directing traffic. It also logs the number of queries and unique clients interacting with the DNS servers, offering insights into possible rogue DNS servers and detecting patterns that may suggest data exfiltration attempts.",
+      title: " ",
+      layout: {
+    h: 8,
+    w: 18,
+    x: 12,
+    y: 3
+  }
+    },
+    {
+      description: "Unusual Qtypes",
+      graphStyle: "number",
+      layout: {
+    h: 8,
+    w: 12,
+    x: 30,
+    y: 3
+  },
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND qtype_name in ('AXFR', 'IXFR', 'ANY', 'TXT')\n| group count() ",
+      title: "Unusual Qtypes",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 18,
+    x: 42,
+    y: 3
+  },
+      markdown: "Unusual DNS query types can indicate misconfigurations, experimental features, or potential security threats like data exfiltration or tunneling. Analysts should scrutinize such queries for anomalies and address identified risks to safeguard network security.",
+      title: " "
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND qtype_name in ('AXFR', 'IXFR', 'ANY', 'TXT')\n| sort time \n| group \"Source IP\"=last(src_endpoint.ip), \"Query\"=last(query), Count=count() by \"Qtype\"=qtype_name ,\"Destination IP\"=dst_endpoint.ip\n| sort - Count",
+      title: "Unusual Query Types found",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 11
+  },
+      description: "Unusual Query Types found"
+    },
+    {
+      description: "NXDOMAIN Responses",
+      graphStyle: "number",
+      layout: {
+    h: 8,
+    w: 12,
+    x: 0,
+    y: 25
+  },
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND (rcode_name = 'NXDOMAIN' OR rcode_name = 'NOERROR')\n| group count()",
+      title: "NXDOMAIN Responses",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 18,
+    x: 12,
+    y: 25
+  },
+      markdown: "High rates of DNS NXDOMAIN responses might suggest misconfigured domains, typographical errors in network requests, or malicious activities such as DNS reconnaissance. Close examination is advised to correct configurations or identify security incidents. Review DNS logs for patterns, validate domain configurations, and check endpoint security for signs of malware.",
+      title: " "
+    },
+    {
+      graphStyle: "",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 33
+  },
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND (rcode_name = 'NXDOMAIN' OR rcode_name = 'NOERROR')\n| let query_rejected = (rejected=true) ? \"Yes\" : \"No\"\n| group count=count() by \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Query\"=query, \"Rejected?\"=query_rejected\n| sort - count",
+      title: "Network Evidence for NXDOMAIN Responses",
+      description: "Network Evidence for NXDOMAIN Responses"
+    },
+    {
+      description: "Monitoring DNS Query Response Times > 15ms",
+      graphStyle: "number",
+      layout: {
+    h: 8,
+    w: 12,
+    x: 30,
+    y: 25
+  },
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns'\n| group avg_rtt=average(rtt) by query, dst_endpoint.ip\n| filter avg_rtt > 0.015\n| group count()",
+      title: "Monitoring DNS Query Response Times > 15ms",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 18,
+    x: 42,
+    y: 25
+  },
+      markdown: "Long DNS query response times may indicate network congestion, server performance issues, or potential security threats. Timely analysis is crucial for maintaining optimal network performance and security. Investigate extended response times by examining server configurations, network traffic, and potential external attacks.",
+      title: " "
+    },
+    {
+      description: "Monitoring DNS Query Types by AVG time",
+      graphStyle: "",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 33
+  },
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND _system_name != '' AND query != ''\n| group avg_rtt=average(rtt) by query, dst_endpoint.ip\n| filter avg_rtt > 0.015\n| columns \"Query\"=query, \"Destination IP\"=dst_endpoint.ip, \"Avg. Response Time (ms)\"=avg_rtt",
+      title: "Monitoring DNS Query Types by AVG time"
+    },
+    {
+      description: "Failed DNS Queries",
+      graphStyle: "number",
+      layout: {
+    h: 8,
+    w: 12,
+    x: 0,
+    y: 47
+  },
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND (rcode_name = 'SERVFAIL' OR rcode_name = 'REFUSED' OR rcode_name = 'FORMERR' OR rcode_name = 'NOTIMP' OR rcode_name = 'NOTAUTH')\n| group count()",
+      title: "Failed DNS Queries",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      graphStyle: "markdown",
+      markdown: "Failed DNS queries may point to misconfigurations, outdated systems, or security threats such as network infiltration or DNS poisoning. Analysts should investigate the sources and patterns of these failures to identify and remediate underlying causes, thereby ensuring network integrity and security.",
+      title: " ",
+      layout: {
+    h: 8,
+    w: 18,
+    x: 12,
+    y: 47
+  }
+    },
+    {
+      description: "Network Evidence for Failed DNS Queries",
+      graphStyle: "",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 55
+  },
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND _system_name != '' AND (rcode_name = 'SERVFAIL' OR rcode_name = 'REFUSED' OR rcode_name = 'FORMERR' OR rcode_name = 'NOTIMP' OR rcode_name = 'NOTAUTH')\n| sort time\n| group \"Source IP\"=last(src_endpoint.ip), \"Destination IP\"=last(dst_endpoint.ip), \"Query\"=last(query), Count=count() by \"Response Code\"=rcode_name ",
+      title: "Network Evidence for Failed DNS Queries"
+    },
+    {
+      description: "DNS Query Volume Over Time (MB)",
+      graphStyle: "number",
+      layout: {
+    h: 8,
+    w: 12,
+    x: 30,
+    y: 47
+  },
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='dns'\n| group TotalTraffic=sum(orig_bytes)/(1024*1024)",
+      title: "DNS Query Volume Over Time (MB)",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 18,
+    x: 42,
+    y: 47
+  },
+      markdown: "Failed DNS queries may point to misconfigurations, outdated systems, or security threats such as network infiltration or DNS poisoning. Analysts should investigate the sources and patterns of these failures to identify and remediate underlying causes, thereby ensuring network integrity and security.",
+      title: " "
+    },
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns'\n| group \"count\"=count() by timestamp=timebucket()",
+      title: "Monitoring Query Types by AVG time",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 55
+  }
+    },
+    {
+      description: "DNS Servers Actively Responding to Queries",
+      graphStyle: "",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 11
+  },
+      query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND dst_endpoint.ip = * | columns uid, dst_endpoint.ip, src_endpoint.ip, query),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let Internal = (local_resp = true) ? \"Yes\" : \"No\" | columns uid, Internal) on uid\n| let Country= geo_ip_country(dst_endpoint.ip), NotNullCountry = (Country = null) ? \"Unknown\" : Country\n| group \"no_of_Queries\"=count(query), \"no_of_Unique_Clients\"=estimate_distinct(src_endpoint.ip), Country=array_agg_distinct(NotNullCountry).to_string(), \"Internal\"=array_agg_distinct(Internal).to_string() by \"Destination\"=dst_endpoint.ip\n| sort -no_of_Queries, -no_of_Unique_Clients\n| columns Destination, \"# of Queries\"=no_of_Queries, \"# of Unique Clients\"=no_of_Unique_Clients, Country, Internal",
+      title: "DNS Servers Actively Responding to Queries"
+    }
+  ],
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  filters: [
+    {
+      facet: "_system_name",
+      name: "Sensor"
+    }
+  ],
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}}
+  },
+  {"tabName":"Secure Channel Insights","graphs":[
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl'\n| let match_cipher=cipher contains ('RC4','DES','3DES','MD5','NULL','EXPORT')\n| filter (match_cipher=true OR cipher=null)\n| group estimate_distinct(cipher)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Less Secure Ciphers",
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+    h: 8,
+    w: 13,
+    x: 30,
+    y: 5
+  }
+    },
+    {
+      query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' | let match_cipher=cipher contains ('RC4','DES','3DES','MD5','NULL','EXPORT') | filter (match_cipher=true OR cipher=null) | columns uid, \"dest_ip\"=dst_endpoint.ip, time, cipher),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let host_type= (local_orig=true) ? \"Internal\" : \"External\", direction= (local_orig=true AND local_resp=false) ? \"Outbound\" : \"Inbound\" | columns uid, host_type, direction) on uid\n| sort time\n| group \"dest_ip\"=last(dest_ip), \"Unique_Conn\"=estimate_distinct(uid), \"Host_Type\"=(array_agg_distinct(host_type)).to_string(), \"Direction\"=(array_agg_distinct(direction)).to_string(), \"Count\"=count() by cipher\n| sort -Unique_Conn\n| sort -Count\n| columns \"Cipher\"=cipher, \"Destination IP\"=dest_ip, \"Unique Connections\"=Unique_Conn, \"Host Type\"=Host_Type, Direction, Count",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Less Secure Ciphers Seen in the Period",
+      graphStyle: "",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 13
+  }
+    },
+    {
+      query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' AND src_endpoint.ip=* | columns version, src_endpoint.ip, dst_endpoint.ip, uid),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | columns uid, local_resp, local_orig) on uid\n| group count=count(), local_resp=(array_agg_distinct(local_resp)).to_string(), local_orig=(array_agg_distinct(local_orig)).to_string(), version=(array_agg_distinct(version)).to_string() by src_ip=src_endpoint.ip, dest_ip=dst_endpoint.ip, uid\n| let version_status = (version = 'TLSv13') ? 'Most Secure (v1.3)' : (version = 'TLSv12') ? 'Secure (v1.2)' : (version = 'DTLSv12') ? 'Secure (v1.2)' : (version = 'unknown-64282') ? 'Unknown' : \"Old Version < (v1.2)\", ip_class = (local_resp=\"true\") ? \"Internal\" : \"External\", src_int = (local_orig=\"true\") ? true : false, dest_int = (local_resp=\"true\") ? true : false, connection_type = (src_int=true AND dest_int=false) ? \"Outbound\" : (src_int=false AND dest_int=true) ? \"Inbound\" : (src_int=true AND dest_int=true) ? \"Internal\" : (src_int=false AND dest_int=false) ? \"EEther\" : \"Unknown\"\n| filter !(version_status matches \".*Secure.*\") connection_type=*\n| group \"Counter\"=estimate_distinct(uid), \"Responder_Location\"=(array_agg_distinct(ip_class)).to_string() by \"Version\"=version, \"Classification\"=version_status, \"Traffic Direction\"=connection_type\n| group sum(Counter)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Connections using Less Secure TLS Versions (<TLS1.2)",
+      layout: {
+    h: 8,
+    w: 13,
+    x: 0,
+    y: 27
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' AND src_endpoint.ip=* | columns version, src_endpoint.ip, dst_endpoint.ip, uid),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | columns uid, local_resp, local_orig) on uid\n| group count=count(), local_resp=(array_agg_distinct(local_resp)).to_string(), local_orig=(array_agg_distinct(local_orig)).to_string(), version=(array_agg_distinct(version)).to_string() by src_ip=src_endpoint.ip, dest_ip=dst_endpoint.ip, uid\n| let version_status = (version = 'TLSv13') ? 'Most Secure (v1.3)' : (version = 'TLSv12') ? 'Secure (v1.2)' : (version = 'DTLSv12') ? 'Secure (v1.2)' : (version = 'unknown-64282') ? 'Unknown' : \"Old Version < (v1.2)\", ip_class = (local_resp=\"true\") ? \"Internal\" : \"External\", src_int = (local_orig=\"true\") ? true : false, dest_int = (local_resp=\"true\") ? true : false, connection_type = (src_int=true AND dest_int=false) ? \"Outbound\" : (src_int=false AND dest_int=true) ? \"Inbound\" : (src_int=true AND dest_int=true) ? \"Internal\" : (src_int=false AND dest_int=false) ? \"EEther\" : \"Unknown\"\n| filter connection_type=*\n| group \"Counter\"=estimate_distinct(uid), \"Responder_Location\"=(array_agg_distinct(ip_class)).to_string() by \"Version\"=version, \"Classification\"=version_status, \"Traffic Direction\"=connection_type\n| sort -Counter",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Network Evidence for all TLS Versions Seen",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 35
+  },
+      graphStyle: ""
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| filter expanded_inferences in ('KS', 'AUTO')\n| group estimate_distinct(uid)\n",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Interactive Sessions and Keystrokes",
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+    h: 8,
+    w: 13,
+    x: 30,
+    y: 27
+  }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences=stoa_inferences.expand()\n| filter expanded_inferences in ('KS', 'AUTO')\n| lookup Description from ssh_inference_lookup.csv by inferences=expanded_inferences\n| group \"Count\"=count() by \"UID\"=uid, \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Inference\"=expanded_inferences, Description",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Network Evidence for Interactive Sessions and Keystrokes - SSH Inferences",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 35
+  },
+      graphStyle: ""
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=inferences.extract_matches('[a-z]+'), expanded_inferences= stoa_inferences.expand()\n| filter expanded_inferences in ('SFD', 'LFD', 'SFU', 'LFU')\n| group estimate_distinct(uid)\n",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Possible File Uploaded",
+      layout: {
+    h: 8,
+    w: 13,
+    x: 30,
+    y: 49
+  },
+      graphStyle: "number"
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| filter expanded_inferences in ('SFD', 'LFD', 'SFU', 'LFU')\n| lookup Description from ssh_inference_lookup.csv by inferences=expanded_inferences\n| group \"Count\"=count() by \"UID\"=uid, \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Inferences\"=expanded_inferences, Description",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Possible File Transfer",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 57
+  },
+      graphStyle: ""
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences=stoa_inferences.expand()\n| filter expanded_inferences in ('SC', 'SP', 'SV', 'SA', 'AFR', 'BAN')\n| group \"Count\"=count() by \"UID\"=uid, \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Inferences\"=expanded_inferences",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "SSH Inferences for Potential Security Risks",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 79
+  },
+      graphStyle: ""
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences=stoa_inferences.expand()\n| filter expanded_inferences in ('SC', 'SP', 'SV', 'SA', 'AFR', 'BAN')\n| group \"Count\"=count() by uid, \"src_ip\"=src_endpoint.ip, \"dest_ip\"=dst_endpoint.ip, \"Inferences\"=expanded_inferences\n| group count()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Potential Security Risks",
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+    h: 8,
+    w: 13,
+    x: 30,
+    y: 71
+  }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| filter expanded_inferences in ('PKA', 'AUTO', 'KS', 'CTS')\n| group estimate_distinct(uid)",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Automated SSH Session Indicators",
+      layout: {
+    h: 8,
+    w: 13,
+    x: 0,
+    y: 93
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences=stoa_inferences.expand()\n| filter expanded_inferences in ('PKA', 'AUTO', 'KS', 'CTS')\n| lookup Description from ssh_inference_lookup.csv by inferences=expanded_inferences\n| group \"Source IP\"=(array_agg_distinct(src_endpoint.ip)).to_string(), \"Destination IP\"=(array_agg_distinct(dst_endpoint.ip)).to_string(), \"Inferences\"=(array_agg_distinct(expanded_inferences)).to_string(), \"Description\"=(array_agg_distinct(Description)).to_string(), \"Count\"=count() by uid",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "SSH Session Inferences ",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 101
+  },
+      graphStyle: ""
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| filter expanded_inferences in ('ABP', 'RSP', 'RSI', 'RSIA', 'RSL', 'RSK')\n| group estimate_distinct(uid)\n",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Advance Threat Indicators",
+      graphStyle: "number",
+      layout: {
+    h: 8,
+    w: 13,
+    x: 30,
+    y: 93
+  },
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences=stoa_inferences.expand()\n| filter expanded_inferences in ('ABP', 'RSP', 'RSI', 'RSIA', 'RSL', 'RSK')\n| lookup Description from ssh_inference_lookup.csv by inferences=expanded_inferences\n| group \"Count\"=count() by \"UID\"=uid, \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Inferences\"=expanded_inferences, Description",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "SSH Advance Threat Inferences",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 101
+  },
+      graphStyle: ""
+    },
+    {
+      query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' AND validation_status='self signed certificate' | columns \"Subject\"=server_name, \"Destination\"=dst_endpoint.ip, \"Status\"=validation_status, uid),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND local_resp=true | let \"Source_Host_Type\"= (local_orig=true) ? \"Internal\" : (local_orig=false) ? \"External\" : \"Undefined\", \"Destination_Host_Type\"= (local_resp=true) ? \"Internal\" : (local_resp=false) ? \"External\" : \"Undefined\", \"Traffic_Direction\"= (Source_Host_Type=\"Internal\" AND Destination_Host_Type=\"External\") ? \"Outbound\" : (Source_Host_Type=\"External\" AND Destination_Host_Type=\"Internal\") ? \"Inbound\" : (Source_Host_Type=\"Internal\" AND Destination_Host_Type=\"Internal\") ? \"East-West\" : (Source_Host_Type=\"External\" AND Destination_Host_Type=\"External\") ? \"Outbound\" : \"Undefined\" | columns Destination_Host_Type, Traffic_Direction, uid) on uid\n| filter Subject=*\n| group \"Status\"=(array_agg_distinct(Status)).to_string(), \"Destination_Host_Type\"=(array_agg_distinct(Destination_Host_Type)).to_string(), \"Traffic_Direction\"=(array_agg_distinct(Traffic_Direction)).to_string() by Subject, Destination\n| group count()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Self Signed Certs",
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+    h: 8,
+    w: 13,
+    x: 0,
+    y: 49
+  }
+    },
+    {
+      query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' AND validation_status='self signed certificate' | columns \"Subject\"=server_name, \"Destination\"=dst_endpoint.ip, \"Status\"=validation_status, uid),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND local_resp=true | let \"Source_Host_Type\"= (local_orig=true) ? \"Internal\" : (local_orig=false) ? \"External\" : \"Undefined\", \"Destination_Host_Type\"= (local_resp=true) ? \"Internal\" : (local_resp=false) ? \"External\" : \"Undefined\", \"Traffic_Direction\"= (Source_Host_Type=\"Internal\" AND Destination_Host_Type=\"External\") ? \"Outbound\" : (Source_Host_Type=\"External\" AND Destination_Host_Type=\"Internal\") ? \"Inbound\" : (Source_Host_Type=\"Internal\" AND Destination_Host_Type=\"Internal\") ? \"East-West\" : (Source_Host_Type=\"External\" AND Destination_Host_Type=\"External\") ? \"Outbound\" : \"Undefined\" | columns Destination_Host_Type, Traffic_Direction, uid) on uid\n| filter Subject=*\n| group \"Status\"=(array_agg_distinct(Status)).to_string(), \"Destination Host Type\"=(array_agg_distinct(Destination_Host_Type)).to_string(), \"Traffic Direction\"=(array_agg_distinct(Traffic_Direction)).to_string() by Subject, Destination",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Network Evidence for Self Signed Internal Certificates",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 57
+  },
+      graphStyle: ""
+    },
+    {
+      query: "| join\n(| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509' AND certificate.key_length < 2048 | columns match_fingerprint=fingerprint, key_length=certificate.key_length),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' | let cert_chain_fps = cert_chain_fps.extract_matches('[0-9A-Z]+'), match_fingerprint=cert_chain_fps.expand() | columns uid, match_fingerprint, src_ip=src_endpoint.ip, dest_ip=dst_endpoint.ip, dest_port=dst_endpoint.port, server_name) on match_fingerprint),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let \"Host_Type\" = (local_resp=true) ? \"Internal\" : \"External\" | filter Host_Type = \"Internal\" | columns uid, Host_Type) on uid\n| group \"Count\"=count() by \"Server Name\"=server_name, \"Destination IP\"=dest_ip, \"Destination Port\"=dest_port, \"Key Length\"=key_length, \"Host Type\"=Host_Type",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Network Evidence for Weak Key Length Certs",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 13
+  },
+      graphStyle: ""
+    },
+    {
+      query: "| join\n(| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509' AND certificate.key_length < 2048 | columns match_fingerprint=fingerprint, key_length=certificate.key_length),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' | let cert_chain_fps = cert_chain_fps.extract_matches('[0-9A-Z]+'), match_fingerprint=cert_chain_fps.expand() | columns uid, match_fingerprint, src_ip=src_endpoint.ip, dest_ip=dst_endpoint.ip, dest_port=dst_endpoint.port, server_name) on match_fingerprint),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let \"Host_Type\" = (local_resp=true) ? \"Internal\" : \"External\" | filter Host_Type = \"Internal\" | columns uid, Host_Type) on uid\n| group \"Count\"=count() by \"Server Name\"=server_name, \"Destination IP\"=dest_ip, \"Destination Port\"=dest_port, \"Key Length\"=key_length, \"Host Type\"=Host_Type\n| group count()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Weak Certs. Used Internally",
+      layout: {
+    h: 8,
+    w: 13,
+    x: 0,
+    y: 5
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      query: "| join\n(| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' | let cert_chain_fps = cert_chain_fps.extract_matches('[0-9A-Z]+'), match_fingerprint=cert_chain_fps.expand() | columns uid, match_fingerprint, dest_ip=dst_endpoint.ip, dest_port=dst_endpoint.port),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509' | let not_valid_after_epoch = strptime(certificate.not_valid_after, \"%Y-%m-%dT%H:%M:%S.000000Z\"),  current_time_epoch = now(), days_to_expire = ((not_valid_after_epoch - current_time_epoch) / (86400 * 1000 * 1000 * 1000)) | filter days_to_expire < 30 days_to_expire > 0 | columns not_valid_after=certificate.not_valid_after, match_fingerprint=fingerprint, days_to_expire, subject=certificate.subject) on match_fingerprint),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND local_resp=true | columns uid) on uid\n| group Destination_Port=(array_agg_distinct(dest_port)).to_string(), Not_Valid_After=(array_agg_distinct(not_valid_after)).to_string(), Days_to_Expire=(array_agg_distinct(days_to_expire)).to_string() by Subject=subject, Destination_IP=dest_ip\n| sort -Days_to_Expire\n| columns Subject, \"Destination IP\"=Destination_IP, \"Destination Port\"=Destination_Port, \"Not Valid After\"=Not_Valid_After, \"Days to Expire\"=Days_to_Expire",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Network Evidence for Self Signed Internal Certificates",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 79
+  },
+      graphStyle: ""
+    },
+    {
+      query: "| join\n(| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' | let cert_chain_fps = cert_chain_fps.extract_matches('[0-9A-Z]+'), match_fingerprint=cert_chain_fps.expand() | columns uid, match_fingerprint, dest_ip=dst_endpoint.ip, dest_port=dst_endpoint.port),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509' | let not_valid_after_epoch = strptime(certificate.not_valid_after, \"%Y-%m-%dT%H:%M:%S.000000Z\"),  current_time_epoch = now(), days_to_expire = ((not_valid_after_epoch - current_time_epoch) / (86400 * 1000 * 1000 * 1000)) | filter days_to_expire < 30 days_to_expire > 0 | columns not_valid_after=certificate.not_valid_after, match_fingerprint=fingerprint, days_to_expire, subject=certificate.subject) on match_fingerprint),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND local_resp=true | columns uid) on uid\n| group \"Port\"=(array_agg_distinct(dest_port)).to_string(), \"Not Valid After\"=(array_agg_distinct(not_valid_after)).to_string(), \"Days to Expire\"=(array_agg_distinct(days_to_expire)).to_string() by \"Subject\"=subject, \"Host\"=dest_ip\n| sort -\"Days to Expire\"\n| group count()",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Certificates About to Expire",
+      layout: {
+    h: 8,
+    w: 13,
+    x: 0,
+    y: 71
+  },
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      graphStyle: "markdown",
+      markdown: "SSL/TLS sessions utilizing weak keys are vulnerable to cryptographic attacks. This traffic may indicate the presence of old and/or unpatched resources on the network. It could also be the result of a successful downgrade attack.",
+      title: " ",
+      layout: {
+    h: 8,
+    w: 17,
+    x: 13,
+    y: 5
+  }
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 17,
+    x: 43,
+    y: 5
+  },
+      markdown: "SSL/TLS sessions utilizing weak cipher suites (eg. RC4) are easily decrypted. This traffic may indicate the presence of old and/or unpatched resources on the network. It could also be the result of a successful downgrade attack.",
+      title: " "
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 17,
+    x: 43,
+    y: 27
+  },
+      markdown: "Highlight interactive sessions (KS) and automated interactions (AUTO) to understand the nature of SSH traffic \u2014 manual vs. automated.",
+      title: " "
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 17,
+    x: 13,
+    y: 27
+  },
+      markdown: "Connections employing TLS versions older than 1.2 are recognized as less secure, presenting a higher risk of being compromised. These outdated protocols may indicate legacy systems with configurations that are not aligned with modern security standards.",
+      title: " "
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 17,
+    x: 13,
+    y: 49
+  },
+      markdown: "This dashboard panel identifies self-signed certificates in use within internal networks, highlighting a key security concern due to their lack of third-party validation. Addressing this issue by transitioning to certificates from trusted authorities enhances network security and trustworthiness.",
+      title: " "
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 17,
+    x: 43,
+    y: 49
+  },
+      markdown: "This use case tracks SSH file transfer activity (inferences SFD, LFD, SFU, LFU). It uncovers potential data exfiltration by attackers or the introduction of malicious files. Focus on file names, sizes, unusual source IPs, and sensitive destination systems.",
+      title: " "
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 17,
+    x: 13,
+    y: 71
+  },
+      markdown: "A SSL certificate that is about to expire (default window is 30 days) was observed. Expiration of an SSL certificate may result in unexpected behaviour such as refused network connections or unencrypted network traffic.",
+      title: " "
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 17,
+    x: 43,
+    y: 71
+  },
+      markdown: "Monitors for signs of scanning (SC, SP, SV, SA), banner messages (BAN), and agent forwarding (AFR) for compliance and security risk identification.",
+      title: " "
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 17,
+    x: 13,
+    y: 93
+  },
+      markdown: "Tracks automated SSH sessions to enhance security and operational efficiency, highlighting potential risks and compliance issues. It identifies anomalies and unauthorized activities, ensuring that automation tools are used securely and efficiently. This tool is crucial for SOC analysts to monitor for security breaches and optimize system management.",
+      title: " "
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 8,
+    w: 17,
+    x: 43,
+    y: 93
+  },
+      markdown: " Helps to identify potential advanced threat indicators such as Client Authentication Bypass (ABP) and Reverse SSH tunneling activities (RSP, RSI, RSIA, RSL, RSK) for in-depth investigation.",
+      title: " "
+    },
+    {
+      graphStyle: "markdown",
+      markdown: " ",
+      title: "Encrypted Traffic Notables",
+      layout: {
+    h: 5,
+    w: 44,
+    x: 0,
+    y: 0
+  }
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 5,
+    w: 16,
+    x: 44,
+    y: 0
+  },
+      markdown: " [**More Info**](/dashboards/Security%20Workflows?activeTab=SSH+Inferences+Overview)",
+      title: "For Further Investigations -- SSH Inferences"
+    }
+  ],
+  filters: [
+    {
+      facet: "_system_name",
+      name: "Sensor"
+    },
+  ],
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}}
+  },
+  {"tabName":"Remote Activity Insights","graphs":[
+    {
+      graphStyle: "markdown",
+      layout: {
+  h: 5,
+  w: 39,
+  x: 0,
+  y: 0
+  },
+      title: "Remote Access Hygiene"
+    },
+    {
+      description: "",
+      graphStyle: "markdown",
+      layout: {
+    h: 5,
+    w: 21,
+    x: 39,
+    y: 0
+  },
+      markdown: "[**More Info**](/dashboards/Security%20Workflows?activeTab=RDP+Inferences+Overview)",
+      title: "For Further Investigations -- RDP Inferences   →"
+    },
+    {
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp'\n| let action = ( result=\"Success\") ? \"success\" :  (result=\"SSL_NOT_ALLOWED_BY_SERVER\") ? \"failure\" : (auth_success=true) ? \"success\" : (auth_success=false) ? \"failure\" :  \"unknown\" \n| filter action != \"unknown\"\n| group count()",
+      title: "RDP Authentication Attempts",
+      layout: {
+    h: 9,
+    w: 13,
+    x: 0,
+    y: 5
+  },
+      description: "Total count of RDP success and failed actions within the specified time.",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      graphStyle: "markdown",
+      markdown: "Monitoring RDP authentications is crucial for identifying unauthorized access and distinguishing between successful and failed login attempts. Security teams should analyze trends and cross-reference user activity for rapid response and mitigation.",
+      layout: {
+    h: 9,
+    w: 17,
+    x: 13,
+    y: 5
+  },
+      title: " "
+    ,
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 9,
+    w: 17,
+    x: 43,
+    y: 5
+  },
+      markdown: "Monitoring failed RDP logins is essential for detecting unauthorized access attempts. Security teams should analyze patterns of failed entries against user and IP data to identify potential breaches. This focus helps in quickly addressing vulnerabilities in RDP security. Effective monitoring of these incidents is crucial for maintaining system integrity.",
+      title: " "
+    ,
+    },
+    {
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp' AND (result==\"SSL_NOT_ALLOWED_BY_SERVER\" OR auth_success=false) AND cookie=*\n| group estimate_distinct(cookie)",
+      title: "Identifying Failed RDP Logins",
+      layout: {
+    h: 9,
+    w: 13,
+    x: 30,
+    y: 5
+  },
+      description: "Total count of users with login failures within the specified time.",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp' AND (result==\"SSL_NOT_ALLOWED_BY_SERVER\" OR auth_success=false) AND cookie=*\n| group \"Source_IP\"=(array_agg_distinct(src_endpoint.ip)).to_string(), \"Destination_IP\"=(array_agg_distinct(dst_endpoint.ip)).to_string(), \"Auth_Success\"=(array_agg_distinct(auth_success)).to_string(), \"Result\"=(array_agg_distinct(result)).to_string(), \"count\"=count() by \"User\"=cookie\n| filter count> 0\n| sort -count\n| columns \"User\"=User, \"Source IP\"=Source_IP, \"Destination IP\"=Destination_IP, \"Auth Success?\"=Auth_Success, \"Result\"=Result, count",
+      title: "Table - Identify Failed RDP Logins",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 14
+  }
+    ,
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 5,
+    w: 39,
+    x: 0,
+    y: 28
+  },
+      title: "VPN Insights",
+    },
+    {
+      description: "Secure Channel Insights Statistics.",
+      graphStyle: "markdown",
+      layout: {
+    h: 5,
+    w: 21,
+    x: 39,
+    y: 28
+  },
+      markdown: "[**More Info**](/dashboards/Security%20Workflows?activeTab=VPN+Insights)",
+      title: "For Further Investigations -- VPN Inferences"
+    },
+    {
+      description: "Total count of VPN connections that have the following inferences NSP - Non-Standard Port RW - Road warrior configuration detected (i.e. Cisco Anyconnect) COM - Commercial VPN service occurring at the same time which is deemed suspicious.",
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn'\n| filter inferences contains ('COM') inferences contains ('NSP') inferences contains ('RW')\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| group count=count() by src_endpoint.ip, dst_endpoint.ip, inferences=expanded_inferences, vpn_type\n| sort -count| filter count > 0\n| group count()",
+      title: "Unusual Remote Activity",
+      layout: {
+    h: 10,
+    w: 13,
+    x: 0,
+    y: 33
+  },
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      graphStyle: "markdown",
+      markdown: "The combination of the \"COM\", \"RW\", and \"NSP\" inferences in a single VPN connection raises questions: Policy Violation: Is the use of commercial VPNs allowed in your organization's security policy? If not, this could indicate a violation. Hidden Activity: Is the non-standard port usage an attempt to mask other activities happening over the VPN tunnel?",
+      title: " ",
+      layout: {
+    h: 10,
+    w: 17,
+    x: 13,
+    y: 33
+  }
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn'\n| filter inferences contains ('COM') inferences contains ('NSP') inferences contains ('RW')\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| group Count=count() by \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Inferences\"=expanded_inferences, \"VPN Type\"=vpn_type\n| filter Count > 0",
+      title: "Table - Unusual Remote Activity",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 43
+  }
+    },
+    {
+      description: "Total count of VPN connections that have the following inferences NSP - Non-Standard Port RW - Road warrior configuration detected (i.e. Cisco Anyconnect) COM - Commercial VPN service occurring at the same time which is deemed suspicious.",
+      graphStyle: "number",
+      layout: {
+    h: 10,
+    w: 13,
+    x: 30,
+    y: 33
+  },
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn'\n| let stoa_inferences=inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| filter expanded_inferences in ('COM', 'NSP', 'SK')\n| group array_agg_distinct(expanded_inferences).to_string(), array_agg_distinct(resp_cc).to_string(), array_agg_distinct(vpn_type).to_string(), count=count() by src_endpoint.ip, dst_endpoint.ip\n| filter count>0\n| group count()",
+      title: "Suspected Data Exfiltration",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+    h: 10,
+    w: 17,
+    x: 43,
+    y: 33
+  },
+      markdown: "Unmonitored commercial VPNs with atypical traffic patterns or static keys could be used to bypass security controls for data theft.\n\nInvestigate: Examine VPN sessions with large outgoing transfers, focusing on unusual destinations or protocols.",
+      title: " "
+    },
+    {
+      graphStyle: "",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 30,
+    y: 43
+  },
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn'\n| filter inferences contains ('COM', 'NSP', 'SK')\n| group \"Inferences\"=((array_agg_distinct(inferences).to_string()).extract_matches('[A-Z]+')).distinct().to_string(), \"Responder Country\"=array_agg_distinct(resp_cc).to_string(), \"VPN Type\"=array_agg_distinct(vpn_type).to_string(), count=count() by \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip",
+      title: "Table - Suspected Data Exfilitration"
+    },
+    {
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn'\n| filter inferences contains ('RW', 'FW')\n| group estimate_distinct(uid)",
+      title: "Possible Unauthorized Remote Access Attempts",
+      description: "Total count of VPN connections that are using the RW- Road warrior configuration detected (i.e. Cisco Anyconnect) and FW - Firewall subversion inferences",
+      layout: {
+    h: 10,
+    w: 13,
+    x: 0,
+    y: 57
+  },
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
+    },
+    {
+      graphStyle: "markdown",
+      markdown: "Monitoring for \"RW\" (Road Warrior) and \"FW\" (Firewall subversion) inferences is crucial for detecting potential unauthorized access, as these patterns may indicate attempts to bypass security controls. Security teams should prioritize correlating these inferences with internal IP ranges and device logs to identify suspicious activities.",
+      title: " ",
+      layout: {
+    h: 10,
+    w: 17,
+    x: 13,
+    y: 57
+  }
+    },
+    {
+      graphStyle: "",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 67
+  },
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn'\n| filter inferences contains ('RW', 'FW')\n| group src_ip=array_agg_distinct(src_endpoint.ip).to_string(), dest_ip=array_agg_distinct(dst_endpoint.ip).to_string(), proto=array_agg_distinct(proto).to_string(), inferences=((array_agg_distinct(inferences).to_string()).extract_matches('[A-Z]+')).distinct().to_string(), dest_port=array_agg_distinct(dst_endpoint.port).to_string(), orig_bytes=array_agg_distinct(orig_bytes).to_string(), Count=count() by uid\n| filter Count > 0\n| columns \"Source IP\"=src_ip, \"Destination IP\"=dest_ip, \"Proto\"=proto, \"Inferences\"=inferences, \"Dest Port\"=dest_port, \"Bytes\"=orig_bytes, Count",
+      title: "Table - Possible Unauthorized Remote Access"
+    },
+    {
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp'\n| let action = ( result=\"Success\") ? \"success\" :  (result=\"SSL_NOT_ALLOWED_BY_SERVER\") ? \"failure\" : (auth_success=true) ? \"success\" : (auth_success=false) ? \"failure\" :  \"unknown\"\n| filter action != 'unknown'\n| group count() by timestamp=timebucket(), action\n| transpose action on timestamp ",
+      teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+      title: "Failed vs Success Authentications",
+      yScale: "linear",
+      layout: {
+    h: 14,
+    w: 30,
+    x: 0,
+    y: 14
+  }
+    },
+  ],
+  filters: [
+    {
+      facet: "_system_name",
+      name: "Sensor"
+    }
+  ],
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}},
+  options: {layout: {locked: 0}},
+  options: {layout: {locked: 1}}
+  }],
+    configType: "TABBED"
+  }
