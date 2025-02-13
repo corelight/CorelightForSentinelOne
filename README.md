@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/3a2903d2-400f-4e6a-9f0a-db6c09c3219f)# SentinelOne
+# SentinelOne
 
 ## Overview
 
