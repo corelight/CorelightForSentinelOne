@@ -8,38 +8,14 @@ This guide will help you set up and utilize SentinelOne Dashboards, which offer 
 ## Installation and Configuration
 
 ### Parser Configuration
-#### Installing Parsers through Marketplace
 
-For parser configuration in SentinelOne Singularity Operations Centre, head over to the SentinelOne Singularity Marketplace (Link: TBD) for installing the related log parsers.
+### Installing Parsers through Marketplace
 
-Steps for installing the parsers from SentinelOne Singularity Marketplace:
-
-**Step 1:** Navigate to the Singularity Operations Center and click on the Marketplace.
-
-![image](https://github.com/user-attachments/assets/36b68d3b-0946-41d8-9866-71f6032fc0eb)
-
-**Step 2:** In the catalog section search bar, enter "Corelight".
-
-![image](https://github.com/user-attachments/assets/47b93924-5960-4cec-87e8-cbdfe15f16c7)
-
-**Step 3:** Locate the "Corelight Zeek Network Security Monitor" and click on it to view the available parsers under Available Integrations Section.
-
-![image](https://github.com/user-attachments/assets/e3ba4373-7333-43bd-a23d-b8d1e0ab45fe)
-
-![image](https://github.com/user-attachments/assets/9231f6f2-6365-4745-8b8a-97156b29c068)
-
-**Step 4:** Select the parser you want to install, then click on the settings icon.
-
-![image](https://github.com/user-attachments/assets/010355bb-a0d0-4fcb-ad73-471366f5ca09)
-
-**Step 5:** Choose the site where you want to configure the parser, then click Install. Once installed, the parser will appear under the All Available Scopes section.
-
-![image](https://github.com/user-attachments/assets/e18e6963-13b7-49ee-a7c7-70afe29630b4)
-
+### -- TBD --
 
 ### Installing Parsers through Github Repository
 
-**Note: To install the parsers, follow these steps if you prefer to use the GitHub repository for installation.**
+**Note: To install the parsers, follow these steps if you prefer to use the GitHub repository for installation instead of marketplace.**
 
 For installing the parsers through github repository, please follow the below steps:
 
@@ -73,7 +49,7 @@ For installing the parsers through github repository, please follow the below st
 
 ### Data Collection
 
-To ingest data into SentinelOne Singularity Data Lake, please follow the steps outlined here [Data Ingestion Link](https://usea1-partners.sentinelone.net/soc-docs/en/corelight-zeek-network-security-parser-integration-with-sentinelone.html#UUID-003efba2-ff13-6da7-bbab-ff748e9dcc64_procedure-idm4614294338187234255161784624)
+To ingest data into SentinelOne Singularity Data Lake, follow the steps provided in the SentinelOne documentation under (Singularity Marketplace → Marketplace Ingestion Integrations → Corelight Zeek Network Security Parser Integration with SentinelOne).
 
 ### Configure Lookup Files
 For populating dashboards, we need some of the configurations files (i.e Lookup files), which we need to add.
