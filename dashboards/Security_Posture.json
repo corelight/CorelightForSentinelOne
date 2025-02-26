@@ -663,58 +663,129 @@ graphs : [
       title: "Suricata Aggregations",
       layout: {
   h: 6,
+  i: "44",
+  minH: 3,
+  minW: 6,
   w: 15,
   x: 0,
   y: 3
-}
+},
+      graphStyle: "number",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
     },
     {
       query: "| union \n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_1.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_2.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_3.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_4.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_5.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_6.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_7.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_8.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_9.csv by sid=signature_id),\n( | union\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_10.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_11.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_12.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_13.csv by sid=signature_id)\n)\n| filter sid=* number(impact_score) > 3\n| group estimate_distinct(technique_number)",
       teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
       title: "MITRE Techniques",
-      graphStyle: "",
+      graphStyle: "number",
       layout: {
   h: 6,
+  i: "45",
+  minH: 3,
+  minW: 6,
   w: 15,
   x: 15,
   y: 3
-}
+},
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
     },
     {
       query: "| union \n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_1.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_2.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_3.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_4.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_5.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_6.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_7.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_8.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_9.csv by sid=signature_id),\n( | union\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_10.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_11.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_12.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_13.csv by sid=signature_id)\n)\n| filter sid=* number(impact_score) > 3\n| group max(number(impact_score))",
       teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
       title: "Highest Score",
-      graphStyle: "",
+      graphStyle: "number",
       layout: {
   h: 6,
+  i: "46",
+  minH: 3,
+  minW: 6,
   w: 15,
   x: 30,
   y: 3
-}
+},
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
     },
     {
       query: "| union \n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_1.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_2.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_3.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_4.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_5.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_6.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_7.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_8.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_9.csv by sid=signature_id),\n( | union\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_10.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_11.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_12.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_13.csv by sid=signature_id)\n)\n| filter sid=* cve_number=* cve_number != '' number(impact_score) > 3\n| group sids=array_agg_distinct(sid) by uid\n| group count()",
       teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
       title: "With CVEs",
-      graphStyle: "",
+      graphStyle: "number",
       layout: {
   h: 6,
+  i: "47",
+  minH: 3,
+  minW: 6,
   w: 15,
   x: 45,
   y: 3
-}
+},
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
     },
     {
       query: "| join\n(metadata.product.vendor_name='Corelight' AND metadata.log_name=\"conn\" AND local_resp=true | columns uid),\n(| union \n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_1.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_2.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_3.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_4.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_5.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_6.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_7.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_8.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_9.csv by sid=signature_id),\n( | union\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_10.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_11.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_12.csv by sid=signature_id),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_13.csv by sid=signature_id)\n)\n| filter sid=* number(impact_score) > 3\n| group count() by uid\n| columns uid) on uid\n| group count()",
       teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
       title: "Int. Hosts Affected",
-      graphStyle: "",
+      graphStyle: "number",
       layout: {
   h: 6,
+  i: "48",
+  minH: 3,
+  minW: 6,
   w: 12,
   x: 48,
   y: 20
-}
+},
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      }
     },
     {
       graphStyle: "line",
@@ -1080,7 +1151,8 @@ filters: [
 ],
 options: {layout: {locked: 0}},
 options: {layout: {locked: 1}},
-options: {layout: {locked: 0}}
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}}
 },
 {"tabName":"Secure Channel Insights","graphs":[
   {

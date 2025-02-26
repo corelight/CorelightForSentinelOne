@@ -299,14 +299,14 @@ y: 0
 }
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice' AND severity.level=* AND note=* AND dst_endpoint.port=*\n| let pp=proto + \"/\"+ dst_endpoint.port, severity_display= severity.name + \" (\" + severity.level + \")\"\n| group \"Protocol/Port\"=array_agg_distinct(pp).to_string() by \"Notes\"=note, \"Severity\"=severity_display\n| limit 100000",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice' AND severity.level=* AND note=* AND p=*\n| let pp=proto + \"/\"+ p, severity_display= severity.name + \" (\" + severity.level + \")\"\n| group \"Protocol/Port\"=array_agg_distinct(pp).to_string() by \"Notes\"=note, \"Severity\"=severity_display\n| limit 100000",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Notice Details",
     layout: {
-  h: 14,
-  w: 60,
-  x: 0,
-  y: 14
+h: 14,
+w: 60,
+x: 0,
+y: 14
 },
     graphStyle: ""
   },
