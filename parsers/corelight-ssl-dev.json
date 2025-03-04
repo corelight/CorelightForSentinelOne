@@ -62,6 +62,16 @@
             match: ".*",
             replace: "$0"
           }, {
+            input: "id.orig_ep_ostype",
+            output: "endpoint.os",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "id.orig_ep_type",
+            output: "endpoint.type",
+            match: ".*",
+            replace: "$0"
+          }, {
             input: "id.orig_h",
             output: "src_endpoint.ip",
             match: ".*",
@@ -112,70 +122,25 @@
             match: ".*",
             replace: "$0"
           }, {
-            input: "version",
-            output: "tls.version",
+            input: "id.orig_ep_type",
+            output: "src_endpoint.type",
             match: ".*",
             replace: "$0"
           }, {
-            input: "cipher",
-            output: "tls.cipher",
+            input: "id.orig_ep_ostype",
+            output: "src_endpoint.os",
             match: ".*",
             replace: "$0"
           }, {
-            input: "server_name",
-            output: "tls.sni",
+            input: "id.resp_ep_type",
+            output: "dst_endpoint.type",
             match: ".*",
             replace: "$0"
           }, {
-            input: "established",
-            output: "activity_id",
+            input: "id.resp_ep_ostype",
+            output: "dst_endpoint.os",
             match: ".*",
-            replace: 0
-          }, {
-            input: "established",
-            output: "activity_id",
-            match: "true",
-            replace: 1
-          }, {
-            input: "subject",
-            output: "tls.certificate.subject",
-            match: "true",
-            replace: "1"
-          }, {
-            input: "issuer",
-            output: "tls.certificate.issuer",
-            match: "true",
-            replace: "1"
-          }, {
-            input: "cert_chain_fps",
-            output: "tls.certificate.fingerprints[0].value",
-            match: "true",
-            replace: "1"
-          }, {
-            input: "cert_chain_fps",
-            output: "tls.certificate.fingerprints[0].algorithm_id",
-            match: ".*",
-            replace: 99
-          }, {
-            input: "ja3",
-            output: "tls.ja3_hash.algorithm_id",
-            match: ".*",
-            replace: 1
-          }, {
-            input: "ja3",
-            output: "tls.ja3_hash.value",
-            match: "true",
-            replace: "1"
-          }, {
-            input: "ja3",
-            output: "tls.ja3s_hash.algorithm_id",
-            match: ".*",
-            replace: 1
-          }, {
-            input: "ja3s",
-            output: "tls.ja3s_hash.value",
-            match: "true",
-            replace: "1"
+            replace: "$0"
           }
         ]
       }

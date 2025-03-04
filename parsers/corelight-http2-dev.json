@@ -12,7 +12,6 @@
       "metadata.product.name": "Corelight",
       "metadata.product.vendor_name": "Corelight",
       "metadata.version": "1.1.0",
-      //"metadata.log_name": "http",
       "app_name": "Corelight",
       "activity_id": 0
     },

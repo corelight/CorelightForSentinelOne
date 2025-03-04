@@ -61,6 +61,16 @@
           match: ".*",
           replace: "$0"
         }, {
+          input: "id.orig_ep_ostype",
+          output: "endpoint.os",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.orig_ep_type",
+          output: "endpoint.type",
+          match: ".*",
+          replace: "$0"
+        }, {
           input: "id.orig_h",
           output: "src_endpoint.ip",
           match: ".*",
@@ -108,6 +118,26 @@
         }, {
           input: "id.inner_vlan",
           output: "src_endpoint.vlan_uid",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.orig_ep_type",
+          output: "src_endpoint.type",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.orig_ep_ostype",
+          output: "src_endpoint.os",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.resp_ep_type",
+          output: "dst_endpoint.type",
+          match: ".*",
+          replace: "$0"
+        }, {
+          input: "id.resp_ep_ostype",
+          output: "dst_endpoint.os",
           match: ".*",
           replace: "$0"
         }
