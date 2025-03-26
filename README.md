@@ -9,15 +9,15 @@ This guide will help you set up and utilize SentinelOne Dashboards, which offer 
 
 ### Parser Configuration
 
-### Installing Parsers through Marketplace
+#### Installing Parsers through Marketplace
 
-### -- TBD --
+-- TBD --
 
-### Installing Parsers through Github Repository
 
-**Note: To install the parsers, follow these steps if you prefer to use the GitHub repository for installation instead of marketplace.**
+#### Installing Parsers through Github Repository
 
-For installing the parsers through github repository, please follow the below steps:
+**Note:** Follow these steps if you prefer to use the GitHub repository for installation instead of [marketplace](https://github.com/corelight/CorelightForSentinelOne/edit/main/README.md#installing-parsers-through-marketplace). If you have already installed the parsers, please skip these steps.
+
 
 **Step 1:** In the Singularity Operations Center, go to Policy and Settings Section from the bottom left corner.
 
