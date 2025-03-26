@@ -9,15 +9,15 @@ This guide will help you set up and utilize SentinelOne Dashboards, which offer 
 
 ### Parser Configuration
 
-### Installing Parsers through Marketplace
+#### Installing Parsers through Marketplace
 
-### -- TBD --
+-- TBD --
 
-### Installing Parsers through Github Repository
 
-**Note: To install the parsers, follow these steps if you prefer to use the GitHub repository for installation instead of marketplace.**
+#### Installing Parsers through Github Repository
 
-For installing the parsers through github repository, please follow the below steps:
+**Note:** Follow these steps if you prefer to use the GitHub repository for installation instead of [marketplace](https://github.com/corelight/CorelightForSentinelOne/blob/main/README.md#installing-parsers-through-marketplace). If you have already installed the parsers, please skip these steps.
+
 
 **Step 1:** In the Singularity Operations Center, go to Policy and Settings Section from the bottom left corner.
 
@@ -51,7 +51,7 @@ For installing the parsers through github repository, please follow the below st
 
 To ingest data into SentinelOne Singularity Data Lake, follow the steps provided in the SentinelOne documentation under (Singularity Marketplace → Marketplace Ingestion Integrations → Corelight Zeek Network Security Parser Integration with SentinelOne).
 
-**Note:** If you are installing the parsers from [GitHub repo](https://github.com/corelight/CorelightForSentinelOne/blob/main/README.md#installing-parsers-through-github-repository) make sure to update the sourcetype template as **corelight-$LOG-dev**
+**Note:** If you are installing the parsers from [GitHub repo](https://github.com/corelight/CorelightForSentinelOne/blob/main/README.md#installing-parsers-through-github-repository) make sure to update the sourcetype template as **"corelight-$LOG-dev"**
 
 ### Configure Lookup Files
 For populating dashboards, we need some of the configurations files (i.e Lookup files), which we need to add.
@@ -137,7 +137,7 @@ Once this is done, all the lookup files will be created.
    
    ![image](https://github.com/user-attachments/assets/5df4ce4f-0126-4d0d-a62b-94d7505ddff8)
 
-3. Replace JSON Code: A window will open where you can modify the JSON configuration. Replace the existing code with the pre-provided JSON code from the relevant repository (e.g., GitHub). This will populate your dashboard with the correct widgets and data sources.
+3. Replace JSON Code: A window will open where you can modify the JSON configuration. Replace the existing code with the pre-provided dashboard file from the [github repository](https://github.com/corelight/CorelightForSentinelOne/tree/main/dashboards). This will populate your dashboard with the correct widgets and data sources.
 
    ![image](https://github.com/user-attachments/assets/d880d249-4a4a-40e2-8a5b-878ecccff0cc)
 
