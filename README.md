@@ -51,6 +51,8 @@ For installing the parsers through github repository, please follow the below st
 
 To ingest data into SentinelOne Singularity Data Lake, follow the steps provided in the SentinelOne documentation under (Singularity Marketplace → Marketplace Ingestion Integrations → Corelight Zeek Network Security Parser Integration with SentinelOne).
 
+**Note:** If you are installing the parsers from [GitHub repo](https://github.com/corelight/CorelightForSentinelOne/blob/main/README.md#installing-parsers-through-github-repository) make sure to update the sourcetype template as **corelight-$LOG-dev**
+
 ### Configure Lookup Files
 For populating dashboards, we need some of the configurations files (i.e Lookup files), which we need to add.
 
