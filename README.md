@@ -47,6 +47,20 @@ This guide will help you set up and utilize SentinelOne Dashboards, which offer 
 
 ![image](https://github.com/user-attachments/assets/85210de1-2c97-4b8b-a586-857f9d05894c)
 
+&nbsp;
+
+#### Configuring and Adding a generic parser
+
+**Note**: SentinelOne currently supports 25 different log parsers. If you need to add a parser for a new log type that is not included in the existing list, you can follow the steps outlined below to configure and integrate a parser for that log type.
+
+**How to use generic parser?**
+
+To use the generic parser, first complete steps 1 to 4 from the [Installing Parsers Through GitHub Repository](https://github.com/corelight/CorelightForSentinelOne/blob/feature/add-generic-parser/README.md#installing-parsers-through-github-repository) section, and then proceed with the following steps.
+
+After creating the parser, copy the code from the [corelight-generic parser](https://github.com/corelight/CorelightForSentinelOne/blob/feature/add-generic-parser/parsers/corelight-generic) and paste it in the parser which you have created and add more details as per your requirement and then save the parser.
+
+![image](https://github.com/user-attachments/assets/8a022840-4463-4c8b-9f37-f3a371ca1c56)
+
 ### Data Collection
 
 To ingest data into SentinelOne Singularity Data Lake, follow the steps provided in the SentinelOne documentation under (Singularity Marketplace → Marketplace Ingestion Integrations → Corelight Zeek Network Security Parser Integration with SentinelOne).
