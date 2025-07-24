@@ -1,0 +1,12 @@
+Description,InferenceName,inferences
+"Indicates a CLI tool client (likely FreeRDP-based). This inference doesn't require that the client successfully authenticated to the server.",FreeRDP Driven Client,FC
+"Indicates a Metasploit client.",Metasploit Scanner Client,MSC
+"Indicates a Hydra client.",THC-Hydra Bruteforce Client,HBC
+"Indicates a Crowbar client.",Crowbar Bruteforce Client,CBC
+"Indicates a SharpRDP client.",SharpRDP Lateral Movement Client,SLC
+"Indicates that the client is likely a scanner or exploit tool that the package can't specifically identify (for example, rdpscan or impacket).",Scanner Other Client,SOC
+"Indicates that the client authenticated using Restricted Admin Mode.",Remote Credential Guard Authentication,RCGA
+"Indicates a Metasploit client.",Restricted Admin Mode Authentication,RAMA
+"Indicates that the client authenticated using an NTLM password that was provided before the connection was initiated.",Automated NTLM Password Authentication,APWA
+"Indicates that the client authenticated using an NTLM password that was provided after the connection was initiated, suggesting a human-driven connection.",Interactive NTLM Password Authentication,IPWA
+"Indicates that the handshake (RDPBCGR connection sequence) took an unusually long time to complete.",Slow Handshake,SLH
