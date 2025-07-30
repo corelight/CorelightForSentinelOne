@@ -681,7 +681,7 @@ graphs : [
       }
     },
     {
-      query: "| left join (\n  metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight' \n  | columns uid=metadata.uid, signature_id=string(alert.signature_id)\n  | group count() by uid, signature_id    // group the number of hits per uid and signature_id\n), (\n  | dataset 'config://datatables/corelight_alert_aggregations_merged.csv'\n  | columns sid, impact_score, cve_number, technique_number\n) on signature_id = sid\n\n| filter cve_number=* cve_number != '' number(impact_score) > 3 \n\n| group estimate_distinct(technique_number)",
+      query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, technique_number from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' number(impact_score) > 3\n| group estimate_distinct(technique_number)",
       teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
       title: "MITRE Techniques",
       graphStyle: "number",
@@ -707,7 +707,7 @@ graphs : [
       }
     },
     {
-      query: "| left join (\n  metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight' \n  | columns uid=metadata.uid, signature_id=string(alert.signature_id)\n  | group count() by uid, signature_id    // group the number of hits per uid and signature_id\n), (\n  | dataset 'config://datatables/corelight_alert_aggregations_merged.csv'\n  | columns sid, impact_score, cve_number, technique_number\n) on signature_id = sid\n\n| filter cve_number=* cve_number != '' number(impact_score) > 3 \n\n| group max(number(impact_score))",
+      query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' number(impact_score) > 3\n| group max(number(impact_score))",
       teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
       title: "Highest Score",
       graphStyle: "number",
@@ -733,7 +733,7 @@ graphs : [
       }
     },
     {
-      query: "| left join (\n  metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight' \n  | columns uid=metadata.uid, signature_id=string(alert.signature_id)\n  | group count() by uid, signature_id    // group the number of hits per uid and signature_id\n), (\n  | dataset 'config://datatables/corelight_alert_aggregations_merged.csv'\n  | columns sid, impact_score, cve_number, technique_number\n) on signature_id = sid\n\n| filter cve_number=* cve_number != '' number(impact_score) > 3 \n\n| group count() by uid\n| group count()",
+      query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score, cve_number from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' cve_number=* cve_number != '' number(impact_score) > 3\n| group count() by uid\n| group count()",
       teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
       title: "With CVEs",
       graphStyle: "number",
@@ -759,7 +759,7 @@ graphs : [
       }
     },
     {
-      query: "|join \n(| left join (\n  metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight' \n  | columns uid=metadata.uid, signature_id=string(alert.signature_id)\n  | group count() by uid, signature_id // group the number of hits per uid and signature_id\n), (\n  | dataset 'config://datatables/corelight_alert_aggregations_merged.csv'\n  | columns sid, impact_score, cve_number, technique_number\n) on signature_id = sid\n| filter signature_id=* number(impact_score) > 3  \n),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'conn'  AND local_resp=true  | columns uid) on uid \n\n| group count()",
+      query: "|join (\nmetadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id)\n| lookup sid, impact_score from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' number(impact_score) > 3\n| group count() by uid\n| columns uid),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'conn'  AND local_resp=true  | columns uid) on uid \n| group count()",
       teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
       title: "Int. Hosts Affected",
       graphStyle: "number",
@@ -787,7 +787,7 @@ graphs : [
     {
       graphStyle: "line",
       lineSmoothing: "straightLines",
-      query: "| left join ( \n   metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'  \n   | columns uid=metadata.uid, signature_id=string(alert.signature_id), timestamp=timestamp  \n ), ( \n   | dataset 'config://datatables/corelight_alert_aggregations_merged.csv' \n   | columns sid, impact_score, cve_number, technique_number \n ) on signature_id = sid \n \n | filter signature_id=* number(impact_score) > 3   \n  \n | group sids_sorted=array_agg_distinct(number(signature_id)).sort(), timestamp=array_agg_distinct(timestamp).sort_desc().get(0) by uid   \n | let did = sids_sorted  \n | group \"Detections\"=estimate_distinct(did) by timebucket()",
+      query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=metadata.uid, signature_id=string(alert.signature_id), timestamp=timestamp\n| lookup sid, impact_score from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' number(impact_score) > 3\n| group sids_sorted=array_agg_distinct(number(signature_id)).sort(), timestamp=array_agg_distinct(timestamp).sort_desc().get(0) by uid   \n| let did = sids_sorted  \n| group \"Detections\"=estimate_distinct(did) by timebucket()",
       teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
       title: "Detections Over Time",
       yScale: "linear",

@@ -1,4 +1,4 @@
-Description,InferenceName,inferences
+Description,InferenceName,Code
 "Indicates a CLI tool client (likely FreeRDP-based). This inference doesn't require that the client successfully authenticated to the server.",FreeRDP Driven Client,FC
 "Indicates a Metasploit client.",Metasploit Scanner Client,MSC
 "Indicates a Hydra client.",THC-Hydra Bruteforce Client,HBC
