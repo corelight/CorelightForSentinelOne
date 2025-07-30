@@ -86,7 +86,7 @@ For populating dashboards, we need some of the configurations files (i.e Lookup 
 
 <img width="659" height="372" alt="Create Lookup Files step 4" src="https://github.com/user-attachments/assets/d272b6c0-f60a-4bc7-acc8-bf91cde79b30" />
 
-<img width="1339" height="499" alt="image" src="https://github.com/user-attachments/assets/75451187-1701-49ee-95c5-fa9a848a099d" />
+<img width="1340" height="502" alt="image" src="https://github.com/user-attachments/assets/67308f43-b352-41af-9e72-9c04a3d9d00d" />
 
 **Step 5:** After creating files with the same names as mentioned in github repository, also copy the lookup files content and save each file.
 
