@@ -121,12 +121,9 @@ Once this is done, all the lookup files will be created.
 
 ### Step 4: Navigate to the Custom Dashboards Section
 
-1. After selecting the site, you will be taken to the Custom Dashboards section, which is where all the data (network traffic, events, etc.) is stored and analyzed.
+1. After selecting the site, go to the Custom Dashboards section. There, you'll see a list of dashboards that are already available for analysis.
    
    <img width="825" height="150" alt="image" src="https://github.com/user-attachments/assets/7137cd68-82c0-4765-bd6c-1d00d08be58f" />
-
-2. View Existing Dashboards: Here, you will see a list of existing dashboards that are already available for analysis.
-
    <img width="1276" height="434" alt="Custom Dashboards" src="https://github.com/user-attachments/assets/d058c97e-61c8-4434-94ab-6099ccf5b28f" />
 
 ### Step 5: Create a New Dashboard
