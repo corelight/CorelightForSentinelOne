@@ -84,13 +84,13 @@ For populating dashboards, we need some of the configurations files (i.e Lookup 
 
 **Step 4:** In that click on New File and add create all the files with the same names as mentioned in the lookups folder in github repository.
 
-![image](https://github.com/user-attachments/assets/678fbc01-e1c9-4227-9b9f-30330d407b10)
+<img width="659" height="372" alt="Create Lookup Files step 4" src="https://github.com/user-attachments/assets/d272b6c0-f60a-4bc7-acc8-bf91cde79b30" />
 
-![image](https://github.com/user-attachments/assets/eeabeb1c-2799-420e-b20f-3921386f9bea)
+<img width="1340" height="502" alt="image" src="https://github.com/user-attachments/assets/67308f43-b352-41af-9e72-9c04a3d9d00d" />
 
 **Step 5:** After creating files with the same names as mentioned in github repository, also copy the lookup files content and save each file.
 
-![image](https://github.com/user-attachments/assets/0c26c514-a836-4b84-badf-4321543267d3)
+<img width="1315" height="581" alt="Copy lookup content" src="https://github.com/user-attachments/assets/c118b9dc-20af-414f-9d28-01d5870a2c8d" />
 
 Once this is done, all the lookup files will be created.
 
@@ -119,21 +119,18 @@ Once this is done, all the lookup files will be created.
 
    ![image](https://github.com/user-attachments/assets/7b437b9f-82cf-451f-bb97-282c30305c8d)
 
-### Step 4: Navigate to the Data Lake Section
+### Step 4: Navigate to the Custom Dashboards Section
 
-1. After selecting the site, you will be taken to the Data Lake section, which is where all the data (network traffic, events, etc.) is stored and analyzed.
+1. After selecting the site, go to the Custom Dashboards section. There, you'll see a list of dashboards that are already available for analysis.
    
-   ![image](https://github.com/user-attachments/assets/9c3f13ca-7254-43fc-afc5-4b2dce237b1c)
-
-2. View Existing Dashboards: Here, you will see a list of existing dashboards that are already available for analysis.
-
-   ![image](https://github.com/user-attachments/assets/ad6359ad-1ac2-43c9-8d8b-c520b875656d)
+   <img width="825" height="150" alt="image" src="https://github.com/user-attachments/assets/7137cd68-82c0-4765-bd6c-1d00d08be58f" />
+   <img width="1276" height="434" alt="Custom Dashboards" src="https://github.com/user-attachments/assets/d058c97e-61c8-4434-94ab-6099ccf5b28f" />
 
 ### Step 5: Create a New Dashboard
 
 1. Click on New Dashboard: To create a new dashboard, click on the New Dashboard button located at the top right corner of the screen.
    
-   ![image](https://github.com/user-attachments/assets/e6d4879f-edb5-4361-a9e9-f43416833e2f)
+   <img width="1365" height="128" alt="New dashboard" src="https://github.com/user-attachments/assets/db03fe51-5a1e-4356-bee4-baa92e89ef6c" />
 
 2. Name Your Dashboard: A pop-up window will prompt you to enter a name for the new dashboard (e.g., "Security Posture, etc").
    
