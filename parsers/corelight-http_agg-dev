@@ -3,16 +3,14 @@
       "dataSource.category": "security",
       "dataSource.name": "Corelight",
       "dataSource.vendor": "Corelight",
-      "class_uid": 4001,
+      "class_uid": 4002,
       "category_uid": 4,
       "severity_id": 1,
-      //"severity": "Informational",
-      "class_name": "Network Activity",
+      "class_name": "HTTP Activity",
       "category_name": "Network Activity",
       "metadata.product.name": "Corelight",
       "metadata.product.vendor_name": "Corelight",
-      "metadata.version": "27.12.0",
-      //"metadata.log_name": "conn",
+      "metadata.version": "28.2.0",
       "app_name": "Corelight"
     },
     formats: [
@@ -59,6 +57,16 @@
           }, {
             input: "id.orig_ep_name",
             output: "endpoint.name",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "id.orig_ep_ostype",
+            output: "endpoint.os",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "id.orig_ep_type",
+            output: "endpoint.type",
             match: ".*",
             replace: "$0"
           }, {
@@ -112,153 +120,173 @@
             match: ".*",
             replace: "$0"
           }, {
-            input: "proto",
-            output: "network_connection_info.protocol_name",
-            match: ".*",
-            replace: "$0"
-          }, {
-            input: "orig_bytes",
-            output: "traffic.bytes_out",
-            match: ".*",
-            replace: "$0"
-          }, {
-            input: "resp_bytes",
-            output: "traffic.bytes_in",
-            match: ".*",
-            replace: "$0"
-          }, {
-            input: "conn_state",
+            input: "method",
             output: "activity_id",
-            match: "^(S0|S2|S3)$",
-            replace: 4
-          }, {
-            input: "conn_state",
-            output: "activity_name",
-            match: "^(S0|S2|S3)$",
-            replace: "Fail"
-          }, {
-            input: "conn_state",
-            output: "type_uid",
-            match: "^(S0|S2|S3)$",
-            replace: 400104
-          }, {
-            input: "conn_state",
-            output: "activity_id",
-            match: "S1",
+            match: "CONNECT",
             replace: 1
           }, {
-            input: "conn_state",
-            output: "activity_name",
-            match: "S1",
-            replace: "Open"
-          }, {
-            input: "conn_state",
+            input: "method",
             output: "type_uid",
-            match: "S1",
-            replace: 400101
+            match: "CONNECT",
+            replace: 400201
           }, {
-            input: "conn_state",
+            input: "method",
             output: "activity_id",
-            match: "SF",
-            replace: 6
+            match: "DELETE",
+            replace: 2
           }, {
-            input: "conn_state",
-            output: "activity_name",
-            match: "SF",
-            replace: "Traffic"
-          }, {
-            input: "conn_state",
+            input: "method",
             output: "type_uid",
-            match: "SF",
-            replace: 400106
+            match: "DELETE",
+            replace: 400202
           }, {
-            input: "conn_state",
+            input: "method",
             output: "activity_id",
-            match: "REJ",
-            replace: 5
-          }, {
-            input: "conn_state",
-            output: "activity_name",
-            match: "REJ",
-            replace: "Refuse"
-          }, {
-            input: "conn_state",
-            output: "type_uid",
-            match: "REJ",
-            replace: 400105
-          }, {
-            input: "conn_state",
-            output: "activity_id",
-            match: "^(RSTO|RSTR|RSTOS0|RSTRH)$",
+            match: "GET",
             replace: 3
           }, {
-            input: "conn_state",
-            output: "activity_name",
-            match: "^(RSTO|RSTR|RSTOS0|RSTRH)$",
-            replace: "Reset"
-          }, {
-            input: "conn_state",
+            input: "method",
             output: "type_uid",
-            match: "^(RSTO|RSTR|RSTOS0|RSTRH)$",
-            replace: 400103
+            match: "GET",
+            replace: 400203
           }, {
-            input: "conn_state",
+            input: "method",
             output: "activity_id",
-            match: "^(SH|SHR)$",
-            replace: 0
+            match: "HEAD",
+            replace: 4
           }, {
-            input: "conn_state",
-            output: "activity_name",
-            match: "^(SH|SHR)$",
-            replace: "Unknown"
-          }, {
-            input: "conn_state",
+            input: "method",
             output: "type_uid",
-            match: "^(SH|SHR)$",
-            replace: 400100
+            match: "HEAD",
+            replace: 400204
           }, {
-            input: "conn_state",
+            input: "method",
             output: "activity_id",
-            match: "OTH",
-            replace: 0
+            match: "OPTIONS",
+            replace: 5
           }, {
-            input: "conn_state",
-            output: "activity_name",
-            match: "OTH",
-            replace: "Other"
-          }, {
-            input: "conn_state",
+            input: "method",
             output: "type_uid",
-            match: "OTH",
-            replace: 400199
+            match: "OPTIONS",
+            replace: 400205
+          },{
+            input: "method",
+            output: "activity_id",
+            match: "POST",
+            replace: 6
           }, {
-            input: "orig_pkts",
-            output: "traffic.packets_out",
+            input: "method",
+            output: "type_uid",
+            match: "POST",
+            replace: 400206
+          }, {
+            input: "method",
+            output: "activity_id",
+            match: "PUT",
+            replace: 7
+          }, {
+            input: "method",
+            output: "type_uid",
+            match: "PUT",
+            replace: 400207
+          }, {
+            input: "method",
+            output: "activity_id",
+            match: "TRACE",
+            replace: 8
+          }, {
+            input: "method",
+            output: "type_uid",
+            match: "TRACE",
+            replace: 400208
+          }, {
+            input: "method",
+            output: "activity_name",
             match: ".*",
             replace: "$0"
           }, {
-            input: "resp_pkts",
-            output: "traffic.packets_in",
+            input: "method",
+            output: "http_request.http_method",
             match: ".*",
             replace: "$0"
           }, {
-            input: "orig_l2_addr",
-            output: "src_endpoint.mac",
+            input: "host",
+            output: "device.hostname",
             match: ".*",
             replace: "$0"
           }, {
-            input: "resp_l2_addr",
-            output: "dst_endpoint.mac",
+            input: "uri",
+            output: "http_request.url.url_string",
             match: ".*",
             replace: "$0"
           }, {
-            input: "id.orig_ep_type",
-            output: "endpoint.type",
+            input: "referrer",
+            output: "http_request.referrer",
             match: ".*",
             replace: "$0"
           }, {
-            input: "id.orig_ep_ostype",
-            output: "endpoint.os",
+            input: "version",
+            output: "metadata.version",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "user_agent",
+            output: "http_request.user_agent",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "origin",
+            output: "http_request.x_forwarded_for",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "request_body_len",
+            output: "http_request.length",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "response_body_len",
+            output: "http_response.length",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "status_code",
+            output: "http_response.code",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "status_msg",
+            output: "http_response.message",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "tags",
+            output: "metadata.labels",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "username",
+            output: "actor.user.name",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "proxied",
+            output: "proxy_http_request.http_headers[0].value",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "proxied",
+            output: "proxy_http_request.http_headers[0].name",
+            match: ".*",
+            replace: "proxied"
+          }, {
+            input: "client_header_names",
+            output: "http_request.http_header.name",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "cookie_vars",
+            output: "http_cookie.name",
             match: ".*",
             replace: "$0"
           }, {
