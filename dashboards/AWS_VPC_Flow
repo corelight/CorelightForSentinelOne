@@ -1,0 +1,723 @@
+{
+  duration: "24h",
+  tabs: [
+        {
+            "tabName": "Overview",
+graphs : [
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| let total_bytes = resp_ip_bytes + orig_ip_bytes\n| group total_volume =sum(total_bytes)\n| columns  \"Total Volume\" = total_volume / (1024 * 1024 * 1024)",
+    title: "Total Volume",
+    graphStyle: "number",
+    sparklineConfig: {enabled: false
+                    },
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true
+                            },
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+                            },
+        upwardsMeaning: "POSITIVE"
+                        }
+                    },
+    layout: {
+  h: 9,
+  w: 29,
+  x: 0,
+  y: 0
+},
+    options: {
+  format: "none",
+  precision: 2,
+  suffix: " GB"
+},
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| group count(uid)",
+    title: "Total Connections",
+    graphStyle: "number",
+    sparklineConfig: {enabled: false
+                    },
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true
+                            },
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+                            },
+        upwardsMeaning: "POSITIVE"
+                        }
+                    },
+    layout: {
+  h: 10,
+  w: 20,
+  x: 0,
+  y: 9
+},
+    options: {precision: 2}
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| group estimate_distinct(src_endpoint.ip)",
+    title: "Unique Source IPs",
+    layout: {
+  h: 10,
+  w: 20,
+  x: 20,
+  y: 9
+},
+    graphStyle: "number",
+    sparklineConfig: {enabled: false
+                    },
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true
+                            },
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+                            },
+        upwardsMeaning: "POSITIVE"
+                        }
+                    },
+    options: {precision: 2}
+  ,
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| group estimate_distinct(dst_endpoint.ip)",
+    title: "Unique Destination IPs",
+    layout: {
+  h: 10,
+  w: 20,
+  x: 40,
+  y: 9
+},
+    graphStyle: "number",
+    sparklineConfig: {enabled: false
+                    },
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true
+                            },
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+                            },
+        upwardsMeaning: "POSITIVE"
+                        }
+                    },
+    options: {precision: 2}
+                },
+                {
+    graphStyle: "stacked",
+    lineSmoothing: "straightLines",
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| group \"Connections\"=count(uid) by timestamp = timebucket(timestamp, 'auto')",
+    title: "Total Connections by Time",
+    yScale: "linear",
+    layout: {
+  h: 10,
+  w: 20,
+  x: 0,
+  y: 19
+}
+                },
+                {
+    graphStyle: "stacked",
+    lineSmoothing: "straightLines",
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| group \"Unique Sources\"=estimate_distinct(src_endpoint.ip) by timestamp = timebucket(timestamp, 'auto')",
+    title: "Unique Source IPs by Time",
+    yScale: "linear",
+    layout: {
+  h: 10,
+  w: 20,
+  x: 20,
+  y: 19
+}
+                },
+                {
+    graphStyle: "stacked",
+    lineSmoothing: "straightLines",
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| group \"Unique Destinations\"=estimate_distinct(dst_endpoint.ip) by timestamp = timebucket(timestamp, 'auto')",
+    title: "Unique Destination IPs by Time",
+    yScale: "linear",
+    layout: {
+  h: 10,
+  w: 20,
+  x: 40,
+  y: 19
+}
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND (orig_inst.az=* OR orig_inst.id=* OR orig_inst.name=* OR orig_inst.org_id=* OR orig_inst.sg_ids=* OR orig_inst.subnet_id=* OR orig_inst.vpc_id=* OR resp_inst.az=* OR resp_inst.id=* OR resp_inst.name=* OR resp_inst.org_id=* OR resp_inst.sg_ids=* OR resp_inst.subnet_id=* OR resp_inst.vpc_id=*)\n| group count = count()\n| let status_text = count > 0 ? \"Enriched Conn Logs are Present\" : \"Enriched Conn Logs are not Present\"\n| columns \"Status\"=status_text",
+    title: "Cloud Enrichment",
+    layout: {
+  h: 9,
+  w: 31,
+  x: 29,
+  y: 0
+},
+    graphStyle: "",
+    description: "If \"No results\",  Enriched Conn Logs are not Present"
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| group total_bytes=sum(orig_ip_bytes) by src_ip=src_endpoint.ip\n| sort - total_bytes \n| limit 10\n| let formatted_total_bytes = total_bytes >= 1099511627776 ? (floor((total_bytes / 1099511627776)* 100 + 0.5) / 100) + \" TB\" :  total_bytes >= 1073741824 ? (floor((total_bytes / 1073741824)* 100 + 0.5) / 100) + \" GB\" :  total_bytes >= 1048576 ? (floor((total_bytes / 1048576)* 100 + 0.5) / 100) + \" MB\" :  total_bytes >= 1024 ? (floor((total_bytes / 1024)* 100 + 0.5) / 100) + \" KB\" : total_bytes + \" B\"\n| columns \"Source IP\"=src_ip, \"Total Bytes Sent\"=formatted_total_bytes",
+    title: "Top 10 Source IPs with Most Sent Data",
+    layout: {
+  h: 20,
+  w: 12,
+  x: 0,
+  y: 29
+},
+    graphStyle: ""
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| group total_bytes=sum(resp_ip_bytes) by dest_ip=dst_endpoint.ip\n| sort - total_bytes \n| limit 10\n| let formatted_total_bytes = total_bytes >= 1099511627776 ? (floor((total_bytes / 1099511627776)* 100 + 0.5) / 100) + \" TB\" :  total_bytes >= 1073741824 ? (floor((total_bytes / 1073741824)* 100 + 0.5) / 100) + \" GB\" :  total_bytes >= 1048576 ? (floor((total_bytes / 1048576)* 100 + 0.5) / 100) + \" MB\" :  total_bytes >= 1024 ? (floor((total_bytes / 1024)* 100 + 0.5) / 100) + \" KB\" : total_bytes + \" B\"\n| columns \"Destination IP\"=dest_ip, \"Total Bytes Received\"=formatted_total_bytes",
+    title: "Top 10 Destination IPs with Most Received Data",
+    layout: {
+  h: 20,
+  w: 12,
+  x: 12,
+  y: 29
+},
+    graphStyle: ""
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| group bytes_out=sum(orig_ip_bytes), bytes_in=sum(resp_ip_bytes) by timestamp=timebucket(), direction\n| transpose direction on timestamp",
+    title: "Traffic by Direction and Bytes Transferred over Time",
+    layout: {
+  h: 20,
+  w: 36,
+  x: 24,
+  y: 29
+},
+    graphStyle: "stacked",
+    lineSmoothing: "straightLines"
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| group connections=count(uid) by src_ip=src_endpoint.ip, transport, dest_port=dst_endpoint.port, dest_ip=dst_endpoint.ip\n| sort -connections \n| limit 20\n| columns \"Source IP\"=src_ip, \"Transport\"=transport, \"Destination Port\"=dest_port, \"Destination IP\"=dest_ip",
+    title: "Connections between Source IPs and Destination IPs",
+    layout: {
+  h: 14,
+  w: 41,
+  x: 0,
+  y: 49
+},
+    graphStyle: "",
+    description: "Top 20 most frequent network communication paths"
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| let transport_port = transport + \"/\" + dst_endpoint.port\n| group count=count() by \"Transport\"=transport_port\n| sort -count\n| limit 20",
+    title: "Top 20 Protocol and Port Distribution",
+    layout: {
+  h: 14,
+  w: 19,
+  x: 41,
+  y: 49
+},
+    dataLabelType: "PERCENTAGE",
+    graphStyle: "pie",
+    maxPieSlices: 20,
+    totalNumberConfig: {}
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\"\n| let total_bytes = orig_ip_bytes + resp_ip_bytes\n| group total_bytes_sum=sum(total_bytes) by src_ip=src_endpoint.ip, dest_port=dst_endpoint.port\n| sort -total_bytes_sum\n| let formatted_total_bytes_sum = total_bytes_sum >= 1099511627776 ? (floor((total_bytes_sum / 1099511627776)* 100 + 0.5) / 100) + \" TB\" :  total_bytes_sum >= 1073741824 ? (floor((total_bytes_sum / 1073741824)* 100 + 0.5) / 100) + \" GB\" :  total_bytes_sum >= 1048576 ? (floor((total_bytes_sum / 1048576)* 100 + 0.5) / 100) + \" MB\" :  total_bytes_sum >= 1024 ? (floor((total_bytes_sum / 1024)* 100 + 0.5) / 100) + \" KB\" : total_bytes_sum + \" B\"\n| columns \"Source IP\"=src_ip, \"Destination Port\"=dest_port, \"Volume\"= formatted_total_bytes_sum\n| limit 20",
+    title: "Top 20 Largest Byte Transfers",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 63
+},
+    description: "Source IP connecting to Destination Port by Total Bytes",
+    graphStyle: ""
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND duration > 0\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\"\n| filter direction = 'outbound' \n| let formatted_orig_ip_bytes = orig_ip_bytes >= 1099511627776 ? (floor((orig_ip_bytes / 1099511627776)* 100 + 0.5) / 100) + \" TB\" :  orig_ip_bytes >= 1073741824 ? (floor((orig_ip_bytes / 1073741824)* 100 + 0.5) / 100) + \" GB\" :  orig_ip_bytes >= 1048576 ? (floor((orig_ip_bytes / 1048576)* 100 + 0.5) / 100) + \" MB\" :  orig_ip_bytes >= 1024 ? (floor((orig_ip_bytes / 1024)* 100 + 0.5) / 100) + \" KB\" : orig_ip_bytes + \" B\"\n| sort -orig_ip_bytes \n| columns \"Source IP\"=src_endpoint.ip, \"Duration\"=duration, \"Bytes\"=formatted_orig_ip_bytes\n| limit 10000",
+    title: "Outbound Connection Outliers",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 63
+},
+    graphStyle: "",
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\"\n| filter direction=\"inbound\"\n| let country = geo_ip_country(src_endpoint.ip)\n| filter country=*\n| group Connections=count(uid) by Country=country\n| sort - Connections",
+    title: "Inbound Connections by Source Country",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 77
+},
+    graphStyle: "",
+    description: "Identifying inbound connections to your organization's AWS VPC"
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=*\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\"\n| filter direction = 'outbound' \n| let country = geo_ip_country(dst_endpoint.ip)\n| filter country=*\n| group Connections=count(uid) by Country=country\n| sort - Connections",
+    title: "Outbound Connections by Destination Country",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 77
+},
+    graphStyle: "",
+    description: "Identifying outbound connections from your organization's AWS VPC"
+                },
+                {
+    graphStyle: "markdown",
+    markdown: "## Additional VPC Insights will appear below when Cloud Enrichment Conn Logs are present within the selected time range",
+    title: " ",
+    layout: {
+  h: 6,
+  w: 60,
+  x: 0,
+  y: 91
+}
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (orig_inst.az=* OR orig_inst.id=* OR orig_inst.name=* OR orig_inst.org_id=* OR orig_inst.sg_ids=* OR orig_inst.subnet_id=* OR orig_inst.vpc_id=* OR resp_inst.az=* OR resp_inst.id=* OR resp_inst.name=* OR resp_inst.org_id=* OR resp_inst.sg_ids=* OR resp_inst.subnet_id=* OR resp_inst.vpc_id=*)\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction = \"inbound\" transport != \"icmp\"\n| let stoa_security_group = resp_inst.sg_ids.extract_matches(\"([a-z]{2}-[a-zA-Z0-9]+)\")\n| let expanded_security_group = stoa_security_group.expand()\n| group connections=count() by expanded_security_group, dest_port=dst_endpoint.port\n| filter expanded_security_group=*\n| sort -connections \n| columns \"AWS Security Group\"=expanded_security_group, \"Destination Port\"=dest_port, \"Connections\"=connections",
+    title: "Inbound Traffic by Security Group",
+    layout: {
+  h: 12,
+  w: 30,
+  x: 0,
+  y: 97
+},
+    graphStyle: "",
+    description: "External Source Inbound to Internal Responding Security Group"
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (orig_inst.az=* OR orig_inst.id=* OR orig_inst.name=* OR orig_inst.org_id=* OR orig_inst.sg_ids=* OR orig_inst.subnet_id=* OR orig_inst.vpc_id=* OR resp_inst.az=* OR resp_inst.id=* OR resp_inst.name=* OR resp_inst.org_id=* OR resp_inst.sg_ids=* OR resp_inst.subnet_id=* OR resp_inst.vpc_id=*)\n| let transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter transport != \"icmp\" orig_inst.az=* resp_inst.az=*\n| group total_bytes_sent=sum(orig_ip_bytes), count=count(uid) by orig_inst.az, resp_inst.az \n| sort -total_bytes_sent\n| let formatted_total_bytes_sent = total_bytes_sent >= 1099511627776 ? (floor((total_bytes_sent / 1099511627776)* 100 + 0.5) / 100) + \" TB\" :  total_bytes_sent >= 1073741824 ? (floor((total_bytes_sent / 1073741824)* 100 + 0.5) / 100) + \" GB\" :  total_bytes_sent >= 1048576 ? (floor((total_bytes_sent / 1048576)* 100 + 0.5) / 100) + \" MB\" :  total_bytes_sent >= 1024 ? (floor((total_bytes_sent / 1024)* 100 + 0.5) / 100) + \" KB\" : total_bytes_sent + \" B\"\n| let formatted_count = count >= 1000000000000 ? floor((count / 1000000000000)* 100 + 0.5) / 100 + \"T\" : count >= 1000000000 ? floor((count / 1000000000)* 100 + 0.5) / 100 + \"G\" : count >= 1000000 ? floor((count / 1000000)* 100 + 0.5) / 100 + \"M\" : count >= 1000 ? floor((count / 1000)* 100 + 0.5) / 100 + \"K\" : count + \"\"\n| columns \"Originating Availability Zone\"=orig_inst.az, \"Connections\"=formatted_count, \"Total Bytes Sent\"=formatted_total_bytes_sent, \"Responding Availability Zone\"=resp_inst.az\n| limit 20",
+    title: "Lateral Traffic between Availability Zones",
+    layout: {
+  h: 12,
+  w: 30,
+  x: 30,
+  y: 97
+},
+    graphStyle: ""
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (orig_inst.az=* OR orig_inst.id=* OR orig_inst.name=* OR orig_inst.org_id=* OR orig_inst.sg_ids=* OR orig_inst.subnet_id=* OR orig_inst.vpc_id=* OR resp_inst.az=* OR resp_inst.id=* OR resp_inst.name=* OR resp_inst.org_id=* OR resp_inst.sg_ids=* OR resp_inst.subnet_id=* OR resp_inst.vpc_id=*)\n| let transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter transport != \"icmp\" orig_inst.org_id=*\n| group count=count() by orig_inst.org_id\n| sort -count \n| limit 10",
+    title: "Traffic by AWS Account",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 109
+},
+    dataLabelType: "PERCENTAGE",
+    graphStyle: "donut",
+    maxPieSlices: 10,
+    totalNumberConfig: {
+      enabled: false,
+      label: ""
+                    },
+    description: "Top 10 Total Connections"
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (orig_inst.az=* OR orig_inst.id=* OR orig_inst.name=* OR orig_inst.org_id=* OR orig_inst.sg_ids=* OR orig_inst.subnet_id=* OR orig_inst.vpc_id=* OR resp_inst.az=* OR resp_inst.id=* OR resp_inst.name=* OR resp_inst.org_id=* OR resp_inst.sg_ids=* OR resp_inst.subnet_id=* OR resp_inst.vpc_id=*)\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto \n| filter direction=\"outbound\" (orig_inst.org_id=* OR resp_inst.org_id=*) transport != 'icmp'\n| group total_bytes=sum(orig_ip_bytes) by orig_inst.name, src_endpoint.ip, dst_endpoint.ip\n| sort - total_bytes \n| let formatted_total_bytes = total_bytes >= 1099511627776 ? (floor((total_bytes / 1099511627776)* 100 + 0.5) / 100) + \" TB\" :  total_bytes >= 1073741824 ? (floor((total_bytes / 1073741824)* 100 + 0.5) / 100) + \" GB\" :  total_bytes >= 1048576 ? (floor((total_bytes / 1048576)* 100 + 0.5) / 100) + \" MB\" :  total_bytes >= 1024 ? (floor((total_bytes / 1024)* 100 + 0.5) / 100) + \" KB\" : total_bytes + \" B\"\n| columns  \"EC2 Instance Name\"=orig_inst.name, \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Total Data Outbound\"=formatted_total_bytes",
+    title: "Outbound Traffic by EC2 Instance Names",
+    layout: {
+  h: 14,
+  i: "21",
+  minH: 3,
+  minW: 6,
+  w: 30,
+  x: 30,
+  y: 109
+},
+    description: "Top 10 Total Bytes Sent",
+    graphStyle: ""
+                },
+            ],
+options: {layout: {locked: 1
+                }
+            },
+options: {layout: {locked: 0
+                }
+            },
+options: {layout: {locked: 1
+                }
+            },
+options: {layout: {locked: 0
+                }
+            },
+options: {layout: {locked: 1
+                }
+            },
+filters: [
+                {
+    facet: "_system_name",
+    name: "Corelight Sensor"
+                },
+                {
+    facet: "capture_metadata.vpc.vpc_id",
+    name: "VPC ID"
+                },
+                {
+    facet: "orig_inst.org_id",
+    name: "Source AWS Organization ID"
+                },
+                {
+    facet: "resp_inst.org_id",
+    name: "Destination AWS Organization ID"
+                }
+                {
+    name: "Direction",
+    values: [
+  {
+    label: "*",
+    value: "metadata.log_name=*"
+  },
+  {
+    label: "Inbound",
+    value: "local_orig=\"false\" AND local_resp=\"true\""
+  },
+  {
+    label: "Outbound",
+    value: "local_orig=\"true\" AND local_resp=\"false\""
+  },
+  {
+    label: "Internal",
+    value: "local_orig=\"true\" AND local_resp=\"true\""
+  },
+  {
+    label: "External",
+    value: "local_orig=\"false\" AND local_resp=\"false\""
+  }
+]
+                }
+            ],
+options: {layout: {locked: 0
+                }
+            },
+options: {layout: {locked: 1}},
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}},
+options: {layout: {locked: 1}},
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}}
+        },
+        {
+            "tabName": "IP Interrogation",
+            "graphs": [
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (src_endpoint.ip=* OR dst_endpoint.ip=*)\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto \n| filter direction=\"inbound\" transport != 'icmp'\n| let total_bytes = orig_ip_bytes + resp_ip_bytes \n| group total_data_inbound= sum(total_bytes)\n| columns  \"Total Data Inbound\" = total_data_inbound / (1024 * 1024 * 1024)",
+    title: "Total Data Inbound",
+    layout: {
+  h: 7,
+  w: 12,
+  x: 0,
+  y: 6
+},
+    graphStyle: "number",
+    sparklineConfig: {enabled: false
+                    },
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true
+                            },
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+                            },
+        upwardsMeaning: "POSITIVE"
+                        }
+                    },
+    options: {
+  format: "none",
+  precision: 2,
+  suffix: " GB"
+}
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (src_endpoint.ip=* OR dst_endpoint.ip=*)\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto \n| filter direction=\"outbound\" transport!=\"icmp\"\n| let total_bytes = orig_ip_bytes + resp_ip_bytes \n| group total_data_outbound = sum(total_bytes) \n| columns  \"Total Data Outbound\" = total_data_outbound / (1024 * 1024 * 1024)",
+    title: "Total Data Outbound",
+    layout: {
+  h: 7,
+  w: 12,
+  x: 12,
+  y: 6
+},
+    graphStyle: "number",
+    sparklineConfig: {enabled: false
+                    },
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true
+                            },
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+                            },
+        upwardsMeaning: "POSITIVE"
+                        }
+                    },
+    options: {
+  format: "none",
+  precision: 2,
+  suffix: " GB"
+}
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (src_endpoint.ip=* OR dst_endpoint.ip=*)\n| let transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto \n| filter transport!=\"icmp\"\n| group count(uid)",
+    title: "Total Connections",
+    layout: {
+  h: 7,
+  w: 12,
+  x: 24,
+  y: 6
+},
+    graphStyle: "number",
+    sparklineConfig: {enabled: false
+                    },
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true
+                            },
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+                            },
+        upwardsMeaning: "POSITIVE"
+                        }
+                    },
+    options: {precision: 2}
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (src_endpoint.ip=* OR dst_endpoint.ip=*)\n| let transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto \n| filter transport != 'icmp'\n| group estimate_distinct(src_endpoint.ip)",
+    title: "Unique Source IPs",
+    layout: {
+  h: 7,
+  w: 12,
+  x: 36,
+  y: 6
+},
+    graphStyle: "number",
+    sparklineConfig: {enabled: false
+                    },
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true
+                            },
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+                            },
+        upwardsMeaning: "POSITIVE"
+                        }
+                    },
+    options: {precision: 2}
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (src_endpoint.ip=* OR dst_endpoint.ip=*)\n| let transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto \n| filter transport != 'icmp'\n| group estimate_distinct(dst_endpoint.ip)",
+    title: "Unique Destination IPs",
+    layout: {
+  h: 7,
+  w: 12,
+  x: 48,
+  y: 6
+},
+    graphStyle: "number",
+    sparklineConfig: {enabled: false
+                    },
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true
+                            },
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+                            },
+        upwardsMeaning: "POSITIVE"
+                        }
+                    },
+    options: {precision: 2}
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (src_endpoint.ip=* OR dst_endpoint.ip=*)\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto \n| filter direction != 'unknown' transport != 'icmp'\n| group \"Connection Count\"=count() by \"VPC ID\"=capture_metadata.vpc.vpc_id",
+    title: "VPC IDs by Connection Count",
+    layout: {
+  h: 14,
+  w: 20,
+  x: 0,
+  y: 13
+},
+    dataLabelType: "PERCENTAGE",
+    graphStyle: "donut",
+    maxPieSlices: 20,
+    totalNumberConfig: {
+      enabled: false,
+      label: ""
+                    }
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (src_endpoint.ip=* OR dst_endpoint.ip=*)\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto \n| filter direction != 'unknown' transport != 'icmp'\n| group count=count() by direction ",
+    title: "Connections by Direction",
+    layout: {
+  h: 14,
+  w: 20,
+  x: 20,
+  y: 13
+},
+    dataLabelType: "PERCENTAGE",
+    graphStyle: "donut",
+    maxPieSlices: 10,
+    totalNumberConfig: {
+      enabled: false,
+      label: ""
+                    }
+                },
+                {
+    query: "!(metadata.log_name matches '^conn.*') AND _system_name=* AND (src_endpoint.ip=* OR dst_endpoint.ip=*)\n| group count=count() by metadata.log_name \n| sort -count \n| limit 20",
+    title: "Corelight Data Sets",
+    layout: {
+  h: 14,
+  w: 20,
+  x: 40,
+  y: 13
+},
+    graphStyle: "donut",
+    description: "Corelight supporting data sources for source",
+    dataLabelType: "PERCENTAGE",
+    maxPieSlices: 20,
+    totalNumberConfig: {
+      enabled: false,
+      label: ""
+    }
+  ,
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (src_endpoint.ip=* OR dst_endpoint.ip=*)\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction=\"inbound\" transport != 'icmp'\n| let transport_port= transport + \"/\" + dst_endpoint.port\n| group count=count() by \"Transport\"=transport_port\n| sort -count \n| limit 10",
+    title: "Top Inbound Ports & Protocols",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 27
+},
+    dataLabelType: "PERCENTAGE",
+    graphStyle: "donut",
+    maxPieSlices: 10,
+    totalNumberConfig: {
+      enabled: false,
+      label: ""
+                    }
+                },
+                {
+    query: "metadata.log_name = 'conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (src_endpoint.ip=* OR dst_endpoint.ip=*)\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction=\"outbound\" transport != 'icmp'\n| let transport_port= transport + \"/\" + dst_endpoint.port\n| group count=count() by \"Transport\"=transport_port\n| sort -count \n| limit 10",
+    title: "Top Outbound Ports & Protocols",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 27
+},
+    dataLabelType: "PERCENTAGE",
+    graphStyle: "donut",
+    maxPieSlices: 10,
+    totalNumberConfig: {
+      enabled: false,
+      label: ""
+                    }
+                },
+                {
+    query: "metadata.log_name='conn' AND capture_source = 'vpcflow' AND capture_metadata.vpc.vpc_id=* AND _system_name=* AND (src_endpoint.ip=* OR dst_endpoint.ip=*)\n| let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\", transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| filter direction != \"unknown\" transport != \"icmp\" \n| let transport_port = transport + \"/\" + dst_endpoint.port\n| sort -timestamp\n| group epoch_first_alert_time=last(timestamp), epoch_last_alert_time=first(timestamp), total_duration=sum(duration), total_bytes_sent=sum(orig_ip_bytes), total_bytes_recv=sum(resp_ip_bytes), total_connections=count(uid),  directions=array_agg_distinct(direction).to_string(), vpc_id=array_agg_distinct(capture_metadata.vpc.vpc_id).to_string() by src_ip=src_endpoint.ip, dest_ip=dst_endpoint.ip, transport_port\n| let divided_total_duration = (floor((total_duration / 1000) * 100 + 0.5) / 100) + \" sec\", formatted_total_bytes_sent = total_bytes_sent >= 1099511627776 ? (floor((total_bytes_sent / 1099511627776)* 100 + 0.5) / 100) + \" TB\" :  total_bytes_sent >= 1073741824 ? (floor((total_bytes_sent / 1073741824)* 100 + 0.5) / 100) + \" GB\" :  total_bytes_sent >= 1048576 ? (floor((total_bytes_sent / 1048576)* 100 + 0.5) / 100) + \" MB\" :  total_bytes_sent >= 1024 ? (floor((total_bytes_sent / 1024)* 100 + 0.5) / 100) + \" KB\" : total_bytes_sent + \" B\", formatted_total_bytes_received = total_bytes_recv >= 1099511627776 ? (floor((total_bytes_recv / 1099511627776)* 100 + 0.5) / 100) + \" TB\" :  total_bytes_recv >= 1073741824 ? (floor((total_bytes_recv / 1073741824)* 100 + 0.5) / 100) + \" GB\" :  total_bytes_recv >= 1048576 ? (floor((total_bytes_recv / 1048576)* 100 + 0.5) / 100) + \" MB\" :  total_bytes_recv >= 1024 ? (floor((total_bytes_recv / 1024)* 100 + 0.5) / 100) + \" KB\" : total_bytes_recv + \" B\", formatted_first_alert_time = strftime(epoch_first_alert_time, '%Y-%m-%d %H:%M:%S') , formatted_last_alert_time = strftime(epoch_last_alert_time, '%Y-%m-%d %H:%M:%S')\n| sort - total_connections\n| columns \"First Seen\"=formatted_first_alert_time, \"Last Seen\"=formatted_last_alert_time, \"AWS VPC ID\"=vpc_id, \"Source IP\"=src_ip, \"Bytes Sent\"=formatted_total_bytes_sent, \"Direction\"=directions, \"Destination IP\"=dest_ip, \"Destination Port\"=transport_port, \"Bytes Received\"=formatted_total_bytes_received, \"Total Duration\"=divided_total_duration, \"Total Connections\"=total_connections",
+    title: "Connections",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 41
+},
+    description: "Top Connections/Services by Bytes Transferred",
+    graphStyle: ""
+                },
+                {
+    graphStyle: "markdown",
+    markdown: "## If Data does not appear, then the IP Address has not been seen during the selected time range",
+    title: " ",
+    layout: {
+  h: 6,
+  w: 60,
+  x: 0,
+  y: 0
+}
+                },
+            ],
+options: {layout: {locked: 1
+                }
+            },
+filters: [
+  {
+    facet: "_system_name",
+    name: "Corelight Sensor"
+  },
+  {
+    facet: "capture_metadata.vpc.vpc_id",
+    name: "VPC ID"
+  },
+  {
+    facet: "orig_inst.org_id",
+    name: "Source AWS Organization ID"
+  },
+  {
+    facet: "resp_inst.org_id",
+    name: "Destination AWS Organization ID"
+  }
+  {
+    name: "Direction",
+    values: [
+  {
+    label: "*",
+    value: "metadata.log_name=*"
+  },
+  {
+    label: "Inbound",
+    value: "local_orig=\"false\" AND local_resp=\"true\""
+  },
+  {
+    label: "Outbound",
+    value: "local_orig=\"true\" AND local_resp=\"false\""
+  },
+  {
+    label: "Internal",
+    value: "local_orig=\"true\" AND local_resp=\"true\""
+  },
+  {
+    label: "External",
+    value: "local_orig=\"false\" AND local_resp=\"false\""
+  }
+]
+  },
+  {
+    facet: "src_endpoint.ip",
+    name: "Source IP"
+  },
+  {
+    facet: "dst_endpoint.ip",
+    name: "Destination IP"
+  }
+],
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}},
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}}
+        }
+    ],
+  configType: "TABBED"
+}
