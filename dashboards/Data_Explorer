@@ -1,96 +1,227 @@
 {
   tabs: [{"tabName":"Connections",
+ "parameters": [
+    {
+      "name": "Show Aggregation Logs",
+      "label": "Show Aggregation Logs",
+      "values": [
+        {
+          "label": "No",
+          "value": "metadata.log_name in (\"conn\",\"conn_red\",\"conn_long\")"
+        },
+        {
+          "label": "Yes",
+          "value": "metadata.log_name = \"conn_agg\""
+        }
+      ],
+      "defaultValue": "metadata.log_name in (\"conn\",\"conn_red\",\"conn_long\")"
+    }
+  ],
 graphs : [
   {
     graphStyle: "pie",
     maxPieSlices: 15,
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, service = (service = null) ? \"Unknown\" : service\n| filter is_broadcast != true service != 'Unknown'\n| group count=count() by service, dst_endpoint.port, src_endpoint.ip, dst_endpoint.ip\n| group \"Total\"=sum(count) by service\n| sort -Total\n| limit 15",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, service = (service = null) ? \"Unknown\" : service, extracted_services = service.extract_matches('[A-Za-z0-9]+'), expanded_services = extracted_services.expand()\n| filter is_broadcast != true expanded_services != 'Unknown'\n| group count=count() by expanded_services, dst_endpoint.port, src_endpoint.ip, dst_endpoint.ip\n| group \"Total\"=sum(count) by expanded_services\n| sort -Total\n| limit 15",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Services",
     layout: {
   h: 12,
-  w: 31,
+  w: 30,
   x: 0,
-  y: 0
-}
+  y: 9
+},
+    dataLabelType: "PERCENTAGE"
   },
   {
     graphStyle: "pie",
     maxPieSlices: 15,
-    query: "metadata.product.vendor_name = 'Corelight' metadata.log_name = 'conn' | let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, dest_port = (dst_endpoint.port = null) ? \"Unknown\" : dst_endpoint.port\n| filter is_broadcast != true service != null\n| group count=count() by service, dest_port, src_endpoint.ip, dst_endpoint.ip\n| group \"Total\"=sum(count) by dest_port\n| sort -Total\n| limit 15",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, dest_port = (dst_endpoint.port = null) ? \"Unknown\" : dst_endpoint.port, extracted_services = service.extract_matches('[A-Za-z0-9_-]+'), expanded_services = extracted_services.expand()\n| filter is_broadcast != true expanded_services != null\n| group count=count() by expanded_services, dest_port, src_endpoint.ip, dst_endpoint.ip\n| group \"Total\"=sum(count) by dest_port\n| sort -Total\n| limit 15",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Responder Ports",
     layout: {
   h: 12,
-  w: 29,
-  x: 31,
-  y: 0
-}
+  w: 30,
+  x: 30,
+  y: 9
+},
+    dataLabelType: "PERCENTAGE"
   },
   {
     graphStyle: "pie",
     maxPieSlices: 15,
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, id_orig_h = (src_endpoint.ip = null) ? \"Unknown\" : src_endpoint.ip\n| filter is_broadcast != true service != null\n| group count=count() by service, dst_endpoint.port, id_orig_h, dst_endpoint.ip\n| group \"Total\"=sum(count) by id_orig_h\n| sort -Total\n| limit 15",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, id_orig_h = (src_endpoint.ip = null) ? \"Unknown\" : src_endpoint.ip, extracted_services = service.extract_matches('[A-Za-z0-9_-]+'), expanded_services = extracted_services.expand()\n| filter is_broadcast != true expanded_services != null\n| group count=count() by expanded_services, dst_endpoint.port, id_orig_h, dst_endpoint.ip\n| group \"Total\"=sum(count) by id_orig_h\n| sort -Total\n| limit 15",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Originators (sources) by # of connections",
     layout: {
   h: 13,
-  w: 31,
+  w: 30,
   x: 0,
-  y: 12
-}
+  y: 21
+},
+    dataLabelType: "PERCENTAGE"
   },
   {
     graphStyle: "pie",
     maxPieSlices: 15,
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, id_resp_h = (dst_endpoint.ip = null) ? \"Unknown\" : dst_endpoint.ip\n| filter is_broadcast != true service != null\n| group count=count() by service, dst_endpoint.port, src_endpoint.ip, id_resp_h\n| group \"Total\"=sum(count) by id_resp_h\n| sort -Total\n| limit 15",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, id_resp_h = (dst_endpoint.ip = null) ? \"Unknown\" : dst_endpoint.ip, extracted_services = service.extract_matches('[A-Za-z0-9_-]+'), expanded_services = extracted_services.expand()\n| filter is_broadcast != true expanded_services != null\n| group count=count() by expanded_services, dst_endpoint.port, src_endpoint.ip, id_resp_h\n| group \"Total\"=sum(count) by id_resp_h\n| sort -Total\n| limit 15",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Responders (destinations) by # of connections",
     layout: {
   h: 13,
-  w: 29,
-  x: 31,
-  y: 12
-}
+  w: 30,
+  x: 30,
+  y: 21
+},
+    dataLabelType: "PERCENTAGE"
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Duration\"=average(duration), \"Source IP\"=(array_agg_distinct(src_endpoint.ip)).to_string(), \"Destination IP\"=(array_agg_distinct(dst_endpoint.ip)).to_string(), \"Proto\"=(array_agg_distinct(proto)).to_string() by \"UID\"=metadata.uid \n| sort -\"Duration\"\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, extracted_services = service.extract_matches('[A-Za-z0-9_-]+'), expanded_services = extracted_services.to_string()\n| filter is_broadcast != true\n| group \"Duration\"=average(duration), \"Source IP\"=(array_agg_distinct(src_endpoint.ip)).to_string(), \"Destination IP\"=(array_agg_distinct(dst_endpoint.ip)).to_string(), \"Destination Port\"=(array_agg_distinct(dst_endpoint.port)).to_string(),\"Service\"= (array_agg_distinct(expanded_services)).to_string() by \"Session ID\"=metadata.uid\n| sort -\"Duration\"\n| limit 100",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
-    title: "Open/Active Long Lived Connections (requires Long Connections Pkg)",
+    title: "Top 100 Open/Active Long Lived Connections (Requires Long Connections Package)",
     layout: {
   h: 15,
   w: 60,
   x: 0,
-  y: 38
+  y: 47
 },
     graphStyle: "",
     showBarsColumn: "false"
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\"\n| filter is_broadcast != true direction=\"outbound\"\n| group proto=(array_agg_distinct(proto)).to_string(), bytes=sum(orig_bytes) by src_endpoint.ip, dst_endpoint.ip, direction\n| sort -bytes\n| let country=(geo_ip_country(dst_endpoint.ip)=null) ? \"Unknown\" : geo_ip_country(dst_endpoint.ip)\n| columns \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Destination Country\"=country, \"Bytes\"=bytes, \"Proto\"=proto\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\"\n| filter is_broadcast != true direction=\"outbound\"\n| group service=(array_agg_distinct(service)).to_string(), bytes=sum(orig_ip_bytes) by src_endpoint.ip, dst_endpoint.ip, direction\n| sort -bytes\n| let country=(geo_ip_country(dst_endpoint.ip)=null) ? \"Unknown\" : geo_ip_country(dst_endpoint.ip), extracted_services = service.extract_matches('[A-Za-z0-9_-]+'), expanded_services = extracted_services.to_string()\n| columns \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Country\"=country, \"Service\"=expanded_services, \"Bytes\"=bytes\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
-    title: "Top Outbound Data Flows by Originator (id_orig_h) Bytes",
+    title: "Top Outbound Data Flows by Originator (src_ip) Bytes",
     layout: {
   h: 13,
-  w: 31,
+  w: 30,
   x: 0,
-  y: 25
+  y: 34
 },
     graphStyle: "",
     showBarsColumn: "false"
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\"\n| filter is_broadcast != true direction=\"inbound\"\n| group proto=(array_agg_distinct(proto)).to_string(), bytes=sum(orig_bytes) by src_endpoint.ip, dst_endpoint.ip, direction\n| sort -bytes\n| let country=(geo_ip_country(dst_endpoint.ip)=null) ? \"Unknown\" : geo_ip_country(dst_endpoint.ip)\n| columns \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Country\"=country, \"Bytes\"=bytes, \"Proto\"=proto\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\"\n| filter is_broadcast != true direction=\"inbound\"\n| group service=(array_agg_distinct(service)).to_string(), bytes=sum(orig_ip_bytes) by src_endpoint.ip, dst_endpoint.ip, direction\n| sort -bytes\n| let country=(geo_ip_country(dst_endpoint.ip)=null) ? \"Unknown\" : geo_ip_country(dst_endpoint.ip), extracted_services = service.extract_matches('[A-Za-z0-9_-]+'), expanded_services = extracted_services.to_string()\n| columns \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Country\"=country, \"Service\"=expanded_services,  \"Bytes\"=bytes\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
-    title: "Top Inbound Data Flows by Originator (id_orig_h) Bytes",
+    title: "Top Inbound Data Flows by Originator (src_ip) Bytes",
     layout: {
   h: 13,
-  w: 29,
-  x: 31,
-  y: 25
+  w: 30,
+  x: 30,
+  y: 34
 },
     graphStyle: "",
     showBarsColumn: "false"
+  },
+  {
+    graphStyle: "number",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| columns total_bytes = resp_ip_bytes + orig_ip_bytes\n| group sum(total_bytes)/(1024*1024*1024)",
+    sparklineConfig: {enabled: false},
+    title: "Traffic Volume",
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    },
+    layout: {
+  h: 9,
+  w: 11,
+  x: 0,
+  y: 0
+},
+    options: {
+      format: "none",
+      precision: 2,
+      suffix: " GB"
+    }
+  },
+  {
+    graphStyle: "number",
+    layout: {
+  h: 9,
+  w: 11,
+  x: 11,
+  y: 0
+},
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group estimate_distinct(id.orig_h)",
+    sparklineConfig: {enabled: false},
+    title: "Traffic Sources",
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    }
+  },
+  {
+    graphStyle: "number",
+    layout: {
+  h: 9,
+  w: 11,
+  x: 22,
+  y: 0
+},
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let uid_eval = uid.extract_matches('[A-Za-z0-9]+'), uids = uid_eval.expand()\n| group estimate_distinct(uids)",
+    sparklineConfig: {enabled: false},
+    title: "Traffic Connections",
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    }
+  },
+  {
+    graphStyle: "number",
+    layout: {
+  h: 9,
+  w: 11,
+  x: 33,
+  y: 0
+},
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group estimate_distinct(id.resp_h)",
+    sparklineConfig: {enabled: false},
+    title: "Traffic Destinations",
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    }
+  },
+  {
+    graphStyle: "",
+    layout: {
+  h: 9,
+  w: 16,
+  x: 44,
+  y: 0
+},
+    query: "metadata.product.vendor_name = 'Corelight'\nmetadata.log_name = 'conn_agg'\n| group count = count()\n| columns status_text = count > 0 ? \"Conn Agg Logs Available\" : \"No Conn Agg Logs\"",
+    title: "Conn Aggregation",
+    description: "If \"No results\",  Conn Agg Logs are not Available"
+  ,
   },
 ],
 options: {layout: {locked: 1}},
@@ -103,104 +234,214 @@ filters: [
   },
   {
     facet: "src_endpoint.ip",
-    name: "Originator IP (id_orig_h)"
-  },
-  {
-    facet: "src_endpoint.port",
-    name: "Originator Port (id_orig_p)"
+    name: "Originator IP (src_ip)"
   },
   {
     facet: "dst_endpoint.ip",
-    name: "Responder IP (id_resp_h)"
+    name: "Responder IP (dest_ip)"
   },
   {
     facet: "dst_endpoint.port",
-    name: "Responder Port (id_resp_p)"
+    name: "Responder Port (dest_port)"
   },
   {
     facet: "service",
     name: "Service"
-  }
-]
+  },
+  {
+    facet: "metadata.uid",
+    name: "Connection UID"
+  },
+],
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}},
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}},
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}}
 },
-{"tabName":"DNS","graphs":[
+{"tabName":"DNS",
+ "parameters": [
+    {
+      "name": "Show Aggregation Logs",
+      "label": "Show Aggregation Logs",
+      "values": [
+        {
+          "label": "No",
+          "value": "metadata.log_name in (\"dns\",\"dns_red\")"
+        },
+        {
+          "label": "Yes",
+          "value": "metadata.log_name = \"dns_agg\""
+        }
+      ],
+      "defaultValue": "metadata.log_name in (\"dns\",\"dns_red\")"
+    }
+  ],
+ "graphs":[
   {
     graphStyle: "pie",
     maxPieSlices: 10,
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, id_orig_h=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name\n| filter is_broadcast != true\n| group count=count() by record_type, id_orig_h, query, reply_code\n| group count=sum(count) by record_type\n| sort -count\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, src_ip=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name, dest_ip=(dst_endpoint.ip=null) ? 'unknown' : dst_endpoint.ip, session_id=(metadata.uid=null) ? 'unknown' : metadata.uid\n| filter is_broadcast != true\n| group count=count() by record_type\n| sort -count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Query Types",
     layout: {
   h: 18,
   w: 20,
   x: 0,
-  y: 0
-}
+  y: 9
+},
+    dataLabelType: "PERCENTAGE"
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, id_orig_h=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name\n| filter is_broadcast != true record_type != 'PTR'\n| group count() by record_type, id_orig_h, query, reply_code\n| group count=count() by query\n| sort -count\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, src_ip=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name, dest_ip=(dst_endpoint.ip=null) ? 'unknown' : dst_endpoint.ip, session_id=(metadata.uid=null) ? 'unknown' : metadata.uid\n| filter is_broadcast != true record_type != 'PTR'\n| group count() by record_type, src_ip, query, reply_code\n| group Count=count() by \"Query\"=query\n| sort -Count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top 10 Queries by Count",
     layout: {
   h: 18,
   w: 20,
   x: 20,
-  y: 0
+  y: 9
 },
     graphStyle: "",
     showBarsColumn: "false"
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, id_orig_h=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name\n| filter is_broadcast != true record_type != 'PTR' reply_code=\"NXDOMAIN\"\n| group count() by record_type, id_orig_h, query, reply_code\n| group count=count() by query\n| sort -count\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, src_ip=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name, dest_ip=(dst_endpoint.ip=null) ? 'unknown' : dst_endpoint.ip, session_id=(metadata.uid=null) ? 'unknown' : metadata.uid\n| filter is_broadcast != true record_type != 'PTR' reply_code=\"NXDOMAIN\"\n| group Count=count() by \"Query\"=query\n| sort -Count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top 10 Queries by Count to Non-Existent Domains",
     layout: {
   h: 18,
   w: 20,
   x: 40,
-  y: 0
+  y: 9
 },
     graphStyle: "",
     showBarsColumn: "false"
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, id_orig_h=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name\n| filter is_broadcast != true\n| group count=count() by record_type, id_orig_h, query, reply_code\n| group count=sum(count) by id_orig_h\n| sort -count\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, src_ip=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name, dest_ip=(dst_endpoint.ip=null) ? 'unknown' : dst_endpoint.ip, session_id=(metadata.uid=null) ? 'unknown' : metadata.uid\n| filter is_broadcast != true\n| group Count=count() by \"Source IP\"=src_ip\n| sort -Count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Originators by Count",
     layout: {
   h: 18,
   w: 20,
   x: 0,
-  y: 18
+  y: 27
 },
     graphStyle: "",
     showBarsColumn: "false"
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND qtype_name = 'PTR' AND rcode_name=\"NOERROR\"\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, query=(query=null) ? 'unknown' : query\n| filter is_broadcast != true\n| group count=count() by query\n| sort -count\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND qtype_name = 'PTR' AND rcode_name=\"NOERROR\"\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, src_ip=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name, dest_ip=(dst_endpoint.ip=null) ? 'unknown' : dst_endpoint.ip, session_id=(metadata.uid=null) ? 'unknown' : metadata.uid\n| filter is_broadcast != true record_type=\"PTR\" reply_code in (\"NOERROR\", \"No Error\") \n| group Count=count() by \"Query\"=query\n| sort -Count\n| limit 20",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Successful Reverse Queries by Count",
     layout: {
   h: 18,
   w: 20,
   x: 20,
-  y: 18
+  y: 27
 },
     graphStyle: "",
     showBarsColumn: "false"
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'dns' AND qtype_name = 'PTR' rcode_name=\"NXDOMAIN\"\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, query=(query=null) ? 'unknown' : query\n| filter is_broadcast != true\n| group count=count() by query\n| sort -count\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND qtype_name = 'PTR' rcode_name=\"NXDOMAIN\"\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, src_ip=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name, dest_ip=(dst_endpoint.ip=null) ? 'unknown' : dst_endpoint.ip, session_id=(metadata.uid=null) ? 'unknown' : metadata.uid\n| filter is_broadcast != true record_type=\"PTR\" reply_code=\"NXDOMAIN\"\n| group Count=count() by \"Query\"=query\n| sort -Count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Reverse Queries by Count to Non-Existent Domains",
     layout: {
   h: 18,
   w: 20,
   x: 40,
-  y: 18
+  y: 27
 },
     graphStyle: ""
-  }
+  },
+  {
+    graphStyle: "number",
+    layout: {
+  h: 9,
+  w: 13,
+  x: 0,
+  y: 0
+},
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, src_ip=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name, dest_ip=(dst_endpoint.ip=null) ? 'unknown' : dst_endpoint.ip, session_id=(metadata.uid=null) ? 'unknown' : metadata.uid\n| filter is_broadcast != true query=*\n| group DNS_requests=count(query)",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Total DNS Requests",
+    sparklineConfig: {enabled: false},
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    }
+  },
+  {
+    graphStyle: "number",
+    layout: {
+  h: 9,
+  w: 13,
+  x: 13,
+  y: 0
+},
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, src_ip=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name, dest_ip=(dst_endpoint.ip=null) ? 'unknown' : dst_endpoint.ip, session_id=(metadata.uid=null) ? 'unknown' : metadata.uid \n| let answer = answers.extract_matches('([A-Za-z0-9.-]+\\.[A-Za-z]{2,}|(?:\\\\d{1,3}\\\\.){3}\\\\d{1,3})'), expanded_answers = answer.expand()\n| filter is_broadcast != true expanded_answers=*\n| group DNS_Responses=count(query)",
+    sparklineConfig: {enabled: false},
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Total DNS Response",
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    }
+  },
+  {
+    graphStyle: "number",
+    layout: {
+  h: 9,
+  w: 14,
+  x: 26,
+  y: 0
+},
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, record_type=(qtype_name=null) ? 'unknown' : qtype_name, src_ip=(src_endpoint.ip=null) ? 'unknown' : src_endpoint.ip, query=(query=null) ? 'unknown' : query, reply_code=(rcode_name=null) ? 'unknown' : rcode_name, dest_ip=(dst_endpoint.ip=null) ? 'unknown' : dst_endpoint.ip, session_id=(metadata.uid=null) ? 'unknown' : metadata.uid\n| filter is_broadcast != true\n| columns session_id, src_ip, dest_ip, query, record_type, reply_code\n| filter reply_code=\"NXDOMAIN\"\n| group query_agg=array_agg_distinct(query), record_type_agg=array_agg_distinct(record_type), reply_code_agg=array_agg_distinct(reply_code) by session_id, dest_ip, src_ip\n| group nxdomain_count = count()",
+    sparklineConfig: {enabled: false},
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Top Non-Existent Domains",
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    }
+  },
+  {
+    graphStyle: "",
+    layout: {
+  h: 9,
+  w: 20,
+  x: 40,
+  y: 0
+},
+    query: "metadata.product.vendor_name = 'Corelight' metadata.log_name = 'dns_agg' \n| group count = count()\n| columns status_text = count > 0 ? \"DNS Agg Logs Available\" : \"No DNS Agg Logs\"",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "DNS Aggregation",
+    description: "If \"No results\",  DNS Agg Logs are not Available"
+  },
 ],
 options: {layout: {locked: 1}},
 filters: [
@@ -210,61 +451,81 @@ filters: [
   },
   {
     facet: "dst_endpoint.port",
-    name: "Responder Port (id_resp_p)",
+    name: "Responder Port (dest_port)",
     defaultValue: "53"
   },
   {
     facet: "qtype_name",
     name: "Record Type"
-  }
-]
+  },
+],
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}}
 },
-{"tabName":"Files","graphs":[
+{"tabName":"Files",
+ "parameters": [
+    {
+      "name": "Show Aggregation Logs",
+      "label": "Show Aggregation Logs",
+      "values": [
+        {
+          "label": "No",
+          "value": "metadata.log_name in (\"files\",\"files_red\")"
+        },
+        {
+          "label": "Yes",
+          "value": "metadata.log_name = \"files_agg\""
+        }
+      ],
+      "defaultValue": "metadata.log_name in (\"files\",\"files_red\")"
+    }
+  ],
+ "graphs":[
   {
     graphStyle: "stacked_bar",
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'files' AND mime_type != 'application/pkix-cert' AND mime_type=*\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Mime Type\"=count() by mime_type\n| sort -\"Mime Type\"\n| limit 20",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND mime_type != 'application/pkix-cert' AND mime_type=*\n| let mimetype_eval = mime_type.extract_matches('[A-Za-z0-9_/-]+'), mimetypes = mimetype_eval.to_string()\n| group \"Http Content Type\"=count() by \"Mime Type\"=mimetypes\n| sort -\"Http Content Type\"\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
-    title: "Top 20 Mime Types by File Count",
+    title: "Top 10 Mime Types by File Count",
     xAxis: "grouped_data",
     yScale: "linear",
     layout: {
   h: 14,
-  w: 30,
+  w: 23,
   x: 0,
-  y: 3
+  y: 0
 },
-    barWidth: "auto"
+    numBars: "24"
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'files' AND mime_type='application/x-dosexec' AND mime_type=* AND !(filename contains 'exe')\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Count\"=count() by \"Mime Type\"=mime_type, \"Filename\"=filename\n| sort -\"Count\"\n| limit 15",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND mime_type='application/x-dosexec' AND mime_type=* AND !(filename contains 'exe')\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, mimetype_eval = mime_type.extract_matches('[A-Za-z0-9_/-]+'), mime_types = mimetype_eval.to_string()\n| filter is_broadcast != true\n| group \"Count\"=count() by \"Mime Type\"=mime_types, \"Filename\"=filename\n| sort -\"Count\"\n| limit 15",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Corelight Mime Type to Filename Check",
     layout: {
   h: 14,
-  w: 30,
-  x: 30,
-  y: 3
+  w: 23,
+  x: 23,
+  y: 0
 },
     graphStyle: ""
   },
   {
     graphStyle: "line",
     lineSmoothing: "straightLines",
-    query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'files' | let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false | filter is_broadcast != true | columns uid, seen_bytes, timestamp),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let directional= (local_orig=true AND local_resp=false) ? \"sent\" : (local_orig=false AND local_resp=true) ? \"received\" : (local_orig=true AND local_resp=true) ? \"internal\" : \"unknown\"  | columns uid, directional) on uid\n| group \"# Files\"=count() by timestamp=timebucket(), directional\n| transpose directional on timestamp",
+    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| columns uid, seen_bytes, timestamp),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let directional= (local_orig=true AND local_resp=false) ? \"sent\" : (local_orig=false AND local_resp=true) ? \"received\" : (local_orig=true AND local_resp=true) ? \"internal\" : \"unknown\"  | columns uid, directional) on uid\n| group \"# Files\"=count() by timestamp=timebucket(), directional\n| transpose directional on timestamp",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "File Flow - # of Files",
     yScale: "linear",
     layout: {
-h: 14,
-w: 20,
-x: 0,
-y: 17
+  h: 14,
+  w: 20,
+  x: 0,
+  y: 17
 }
   },
   {
     graphStyle: "pie",
     maxPieSlices: 10,
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'files' AND mime_type!='application/pkix-cert'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"File Count\"=count() by source\n| sort -\"File Count\"\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND mime_type!='application/pkix-cert'\n| group \"File Count\"=count() by source\n| sort -\"File Count\"\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top File Protocols by File Count",
     layout: {
@@ -272,26 +533,27 @@ y: 17
   w: 20,
   x: 20,
   y: 17
-}
+},
+    dataLabelType: "PERCENTAGE"
   },
   {
     graphStyle: "line",
-    lineSmoothing: "straightLines",
-    query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'files' | let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false | filter is_broadcast != true | columns uid, seen_bytes, timestamp),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let directional= (local_orig=true AND local_resp=false) ? \"sent\" : (local_orig=false AND local_resp=true) ? \"received\" : (local_orig=true AND local_resp=true) ? \"internal\" : \"unknown\"  | columns uid, directional) on uid\n| group \"Bytes\"=sum(seen_bytes) by timestamp=timebucket(), directional\n| transpose directional on timestamp",
+    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| columns uid, seen_bytes, timestamp),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let directional= (local_orig=true AND local_resp=false) ? \"sent\" : (local_orig=false AND local_resp=true) ? \"received\" : (local_orig=true AND local_resp=true) ? \"internal\" : \"unknown\"  | columns uid, directional) on uid\n| group \"Bytes\"=sum(seen_bytes) by timestamp=timebucket(), directional\n| transpose directional on timestamp",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "File Flow - Bytes",
     yScale: "linear",
     layout: {
-h: 14,
-w: 20,
-x: 40,
-y: 17
-}
+  h: 14,
+  w: 20,
+  x: 40,
+  y: 17
+},
+    lineSmoothing: "straightLines"
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'files'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Source_File_Count\"=count() by \"Source Host\"=src_endpoint.ip \n| sort -Source_File_Count\n| limit 10\n",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Source_File_Count\"=count() by \"Source IP\"=src_endpoint.ip \n| sort -Source_File_Count\n| limit 10\n",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
-    title: "Top Tansmitting (tx_host) Hosts - # Files",
+    title: "Top Tansmitting (src_ip) Hosts - # Files",
     layout: {
   h: 14,
   w: 30,
@@ -301,9 +563,9 @@ y: 17
     graphStyle: ""
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'files'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Destination_File_Count\"=count() by \"Destination Host\"=dst_endpoint.ip \n| sort -Destination_File_Count\n| limit 10\n",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Dest_File_count\"=count() by \"Dest IP\"=dst_endpoint.ip \n| sort -Dest_File_count\n| limit 10\n",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
-    title: "Top Receiving (rx_host) Hosts - # Files",
+    title: "Top Receiving (dest_ip) Hosts - # Files",
     layout: {
   h: 14,
   w: 30,
@@ -313,9 +575,9 @@ y: 17
     graphStyle: ""
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'files'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Destination_Bytes\"=sum(seen_bytes) by \"Destination Host\"=dst_endpoint.ip \n| sort -Destination_Bytes\n| limit 10\n",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Dest_Bytes\"=sum(seen_bytes) by \"Dest IP\"=dst_endpoint.ip \n| sort -Dest_Bytes\n| limit 10\n",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
-    title: "Top Receiving (rx_host) Hosts - Bytes",
+    title: "Top Receiving (dest_ip) Hosts - Bytes",
     graphStyle: "",
     layout: {
   h: 14,
@@ -325,9 +587,9 @@ y: 17
 }
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'files'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Source_Bytes\"=sum(seen_bytes) by \"Source Host\"=src_endpoint.ip \n| sort -Source_Bytes\n| limit 10\n",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Source_Bytes\"=sum(seen_bytes) by \"Source IP\"=src_endpoint.ip \n| sort -Source_Bytes\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
-    title: "Top Tansmitting (tx_host) Hosts - Bytes",
+    title: "Top Tansmitting (src_ip) Hosts - Bytes",
     layout: {
   h: 14,
   w: 30,
@@ -344,7 +606,7 @@ y: 17
   h: 3,
   w: 60,
   x: 0,
-  y: 0
+  y: 14
 }
   },
   {
@@ -356,6 +618,18 @@ y: 17
   w: 60,
   x: 0,
   y: 31
+}
+  },
+  {
+    description: "If \"No results\",  Files Agg Logs are not Available",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' metadata.log_name = 'files_agg' \n| group count = count()\n| columns status_text = count > 0 ? \"Files Agg Logs Available\" : \"No Files Agg Logs\"",
+    title: "Files Aggregation",
+    layout: {
+  h: 14,
+  w: 14,
+  x: 46,
+  y: 0
 }
   }
 ],
@@ -374,17 +648,36 @@ filters: [
   {
     facet: "mime_type",
     name: "Mime Type"
-  }
+  },
 ],
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}},
 options: {layout: {locked: 0}},
 options: {layout: {locked: 1}},
 options: {layout: {locked: 0}},
 options: {layout: {locked: 1}}
 },
 {"tabName":"HTTP",
-    "graphs": [
+ "parameters": [
+    {
+      "name": "Show Aggregation Logs",
+      "label": "Show Aggregation Logs",
+      "values": [
         {
-        "query": "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' \n| filter referrer != null\n| group http_referrer=array_agg_distinct(referrer) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| group \"Distinct Referrers\" = estimate_distinct(http_referrer) ",
+          "label": "No",
+          "value": "metadata.log_name in (\"http\",\"http_red\")"
+        },
+        {
+          "label": "Yes",
+          "value": "metadata.log_name = \"http_agg\""
+        }
+      ],
+      "defaultValue": "metadata.log_name in (\"http\",\"http_red\")"
+    }
+  ],
+ "graphs": [
+        {
+        "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| filter referrer != null\n| group http_referrer=array_agg_distinct(referrer) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| group \"Distinct Referrers\" = estimate_distinct(http_referrer) ",
         "teamEmails": [
                 "19488_1342074829499534781@s1.oem",
                 "19488_1@s1.oem"
@@ -393,7 +686,7 @@ options: {layout: {locked: 1}}
         "graphStyle": "number",
         "layout": {
   h: 6,
-  w: 11,
+  w: 13,
   x: 0,
   y: 3
 },
@@ -407,10 +700,11 @@ options: {layout: {locked: 1}}
             },
             upwardsMeaning: "POSITIVE"
           }
-        }
+        },
+        sparklineConfig: {enabled: false}
         },
         {
-        "query": "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' \n| group user_agent=array_agg_distinct(http_request.user_agent) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| group \"Distinct User Agents\" = estimate_distinct(user_agent) ",
+        "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), useragents_eval = useragent_eval.to_string()\n| group user_agents=array_agg_distinct(useragents_eval) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| group \"Distinct User Agents\" = estimate_distinct(user_agents)",
         "teamEmails": [
                 "19488_1342074829499534781@s1.oem",
                 "19488_1@s1.oem"
@@ -418,10 +712,10 @@ options: {layout: {locked: 1}}
         "title": "Distinct User Agents",
         "graphStyle": "number",
         "layout": {
-h: 6,
-w: 12,
-x: 11,
-y: 3
+  h: 6,
+  w: 13,
+  x: 13,
+  y: 3
 },
         trendConfig: {
           enabled: false,
@@ -433,10 +727,11 @@ y: 3
             },
             upwardsMeaning: "POSITIVE"
           }
-        }
+        },
+        sparklineConfig: {enabled: false}
         },
         {
-        "query": "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' \n| group distinct_hosts=array_agg_distinct(device.hostname) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| group \"Distinct Hosts\" = estimate_distinct(distinct_hosts) ",
+        "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group distinct_hosts=array_agg_distinct(device.hostname) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| group \"Distinct Hosts\" = estimate_distinct(distinct_hosts) ",
         "teamEmails": [
                 "19488_1342074829499534781@s1.oem",
                 "19488_1@s1.oem"
@@ -444,10 +739,10 @@ y: 3
         "title": "Distinct Hosts",
         "graphStyle": "number",
         "layout": {
-h: 6,
-w: 12,
-x: 23,
-y: 3
+  h: 6,
+  w: 13,
+  x: 26,
+  y: 3
 },
         trendConfig: {
           enabled: false,
@@ -459,10 +754,11 @@ y: 3
             },
             upwardsMeaning: "POSITIVE"
           }
-        }
+        },
+        sparklineConfig: {enabled: false}
         },
         {
-        "query": "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' \n| group connections=array_agg_distinct(metadata.uid) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| group \"Distinct Connections\" = estimate_distinct(connections) ",
+        "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group connections=array_agg_distinct(metadata.uid) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| group \"Distinct Connections\" = estimate_distinct(connections) ",
         "teamEmails": [
                 "19488_1342074829499534781@s1.oem",
                 "19488_1@s1.oem"
@@ -470,10 +766,10 @@ y: 3
         "title": "Distinct  Connections",
         "graphStyle": "number",
         "layout": {
-h: 6,
-w: 11,
-x: 0,
-y: 9
+  h: 6,
+  w: 13,
+  x: 0,
+  y: 9
 },
         trendConfig: {
           enabled: false,
@@ -485,10 +781,11 @@ y: 9
             },
             upwardsMeaning: "POSITIVE"
           }
-        }
+        },
+        sparklineConfig: {enabled: false}
         },
         {
-        "query": "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' \n| group rbl=array_agg_distinct(response_body_len) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| let rblv = rbl.expand()\n| group \"Average Body Length\"=avg(rblv) ",
+        "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group rbl=array_agg_distinct(response_body_len) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| let rblv = rbl.expand()\n| group \"Average Body Length\"=avg(rblv) ",
         "teamEmails": [
                 "19488_1342074829499534781@s1.oem",
                 "19488_1@s1.oem"
@@ -496,10 +793,10 @@ y: 9
         "title": "Average Body Length",
         "graphStyle": "number",
         "layout": {
-h: 6,
-w: 12,
-x: 11,
-y: 9
+  h: 6,
+  w: 13,
+  x: 13,
+  y: 9
 },
         trendConfig: {
           enabled: false,
@@ -511,10 +808,11 @@ y: 9
             },
             upwardsMeaning: "POSITIVE"
           }
-        }
+        },
+        sparklineConfig: {enabled: false}
         },
         {
-        "query": "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' \n| group ua=array_agg_distinct(user_agent) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| let user_agent = ua.to_string()\n| let user_agent_lengh = user_agent.len()\n| group \"Average User Agent Length\"=avg(user_agent_lengh) ",
+        "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), useragents_eval = useragent_eval.to_string()\n| group ua=array_agg_distinct(useragents_eval) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| let user_agents = ua.to_string()\n| let user_agent_length = user_agents.len()\n| group \"Average User Agent Length\"=avg(user_agent_length)",
         "teamEmails": [
                 "19488_1342074829499534781@s1.oem",
                 "19488_1@s1.oem"
@@ -522,10 +820,10 @@ y: 9
         "title": "Average User Agent Length",
         "graphStyle": "number",
         "layout": {
-h: 6,
-w: 12,
-x: 23,
-y: 9
+  h: 6,
+  w: 13,
+  x: 26,
+  y: 9
 },
         trendConfig: {
           enabled: false,
@@ -537,36 +835,37 @@ y: 9
             },
             upwardsMeaning: "POSITIVE"
           }
-        }
+        },
+        sparklineConfig: {enabled: false}
         },
         {
-        "query": "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http'\n| group host = array_agg_distinct(host) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let host_header = host.to_string()\n| group Count=count() by \"Host Header\"=host_header \n| sort -Count \n| limit 10",
+        "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group host = array_agg_distinct(host) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let host_header = host.to_string()\n| group Count=count(), Percent=percent_of_total(count()) by \"URL Domain\"=host_header\n| sort -Count \n| limit 20",
         "teamEmails": [
                 "19488_1342074829499534781@s1.oem",
                 "19488_1@s1.oem"
             ],
         "title": "Top Host Headers by Count",
         "layout": {
-h: 16,
-w: 30,
-x: 0,
-y: 15
+  h: 16,
+  w: 20,
+  x: 0,
+  y: 15
 },
         "graphStyle": "",
         "showBarsColumn": "false"
         },
         {
-        "query": "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http'\n| let id_orig_h=src_endpoint.ip\n| group Count=count() by \"Source IP\"=id_orig_h \n| sort -Count\n| limit 10",
+        "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let src_ip=src_endpoint.ip\n| group Count=count() by \"Source IP\"=src_ip \n| sort -Count\n| limit 10",
         "teamEmails": [
                 "19488_1342074829499534781@s1.oem",
                 "19488_1@s1.oem"
             ],
         "title": "Top Originators",
         "layout": {
-h: 16,
-w: 30,
-x: 30,
-y: 15
+  h: 16,
+  w: 20,
+  x: 40,
+  y: 15
 },
         "graphStyle": "",
         "showBarsColumn": "false"
@@ -574,76 +873,77 @@ y: 15
         {
         "graphStyle": "pie",
         "maxPieSlices": 10,
-        "query": "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http'\n| group sm=array_agg_distinct(status_msg) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let status_msg=sm.to_string()\n| group count=count(), percent=percent_of_total(count()) by status_msg \n| sort -count ",
+        "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group sm=array_agg_distinct(status_msg) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let status_msg=sm.to_string()\n| group count=count(), percent=percent_of_total(count()) by status_msg \n| sort -count ",
         "teamEmails": [
                 "19488_1342074829499534781@s1.oem",
                 "19488_1@s1.oem"
             ],
         "title": "HTTP Status Code Breakdown",
         "layout": {
-h: 12,
-w: 25,
-x: 35,
-y: 3
-}
+  h: 16,
+  w: 20,
+  x: 20,
+  y: 15
+},
+        dataLabelType: "PERCENTAGE"
         },
         {
-          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' \n| group user_agent = array_agg_distinct(user_agent) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let http_user_agent = user_agent.to_string()\n| group Count=count(), Percent=percent_of_total(count()) by \"HTTP User Agent\"=http_user_agent \n| sort Count \n| limit 10",
+          query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), useragents_eval = useragent_eval.to_string()\n| group user_agent = array_agg_distinct(useragents_eval) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let http_user_agent = user_agent.to_string()\n| group Count=count(), Percent=percent_of_total(count()) by \"HTTP User Agent\"=http_user_agent \n| sort Count \n| limit 20",
           teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
           title: "Rare User Agents",
           layout: {
-h: 16,
-w: 30,
-x: 0,
-y: 31
+  h: 16,
+  w: 30,
+  x: 0,
+  y: 31
 },
           graphStyle: ""
         },
         {
-          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http'\n| group host = array_agg_distinct(host) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let host_header = host.to_string()\n| group Count=count(), Percent=percent_of_total(count()) by \"Host Header\"=host_header \n| sort Count \n| limit 10",
+          query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group host = array_agg_distinct(host) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let host_header = host.to_string()\n| group Count=count(), Percent=percent_of_total(count()) by \"URL Domain\"=host_header \n| sort Count \n| limit 20",
           teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
           title: "Rare Host Headers",
           layout: {
-h: 16,
-w: 30,
-x: 30,
-y: 31
+  h: 16,
+  w: 30,
+  x: 30,
+  y: 31
 },
           graphStyle: ""
         },
           {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' AND user_agent=*\n| let http_method = method\n| filter http_method = *\n| group host = array_agg_distinct(host) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let host_header = host.to_string()\n| group Count=count() by \"Host Header\"=host_header \n| sort -Count \n| limit 100000",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=*\n| group url_domain = array_agg_distinct(host).to_string(), http_method = array_agg_distinct(method).to_string() by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| group Count = count() by \"URL Domain\"=url_domain, \"Http_Method\"=http_method\n| filter Http_Method = *\n| sort -Count",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Host Breakdown By HTTP Method",
     layout: {
-h: 14,
-w: 30,
-x: 0,
-y: 50
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 50
 },
     graphStyle: ""
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http'\n| group host = array_agg_distinct(host), sc=array_agg_distinct(status_code), sm=array_agg_distinct(status_msg) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let host_header = host.to_string(), status_code = sc.to_string(), status_msg=sm.to_string()\n| filter status_code=*\n| group Count=count() by \"Host Header\"=host_header,\"Status Code\"=status_code,\"Status Msg\"=status_msg \n| sort -Count \n| limit 100000",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group host = array_agg_distinct(host), sc=array_agg_distinct(status_code), sm=array_agg_distinct(status_msg) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let host_header = host.to_string(), status_code = sc.to_string(), status_msg=sm.to_string()\n| filter status_code=*\n| group Count=count() by \"URL Domain\"=host_header,\"Status Code\"=status_code,\"Vendor Action\"=status_msg \n| sort -Count \n| limit 100000",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Host Breakdown By HTTP Status",
     layout: {
-h: 14,
-w: 30,
-x: 30,
-y: 50
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 50
 },
     graphStyle: ""
   },
 {
-    query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' AND host=* | columns uid, host, dst_endpoint.ip , src_endpoint.ip), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' | let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" | filter (direction = 'inbound' OR direction ='internal') | columns uid) on uid\n| group host_header = array_agg_distinct(host).to_string() by uid, dst_endpoint.ip, src_endpoint.ip \n| group \"Distinct Hosts Inbound\"=estimate_distinct(host_header)",
+    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'inbound'\n| columns uid) on uid\n| group url_domain = array_agg_distinct(host).to_string() by uid\n| group \"Distinct Hosts Inbound\"=estimate_distinct(url_domain)",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Distinct Host Headers - Inbound",
     layout: {
-h: 5,
-w: 30,
-x: 0,
-y: 67
+  h: 7,
+  w: 30,
+  x: 0,
+  y: 67
 },
     graphStyle: "number",
     trendConfig: {
@@ -656,17 +956,18 @@ y: 67
         },
         upwardsMeaning: "POSITIVE"
       }
-    }
+    },
+    sparklineConfig: {enabled: false}
   },
   {
-    query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' AND host=* | columns uid, host, dst_endpoint.ip , src_endpoint.ip), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' | let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" | filter (direction = 'outbound' OR direction ='external') | columns uid) on uid\n| group host_header = array_agg_distinct(host).to_string() by uid, dst_endpoint.ip, src_endpoint.ip \n| group \"Distinct Hosts Outbound\"=estimate_distinct(host_header)",
+    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'outbound'\n| columns uid) on uid\n| group url_domain = array_agg_distinct(host).to_string() by uid\n| group \"Distinct Hosts Inbound\"=estimate_distinct(url_domain)",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Distinct Host Headers - Outbound",
     layout: {
-h: 5,
-w: 30,
-x: 30,
-y: 67
+  h: 7,
+  w: 30,
+  x: 30,
+  y: 67
 },
     graphStyle: "number",
     trendConfig: {
@@ -679,54 +980,55 @@ y: 67
         },
         upwardsMeaning: "POSITIVE"
       }
-    }
+    },
+    sparklineConfig: {enabled: false}
   },
   {
-    query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' AND host=* | columns uid, host, dst_endpoint.ip , src_endpoint.ip), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' | let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" | filter (direction = 'outbound' OR direction ='external') | columns uid) on uid\n| group host_header = array_agg_distinct(host).to_string() by uid, dst_endpoint.ip, src_endpoint.ip \n| group Count=count() by \"Host Header\"=host_header\n| sort -Count",
+    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'outbound'\n| columns uid) on uid\n| group url_domain = array_agg_distinct(host).to_string() by uid\n| group Count=count() by \"URL Domain\"=url_domain\n| sort -Count",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Local Hosts - Outbound",
     graphStyle: "",
     layout: {
-h: 15,
-w: 30,
-x: 0,
-y: 72
+  h: 15,
+  w: 30,
+  x: 30,
+  y: 74
 }
   },
   {
-    query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' AND user_agent=* | columns uid, user_agent, dst_endpoint.ip , src_endpoint.ip), \n\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' | let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" | filter (direction = 'outbound' OR direction ='external') | columns uid) on uid\n| group user_agent = array_agg_distinct(user_agent).to_string() by uid, dst_endpoint.ip, src_endpoint.ip \n| group Count=count() by \"User Agent\"=user_agent\n| sort -Count",
+    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'outbound'\n| columns uid) on uid\n| group http_user_agent = array_agg_distinct(user_agents).to_string() by uid\n| group Count=count() by \"HTTP User Agent\"=http_user_agent\n| sort -Count",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Local User Agents - Outbound",
     graphStyle: "",
     layout: {
-h: 15,
-w: 30,
-x: 30,
-y: 72
+  h: 15,
+  w: 30,
+  x: 30,
+  y: 89
 }
   },
   {
-    query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' AND user_agent=* | columns uid, user_agent, dst_endpoint.ip , src_endpoint.ip), \n\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' | let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" | filter (direction = 'inbound' OR direction ='internal') | columns uid) on uid\n| group ua = array_agg_distinct(user_agent) by uid, dst_endpoint.ip, src_endpoint.ip \n| let user_agent = ua.to_string()\n| group Count=count() by \"User Agent\"=user_agent\n| sort -Count",
+    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'inbound'\n| columns uid) on uid\n| group http_user_agent = array_agg_distinct(user_agents).to_string() by uid\n| group Count=count() by \"HTTP User Agent\"=http_user_agent\n| sort -Count",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Local User Agents - Inbound",
     graphStyle: "",
     layout: {
-h: 15,
-w: 30,
-x: 30,
-y: 87
+  h: 15,
+  w: 30,
+  x: 0,
+  y: 89
 }
   },
   {
-    query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' AND host=* | columns uid, host, dst_endpoint.ip , src_endpoint.ip), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' | let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" | filter (direction = 'inbound' OR direction ='internal') | columns uid) on uid\n| group host_header = array_agg_distinct(host).to_string() by uid, dst_endpoint.ip, src_endpoint.ip \n| group Count=count() by \"Host Header\"=host_header\n| sort -Count",
+    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'inbound'\n| columns uid) on uid\n| group url_domain = array_agg_distinct(host).to_string() by uid\n| group Count=count() by \"URL Domain\"=url_domain\n| sort -Count",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Local Hosts - Inbound",
     graphStyle: "",
     layout: {
-h: 15,
-w: 30,
-x: 0,
-y: 87
+  h: 15,
+  w: 30,
+  x: 0,
+  y: 74
 }
   },
         {
@@ -734,10 +1036,10 @@ y: 87
           markdown: " ",
           title: "Top Values",
           layout: {
-h: 3,
-w: 60,
-x: 0,
-y: 0
+  h: 3,
+  w: 60,
+  x: 0,
+  y: 0
 }
         },
         {
@@ -745,10 +1047,10 @@ y: 0
           markdown: " ",
           title: "Details",
           layout: {
-h: 3,
-w: 60,
-x: 0,
-y: 47
+  h: 3,
+  w: 60,
+  x: 0,
+  y: 47
 }
         },
         {
@@ -756,14 +1058,27 @@ y: 47
           markdown: " ",
           title: "Directions",
           layout: {
-h: 3,
-w: 60,
-x: 0,
-y: 64
+  h: 3,
+  w: 60,
+  x: 0,
+  y: 64
 }
-        }
+        },
+        {
+          graphStyle: "",
+          layout: {
+  h: 12,
+  w: 21,
+  x: 39,
+  y: 3
+},
+          query: "metadata.product.vendor_name = 'Corelight' metadata.log_name = 'http_agg' \n| group count = count()\n| columns status_text = count > 0 ? \"HTTP Agg Logs Available\" : \"No HTTP Agg Logs\"",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "HTTP Aggregation",
+          description: "If \"No results\",  HTTP Agg Logs are not Available"
+        },
     ],
-    "options": {
+ "options": {
         "layout": {
             "columns": 5
         }
@@ -817,7 +1132,7 @@ y: 64
       },
       {
         facet: "http_request.user_agent",
-        name: "User Agent"
+        name: "User Agent (Top 100)"
       },
       {name: "HTTP Method",
       facet: "http_request.http_method"
@@ -825,10 +1140,35 @@ y: 64
       {
         facet: "status_code",
         name: "HTTP Status"
+      },
+    ],
+    options: {
+      layout: {
+        columns: 5,
+        locked: 0
       }
-    ] 
+    },
+    options: {
+      layout: {
+        columns: 5,
+        locked: 1
+      }
+    },
+    options: {
+      layout: {
+        columns: 5,
+        locked: 0
+      }
+    },
+    options: {
+      layout: {
+        columns: 5,
+        locked: 1
+      }
+    }
 },
-{"tabName":"Software","graphs":[
+{"tabName":"Software",
+ "graphs":[
   {
     graphStyle: "pie",
     maxPieSlices: 10,
@@ -843,7 +1183,7 @@ y: 64
 }
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'software'\n| let version_major=(version.major != null) ? version.major : \"\", version_minor=(version.minor != null) ? \".\" + version.minor : \"\", version_minor2=(version.minor2 != null) ? \".\" + version.minor2 : \"\", version = (version_major=\"\" AND version_minor=\"\" AND version_minor2!=\"\") ? \".\"+version_minor2 : (version_major!=\"\" AND version_minor=\"\" AND version_minor2!=\"\") ? version_major + \".\" + version_minor2 : version_major + version_minor + version_minor2\n| group \"Count\"=count() by \"Name\"=name, \"Version\"=version\n| sort -Count\n| limit 10",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'software'\n| let version_major=(version.major != null) ? version.major : \"\", version_minor=(version.minor != null) ? \".\" + version.minor : \"\", version_minor2=(version.minor2 != null) ? \".\" + version.minor2 : \"\", version = (version_major=\"\" AND version_minor=\"\" AND version_minor2!=\"\") ? \".\"+version_minor2 : (version_major!=\"\" AND version_minor=\"\" AND version_minor2!=\"\") ? version_major + \".\" + version_minor2 : version_major + version_minor + version_minor2\n| group \"Count\"=count(), Percent=percent_of_total(count()) by \"Name\"=name, \"Version\"=version\n| sort -Count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Software Versions",
     layout: {
@@ -855,7 +1195,7 @@ y: 64
     graphStyle: ""
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'software'\n| group \"Count\"=count() by \"Software Type\"=software_type\n| sort -Count",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'software'\n| group \"Count\"=count() by \"Name\"=name \n| sort -Count",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Software Types",
     layout: {
@@ -867,7 +1207,7 @@ y: 64
     graphStyle: ""
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'software'\n| let version_major=(version.major != null) ? version.major : \"\", version_minor=(version.minor != null) ? \".\" + version.minor : \"\", version_minor2=(version.minor2 != null) ? \".\" + version.minor2 : \"\", version = (version_major=\"\" AND version_minor=\"\" AND version_minor2!=\"\") ? \".\"+version_minor2 : (version_major!=\"\" AND version_minor=\"\" AND version_minor2!=\"\") ? version_major + \".\" + version_minor2 : version_major + version_minor + version_minor2\n| columns \"Time\"=time, \"Sensor Name\"=_system_name, \"Source Host\"=host, \"Name\"=name, \"Version\"=version, \"Version Details\"=version.addl, \"Software Type\"=software_type\n| limit 100000",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'software'\n| let version_major=(version.major != null) ? version.major : \"\", version_minor=(version.minor != null) ? \".\" + version.minor : \"\", version_minor2=(version.minor2 != null) ? \".\" + version.minor2 : \"\", version = (version_major=\"\" AND version_minor=\"\" AND version_minor2!=\"\") ? \".\"+version_minor2 : (version_major!=\"\" AND version_minor=\"\" AND version_minor2!=\"\") ? version_major + \".\" + version_minor2 : version_major + version_minor + version_minor2\n| columns \"Time\"=time, \"Source_IP\"=host, \"Source Port\"=host_p, \"Software Type\"=software_type, \"Name\"=name, \"Version\"=version, \"version.addl\"=version.addl\n| filter Source_IP=* Name=*",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Details",
     layout: {
@@ -925,42 +1265,73 @@ options: {layout: {locked: 1}},
 options: {layout: {locked: 0}},
 options: {layout: {locked: 1}}
 },
-{"tabName":"SSL","graphs":[
+{"tabName":"SSL",
+ "parameters": [
+    {
+      "name": "Show Aggregation Logs",
+      "label": "Show Aggregation Logs",
+      "values": [
+        {
+          "label": "No",
+          "value": "metadata.log_name in (\"ssl\",\"ssl_red\")"
+        },
+        {
+          "label": "Yes",
+          "value": "metadata.log_name = \"ssl_agg\""
+        }
+      ],
+      "defaultValue": "metadata.log_name in (\"ssl\",\"ssl_red\")"
+    }
+  ],
+ "graphs":[
   {
-    query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' | columns uid, \"ssl_subject\"=subject, \"ssl_subject_common_name\"=server_name),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\" | filter direction=* | columns uid) on uid\n| let c_id= (ssl_subject != null) ? ssl_subject : (ssl_subject_common_name != null) ? ssl_subject_common_name : \"unknown\"\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by \"Certificate ID\"=c_id\n| sort -Count\n| limit 10",
+    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| columns uid, \"ssl_subject\"=subject, \"ssl_subject_common_name\"=server_name),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\" | filter direction=* | columns uid) on uid\n| let c_id= (ssl_subject != null) ? ssl_subject : (ssl_subject_common_name != null) ? ssl_subject_common_name : \"unknown\"\n| filter c_id != \"unknown\"\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by \"Certificate ID\"=c_id\n| sort -Count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Certificate Subjects",
     layout: {
   h: 14,
-  w: 60,
+  w: 43,
   x: 0,
   y: 0
 },
     graphStyle: ""
   },
   {
-    query: "| join \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' AND validation_status=* | columns uid, validation_status),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\" | filter (direction=\"inbound\" OR direction=\"internal\") | columns uid) on uid\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by \"Validation Status\"=validation_status\n| sort -Count\n| limit 10",
+    query: "| join \n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND validation_status=* \n| columns uid, validation_status),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\" | filter (direction=\"inbound\" OR direction=\"internal\") | columns uid) on uid\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by \"Validation Status\"=validation_status\n| sort -Count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Local Responders - Validation Status",
     layout: {
-h: 14,
-w: 60,
-x: 0,
-y: 14
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 14
 },
     graphStyle: ""
   },
   {
     graphStyle: "pie",
     maxPieSlices: 10,
-    query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssl' AND cipher=* | columns uid, cipher),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\" | filter direction=* | columns uid) on uid\n| group \"count\"=count(), \"percent\"=percent_of_total(count()) by cipher\n| sort -count",
+    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND cipher=* \n| columns uid, cipher),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' | let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\" | filter direction=* | columns uid) on uid\n| group \"count\"=count(), \"percent\"=percent_of_total(count()) by cipher\n| sort -count",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "Top Ciphers",
     layout: {
-h: 14,
-w: 60,
-x: 0,
-y: 28
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 28
+},
+    dataLabelType: "PERCENTAGE"
+  },
+  {
+    description: "If \"No results\",  SSL Agg Logs are not Available",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' metadata.log_name = 'ssl_agg' \n| group count = count()\n| columns status_text = count > 0 ? \"SSL Agg Logs Available\" : \"No SSL Agg Logs\"",
+    title: "SSL Aggregation",
+    layout: {
+  h: 14,
+  w: 17,
+  x: 43,
+  y: 0
 }
   }
 ],
@@ -968,13 +1339,14 @@ filters: [
   {
     facet: "_system_name",
     name: "Corelight Sensor"
-  }
+  },
 ],
-options: {layout: {locked: 1}}
+options: {layout: {locked: 1}},
+options: {layout: {locked: 0}}
 },
 {"tabName":"x509","graphs":[
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509'\n| group \"count\"=count(), \"percent\"=percent_of_total(count()) by ssl_subject=certificate.subject\n| sort -count\n| limit 10",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509'\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by SSL_Subject=certificate.subject\n| filter SSL_Subject=*\n| sort -Count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "x509 Top Subjects",
     layout: {
@@ -986,7 +1358,7 @@ options: {layout: {locked: 1}}
     graphStyle: ""
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509'\n| group \"count\"=count(), \"percent\"=percent_of_total(count()) by ssl_subject=certificate.subject\n| sort count\n| limit 10",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509'\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by SSL_Subject=certificate.subject\n| filter SSL_Subject=*\n| sort Count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "x509 Rare Subjects",
     layout: {
@@ -998,14 +1370,14 @@ options: {layout: {locked: 1}}
     graphStyle: ""
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509'\n| let not_valid_after_epoch = strptime(certificate.not_valid_after, \"%Y-%m-%dT%H:%M:%S.000000Z\"),  current_time_epoch = now(), expired=current_time_epoch - not_valid_after_epoch\n| filter expired > 0\n| columns certificate.not_valid_after, certificate.subject\n",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509'\n| let not_valid_after_epoch = strptime(certificate.not_valid_after, \"%Y-%m-%dT%H:%M:%S.000000Z\"),  current_time_epoch = now(), expired=current_time_epoch - not_valid_after_epoch\n| filter expired > 0\n| group count=count() by \"ssl_end_time\"=certificate.not_valid_after, \"ssl_subject\"=certificate.subject, \"ssl_issuer\"=certificate.issuer\n| sort ssl_end_time",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "x509 Expired Certificates",
     layout: {
-h: 16,
-w: 60,
-x: 0,
-y: 16
+  h: 16,
+  w: 60,
+  x: 0,
+  y: 16
 },
     graphStyle: ""
   }

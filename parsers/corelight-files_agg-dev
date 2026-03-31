@@ -50,6 +50,11 @@
             match: ".*",
             replace: "$0"
           }, {
+            input: "mime_types",
+            output: "mime_type",
+            match: ".*",
+            replace: "$0"
+          }, {
             input: "id.orig_ep_uid",
             output: "agent.uuid",
             match: ".*",
@@ -144,4 +149,3 @@
       }
     ]
   }
-  
