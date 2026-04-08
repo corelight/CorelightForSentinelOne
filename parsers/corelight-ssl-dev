@@ -141,9 +141,13 @@
             output: "dst_endpoint.os",
             match: ".*",
             replace: "$0"
+          }, {
+            input: "subject",
+            output: "ssl_subject",
+            match: ".*",
+            replace: "$0"
           }
         ]
       }
     ]
   }
-  

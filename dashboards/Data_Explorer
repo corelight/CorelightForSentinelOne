@@ -553,9 +553,12 @@ options: {layout: {locked: 1}}
   {
     query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Source_File_Count\"=count() by \"Source IP\"=src_endpoint.ip \n| sort -Source_File_Count\n| limit 10\n",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
-    title: "Top Tansmitting (src_ip) Hosts - # Files",
+    title: "Top Transmitting (src_ip) Hosts - # Files",
     layout: {
   h: 14,
+  i: "5",
+  minH: 3,
+  minW: 6,
   w: 30,
   x: 0,
   y: 34
@@ -589,9 +592,12 @@ options: {layout: {locked: 1}}
   {
     query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| let is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false\n| filter is_broadcast != true\n| group \"Source_Bytes\"=sum(seen_bytes) by \"Source IP\"=src_endpoint.ip \n| sort -Source_Bytes\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
-    title: "Top Tansmitting (src_ip) Hosts - Bytes",
+    title: "Top Transmitting (src_ip) Hosts - Bytes",
     layout: {
   h: 14,
+  i: "8",
+  minH: 3,
+  minW: 6,
   w: 30,
   x: 30,
   y: 34
@@ -873,7 +879,7 @@ options: {layout: {locked: 1}}
         {
         "graphStyle": "pie",
         "maxPieSlices": 10,
-        "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group sm=array_agg_distinct(status_msg) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let status_msg=sm.to_string()\n| group count=count(), percent=percent_of_total(count()) by status_msg \n| sort -count ",
+        "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group sm=array_agg_distinct(status_msg) by metadata.uid, dst_endpoint.ip, src_endpoint.ip \n| let status_msg=sm.to_string()\n| filter status_msg != ''\n| group count=count(), percent=percent_of_total(count()) by status_msg \n| sort -count ",
         "teamEmails": [
                 "19488_1342074829499534781@s1.oem",
                 "19488_1@s1.oem"
@@ -881,6 +887,9 @@ options: {layout: {locked: 1}}
         "title": "HTTP Status Code Breakdown",
         "layout": {
   h: 16,
+  i: "8",
+  minH: 3,
+  minW: 6,
   w: 20,
   x: 20,
   y: 15
@@ -1344,25 +1353,50 @@ filters: [
 options: {layout: {locked: 1}},
 options: {layout: {locked: 0}}
 },
-{"tabName":"x509","graphs":[
+{"tabName":"x509",
+ "parameters": [
+    {
+      "name": "Show Aggregation Logs",
+      "label": "Show Aggregation Logs",
+      "values": [
+        {
+          "label": "No",
+          "value": "metadata.log_name in (\"x509\",\"ssl\",\"ssl_red\")"
+        },
+        {
+          "label": "Yes",
+          "value": "metadata.log_name in (\"x509\",\"ssl_agg\")"
+        }
+      ],
+      "defaultValue": "metadata.log_name in (\"x509\",\"ssl\",\"ssl_red\")"
+    }
+  ],
+ "graphs":[
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509'\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by SSL_Subject=certificate.subject\n| filter SSL_Subject=*\n| sort -Count\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by SSL_Subject=ssl_subject\n| filter SSL_Subject=*\n| sort -Count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "x509 Top Subjects",
     layout: {
   h: 16,
+  i: "0",
+  minH: 3,
+  minW: 6,
   w: 30,
   x: 0,
   y: 0
 },
-    graphStyle: ""
+    graphStyle: "",
+    showBarsColumn: "false"
   },
   {
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'x509'\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by SSL_Subject=certificate.subject\n| filter SSL_Subject=*\n| sort Count\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by SSL_Subject=ssl_subject\n| filter SSL_Subject=*\n| sort Count\n| limit 10",
     teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
     title: "x509 Rare Subjects",
     layout: {
   h: 16,
+  i: "1",
+  minH: 3,
+  minW: 6,
   w: 30,
   x: 30,
   y: 0

@@ -6,12 +6,11 @@
       "class_uid": 4001,
       "category_uid": 4,
       "severity_id": 1,
-      //    "severity": "Informational",
       "class_name": "Network Activity",
       "category_name": "Network Activity",
       "metadata.product.name": "Corelight",
       "metadata.product.vendor_name": "Corelight",
-      "metadata.version": "27.12.0",
+      "metadata.version": "28.2.0",
       "app_name": "Corelight"
     },
     formats: [
