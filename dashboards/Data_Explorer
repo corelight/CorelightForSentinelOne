@@ -492,14 +492,11 @@ options: {layout: {locked: 1}}
   {
     graphStyle: "line",
     lineSmoothing: "straightLines",
-    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| columns uid, seen_bytes, timestamp),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red', 'conn_agg') | let directional= (local_orig=true AND local_resp=false) ? \"sent\" : (local_orig=false AND local_resp=true) ? \"received\" : (local_orig=true AND local_resp=true) ? \"internal\" : \"unknown\"  | columns uid, directional) on uid\n| group \"# Files\"=count() by timestamp=timebucket(), directional\n| transpose directional on timestamp",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| columns uid, seen_bytes, timestamp\n| group \"# Files\"=count() by timestamp=timebucket()",
     title: "File Flow - # of Files",
     yScale: "linear",
     layout: {
   h: 14,
-  i: "2",
-  minH: 3,
-  minW: 6,
   w: 20,
   x: 0,
   y: 17
@@ -520,14 +517,11 @@ options: {layout: {locked: 1}}
   },
   {
     graphStyle: "line",
-    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| columns uid, seen_bytes, timestamp),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red', 'conn_agg') | let directional= (local_orig=true AND local_resp=false) ? \"sent\" : (local_orig=false AND local_resp=true) ? \"received\" : (local_orig=true AND local_resp=true) ? \"internal\" : \"unknown\"  | columns uid, directional) on uid\n| group \"Bytes\"=sum(seen_bytes) by timestamp=timebucket(), directional\n| transpose directional on timestamp",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| columns uid, seen_bytes, timestamp\n| group \"Bytes\"=sum(seen_bytes) by timestamp=timebucket()",
     title: "File Flow - Bytes",
     yScale: "linear",
     layout: {
   h: 14,
-  i: "4",
-  minH: 3,
-  minW: 6,
   w: 20,
   x: 40,
   y: 17
@@ -876,14 +870,11 @@ options: {layout: {locked: 1}}
     graphStyle: ""
   },
 {
-    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red', 'conn_agg') AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'inbound'\n| columns uid) on uid\n| group url_domain = array_agg_distinct(host).to_string() by uid\n| group \"Distinct Hosts Inbound\"=estimate_distinct(url_domain)",
-    title: "Distinct Host Headers - Inbound",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents \n| group url_domain = array_agg_distinct(host).to_string() by uid\n| group \"Distinct Hosts Inbound\"=estimate_distinct(url_domain)",
+    title: "Distinct Host Headers",
     layout: {
-  h: 7,
-  i: "13",
-  minH: 3,
-  minW: 6,
-  w: 30,
+  h: 13,
+  w: 16,
   x: 0,
   y: 67
 },
@@ -902,85 +893,25 @@ options: {layout: {locked: 1}}
     sparklineConfig: {enabled: false}
   },
   {
-    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red', 'conn_agg') AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'outbound'\n| columns uid) on uid\n| group url_domain = array_agg_distinct(host).to_string() by uid\n| group \"Distinct Hosts Inbound\"=estimate_distinct(url_domain)",
-    title: "Distinct Host Headers - Outbound",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents\n| group http_user_agent = array_agg_distinct(user_agents).to_string() by uid\n| group Count=count() by \"HTTP User Agent\"=http_user_agent\n| sort -Count",
+    title: "Local User Agents",
+    graphStyle: "",
     layout: {
-  h: 7,
-  i: "14",
-  minH: 3,
-  minW: 6,
-  w: 30,
-  x: 30,
+  h: 13,
+  w: 22,
+  x: 16,
   y: 67
-},
-    graphStyle: "number",
-    trendConfig: {
-      enabled: false,
-      indicators: {
-        arrow: {enabled: true},
-        number: {
-          calculationType: "ABSOLUTE",
-          enabled: true
-        },
-        upwardsMeaning: "POSITIVE"
-      }
-    },
-    sparklineConfig: {enabled: false}
-  },
-  {
-    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red', 'conn_agg') AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'outbound'\n| columns uid) on uid\n| group url_domain = array_agg_distinct(host).to_string() by uid\n| group Count=count() by \"URL Domain\"=url_domain\n| sort -Count",
-    title: "Local Hosts - Outbound",
-    graphStyle: "",
-    layout: {
-  h: 15,
-  i: "15",
-  minH: 3,
-  minW: 6,
-  w: 30,
-  x: 30,
-  y: 74
 }
   },
   {
-    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red', 'conn_agg') AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'outbound'\n| columns uid) on uid\n| group http_user_agent = array_agg_distinct(user_agents).to_string() by uid\n| group Count=count() by \"HTTP User Agent\"=http_user_agent\n| sort -Count",
-    title: "Local User Agents - Outbound",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents\n| group url_domain = array_agg_distinct(host).to_string() by uid\n| group Count=count() by \"URL Domain\"=url_domain\n| sort -Count",
+    title: "Local Hosts",
     graphStyle: "",
     layout: {
-  h: 15,
-  i: "16",
-  minH: 3,
-  minW: 6,
-  w: 30,
-  x: 30,
-  y: 89
-}
-  },
-  {
-    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red', 'conn_agg') AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'inbound'\n| columns uid) on uid\n| group http_user_agent = array_agg_distinct(user_agents).to_string() by uid\n| group Count=count() by \"HTTP User Agent\"=http_user_agent\n| sort -Count",
-    title: "Local User Agents - Inbound",
-    graphStyle: "",
-    layout: {
-  h: 15,
-  i: "17",
-  minH: 3,
-  minW: 6,
-  w: 30,
-  x: 0,
-  y: 89
-}
-  },
-  {
-    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND user_agent=* AND host=*\n| let useragent_eval = user_agent.extract_matches('[A-Za-z0-9_/-]+'), user_agents = useragent_eval.to_string()\n| columns uid, host, user_agents), \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red', 'conn_agg') AND service='http' \n| let direction = (local_orig==true && local_resp==true) ? \"internal\" :  (local_orig==true && local_resp==false) ? \"outbound\" : (local_orig==false && local_resp==false) ? \"external\" : (local_orig==false && local_resp==true) ? \"inbound\" :  \"unknown\" \n| filter direction = 'inbound'\n| columns uid) on uid\n| group url_domain = array_agg_distinct(host).to_string() by uid\n| group Count=count() by \"URL Domain\"=url_domain\n| sort -Count",
-    title: "Local Hosts - Inbound",
-    graphStyle: "",
-    layout: {
-  h: 15,
-  i: "18",
-  minH: 3,
-  minW: 6,
-  w: 30,
-  x: 0,
-  y: 74
+  h: 13,
+  w: 22,
+  x: 38,
+  y: 67
 }
   },
         {
@@ -1093,6 +1024,18 @@ options: {layout: {locked: 1}}
         name: "HTTP Status"
       },
     ],
+    options: {
+      layout: {
+        columns: 5,
+        locked: 0
+      }
+    },
+    options: {
+      layout: {
+        columns: 5,
+        locked: 1
+      }
+    },
     options: {
       layout: {
         columns: 5,
@@ -1232,7 +1175,7 @@ options: {layout: {locked: 1}}
   ],
  "graphs":[
   {
-    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| columns uid, ssl_subject, \"ssl_subject_common_name\"=server_name),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red', 'conn_agg') | let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\" | filter direction=* | columns uid) on uid\n| let c_id= (ssl_subject != null) ? ssl_subject : (ssl_subject_common_name != null) ? ssl_subject_common_name : \"unknown\"\n| filter c_id != \"unknown\"\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by \"Certificate ID\"=c_id\n| sort -Count\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| columns uid, ssl_subject, \"ssl_subject_common_name\"=server_name\n| let c_id= (ssl_subject != null) ? ssl_subject : (ssl_subject_common_name != null) ? ssl_subject_common_name : \"unknown\"\n| filter c_id != \"unknown\"\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by \"Certificate ID\"=c_id\n| sort -Count\n| limit 10",
     title: "Top Certificate Subjects",
     layout: {
   h: 14,
@@ -1243,7 +1186,7 @@ options: {layout: {locked: 1}}
     graphStyle: ""
   },
   {
-    query: "| join \n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND validation_status=* \n| columns uid, validation_status),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red', 'conn_agg') | let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\" | filter (direction=\"inbound\" OR direction=\"internal\") | columns uid) on uid\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by \"Validation Status\"=validation_status\n| sort -Count\n| limit 10",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND validation_status=* \n| columns uid, validation_status\n| group \"Count\"=count(), \"Percent\"=percent_of_total(count()) by \"Validation Status\"=validation_status\n| sort -Count\n| limit 10",
     title: "Top Local Responders - Validation Status",
     layout: {
   h: 14,
@@ -1256,7 +1199,7 @@ options: {layout: {locked: 1}}
   {
     graphStyle: "pie",
     maxPieSlices: 10,
-    query: "| join\n(#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND cipher=* \n| columns uid, cipher),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red', 'conn_agg') | let direction= (local_orig=true AND local_resp=true) ? \"internal\" : (local_orig=true AND local_resp=false) ? \"outbound\" : (local_orig=false AND local_resp=false) ? \"external\" : (local_orig=false AND local_resp=true) ? \"inbound\" : \"unknown\" | filter direction=* | columns uid) on uid\n| group \"count\"=count(), \"percent\"=percent_of_total(count()) by cipher\n| sort -count",
+    query: "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight' AND cipher=* \n| columns uid, cipher\n| group \"count\"=count(), \"percent\"=percent_of_total(count()) by cipher\n| sort -count",
     title: "Top Ciphers",
     layout: {
   h: 14,
