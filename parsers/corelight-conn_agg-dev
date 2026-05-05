@@ -40,8 +40,8 @@
             match: ".*",
             replace: "$0"
           }, {
-            input: "uid",
-            output: "metadata.uid",
+            input: "uids",
+            output: "uid",
             match: ".*",
             replace: "$0"
           }, {
@@ -284,4 +284,3 @@
       }
     ]
   }
-  

@@ -50,6 +50,11 @@
             match: ".*",
             replace: "$0"
           }, {
+            input: "user_agents",
+            output: "user_agent",
+            match: ".*",
+            replace: "$0"
+          }, {
             input: "id.orig_ep_uid",
             output: "agent.uuid",
             match: ".*",
@@ -314,4 +319,3 @@
       }
     ]
   }
-  
