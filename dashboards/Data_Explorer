@@ -213,7 +213,7 @@ graphs : [
 },
     query: "metadata.product.vendor_name = 'Corelight'\nmetadata.log_name = 'conn_agg'\n| group count = count()\n| columns status_text = count > 0 ? \"Conn Agg Logs Available\" : \"No Conn Agg Logs\"",
     title: "Conn Aggregation",
-    description: "If \"No results\",  Conn Agg Logs are not Available"
+    description: "If \"No results\", Conn Agg Logs are not Available"
   ,
   },
 ],
@@ -423,7 +423,7 @@ options: {layout: {locked: 1}}
 },
     query: "metadata.product.vendor_name = 'Corelight' metadata.log_name = 'dns_agg' \n| group count = count()\n| columns status_text = count > 0 ? \"DNS Agg Logs Available\" : \"No DNS Agg Logs\"",
     title: "DNS Aggregation",
-    description: "If \"No results\",  DNS Agg Logs are not Available"
+    description: "If \"No results\", DNS Agg Logs are not Available"
   },
 ],
 options: {layout: {locked: 1}},
@@ -575,7 +575,7 @@ options: {layout: {locked: 1}}
   {
     graphStyle: "markdown",
     markdown: " ",
-    title: " Top Values",
+    title: "Top Values",
     layout: {
   h: 3,
   w: 60,
@@ -595,7 +595,7 @@ options: {layout: {locked: 1}}
 }
   },
   {
-    description: "If \"No results\",  Files Agg Logs are not Available",
+    description: "If \"No results\", Files Agg Logs are not Available",
     graphStyle: "",
     query: "metadata.product.vendor_name = 'Corelight' metadata.log_name = 'files_agg' \n| group count = count()\n| columns status_text = count > 0 ? \"Files Agg Logs Available\" : \"No Files Agg Logs\"",
     title: "Files Aggregation",
@@ -721,7 +721,7 @@ options: {layout: {locked: 1}}
         },
         {
         "query": "#Show Aggregation Logs#\nmetadata.product.vendor_name = 'Corelight'\n| group connections=array_agg_distinct(metadata.uid) by metadata.uid, dst_endpoint.ip, src_endpoint.ip\n| group \"Distinct Connections\" = estimate_distinct(connections) ",
-        "title": "Distinct  Connections",
+        "title": "Distinct Connections",
         "graphStyle": "number",
         "layout": {
   h: 6,
@@ -957,7 +957,7 @@ options: {layout: {locked: 1}}
 },
           query: "metadata.product.vendor_name = 'Corelight' metadata.log_name = 'http_agg' \n| group count = count()\n| columns status_text = count > 0 ? \"HTTP Agg Logs Available\" : \"No HTTP Agg Logs\"",
           title: "HTTP Aggregation",
-          description: "If \"No results\",  HTTP Agg Logs are not Available"
+          description: "If \"No results\", HTTP Agg Logs are not Available"
         },
     ],
  "options": {
@@ -1210,7 +1210,7 @@ options: {layout: {locked: 1}}
     dataLabelType: "PERCENTAGE"
   },
   {
-    description: "If \"No results\",  SSL Agg Logs are not Available",
+    description: "If \"No results\", SSL Agg Logs are not Available",
     graphStyle: "",
     query: "metadata.product.vendor_name = 'Corelight' metadata.log_name = 'ssl_agg' \n| group count = count()\n| columns status_text = count > 0 ? \"SSL Agg Logs Available\" : \"No SSL Agg Logs\"",
     title: "SSL Aggregation",
