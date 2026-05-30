@@ -183,7 +183,7 @@
   y: 46
 },
       lineSmoothing: "straightLines",
-      query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| let total_bytes = orig_bytes + resp_bytes\n| columns src_ip=src_endpoint.ip, total_bytes, timestamp=timestamp),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification' \n| columns ip, device_type) on src_ip = ip\n| group \"total_bytes\"=sum(total_bytes) by timestamp=timebucket(), device_type \n| transpose device_type on timestamp",
+      query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| let total_bytes = orig_ip_bytes + resp_ip_bytes\n| columns src_ip=src_endpoint.ip, total_bytes, timestamp=timestamp),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification' \n| columns ip, device_type) on src_ip = ip\n| group \"total_bytes\"=sum(total_bytes) by timestamp=timebucket(), device_type \n| transpose device_type on timestamp",
       title: "Data Transferred by Device Type By IP Addresses"
     },
   ],
@@ -209,12 +209,6 @@
       name: "IP Address"
     }
   ],
-  options: {layout: {locked: 1}},
-  options: {layout: {locked: 0}},
-  options: {layout: {locked: 1}},
-  options: {layout: {locked: 0}},
-  options: {layout: {locked: 1}},
-  options: {layout: {locked: 0}},
   options: {layout: {locked: 1}}
 },
 {"tabName":"Connections",
@@ -435,9 +429,6 @@ graphs : [
   ,
   },
 ],
-options: {layout: {locked: 1}},
-options: {},
-options: {layout: {locked: 1}},
 filters: [
   {
     facet: "_system_name",
@@ -464,11 +455,6 @@ filters: [
     name: "Connection UID"
   },
 ],
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
 options: {layout: {locked: 1}}
 },
 {"tabName":"DNS",
@@ -644,7 +630,6 @@ options: {layout: {locked: 1}}
     description: "If \"No results\", DNS Agg Logs are not Available"
   },
 ],
-options: {layout: {locked: 1}},
 filters: [
   {
     facet: "_system_name",
@@ -660,7 +645,6 @@ filters: [
     name: "Record Type"
   },
 ],
-options: {layout: {locked: 0}},
 options: {layout: {locked: 1}}
 },
 {"tabName":"Files",
@@ -825,13 +809,6 @@ options: {layout: {locked: 1}}
 }
   }
 ],
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
 filters: [
   {
     facet: "_system_name",
@@ -842,11 +819,6 @@ filters: [
     name: "Mime Type"
   },
 ],
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
 options: {layout: {locked: 1}}
 },
 {"tabName":"HTTP",
@@ -1178,53 +1150,6 @@ options: {layout: {locked: 1}}
           description: "If \"No results\", HTTP Agg Logs are not Available"
         },
     ],
- "options": {
-        "layout": {
-            "columns": 5
-        }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
     filters: [
       {
         facet: "_system_name",
@@ -1242,42 +1167,7 @@ options: {layout: {locked: 1}}
         name: "HTTP Status"
       },
     ],
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    }
+    options: {layout: {columns: 5, locked: 1}}
 },
 {"tabName":"Software",
  "graphs":[
@@ -1367,10 +1257,6 @@ filters: [
     name: "Software"
   }
 ],
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
 options: {layout: {locked: 1}}
 },
 {"tabName":"SSL",
@@ -1446,8 +1332,7 @@ filters: [
     name: "Corelight Sensor"
   },
 ],
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}}
+options: {layout: {locked: 1}}
 },
 {"tabName":"x509",
  "parameters": [
@@ -1506,13 +1391,13 @@ options: {layout: {locked: 0}}
     graphStyle: ""
   }
 ],
-options: {layout: {locked: 1}},
 filters: [
   {
     facet: "_system_name",
     name: "Corelight Sensor"
   }
-]
+],
+options: {layout: {locked: 1}}
 }],
   configType: "TABBED"
 }

@@ -117,12 +117,12 @@
             match: ".*",
             replace: "$0"
           }, {
-            input: "orig_bytes",
+            input: "orig_ip_bytes",
             output: "traffic.bytes_out",
             match: ".*",
             replace: "$0"
           }, {
-            input: "resp_bytes",
+            input: "resp_ip_bytes",
             output: "traffic.bytes_in",
             match: ".*",
             replace: "$0"
