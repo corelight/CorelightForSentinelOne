@@ -1083,7 +1083,7 @@ options: {layout: {locked: 1}}
   x: 30,
   y: 47
 },
-    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='dns'\n| group TotalTraffic=sum(orig_bytes)/(1024*1024)",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' AND service='dns'\n| group TotalTraffic=sum(orig_ip_bytes)/(1024*1024)",
     title: "DNS Query Volume Over Time (MB)",
     trendConfig: {
       enabled: false,

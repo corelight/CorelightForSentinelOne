@@ -1,5 +1,217 @@
 {
-  tabs: [{"tabName":"Connections",
+  tabs: [{"tabName":"Asset Classification","graphs":[
+    {
+      dataLabelType: "PERCENTAGE",
+      description: "",
+      graphStyle: "donut",
+      maxPieSlices: 15,
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification'\n| let brand = (brand = null || brand = \"\") ? \"Unknown\" : brand\n| filter mac != \"\"\n| group \"unique_devices\"=estimate_distinct(mac) by brand\n| sort - unique_devices\n| limit 15",
+      title: "Brand Breakdown By Unique MAC Addresses",
+      layout: {
+  h: 16,
+  w: 20,
+  x: 20,
+  y: 0
+},
+      totalNumberConfig: {
+        enabled: false,
+        label: ""
+      }
+    },
+    {
+      dataLabelType: "PERCENTAGE",
+      description: "",
+      graphStyle: "donut",
+      layout: {
+  h: 16,
+  w: 20,
+  x: 40,
+  y: 0
+},
+      maxPieSlices: 10,
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification'\n| let type_name = (type_name = null || type_name = \"\") ? \"Unknown\" : type_name\n| group \"unique_devices\"=estimate_distinct(mac) by type_name\n| sort - unique_devices\n| limit 10",
+      title: "Device Type Breakdown by Unique MAC Addresses",
+      totalNumberConfig: {
+        enabled: false,
+        label: ""
+      }
+    ,
+    },
+    {
+      description: "",
+      graphStyle: "",
+      layout: {
+  h: 16,
+  w: 20,
+  x: 0,
+  y: 0
+},
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification'\n| let os_name = (os_name = null || os_name = \"\") ? \"Unknown\" : os_name\n| group \"unique_devices\"=estimate_distinct(mac) by os_name\n| sort - unique_devices\n| limit 10",
+      title: "Total Operating Systems By Unique MAC Addresses",
+    },
+    {
+      dataLabelType: "PERCENTAGE",
+      description: "",
+      graphStyle: "donut",
+      layout: {
+  h: 16,
+  w: 20,
+  x: 0,
+  y: 16
+},
+      maxPieSlices: 10,
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification'\n| let type_group = (type_group = null || type_group = \"\") ? \"Unknown\" : type_group\n| group \"unique_devices\"=estimate_distinct(ip) by type_group\n| sort - unique_devices\n| limit 10",
+      title: "Device Groupings by Unique IP Addresses",
+      totalNumberConfig: {
+        enabled: false,
+        label: ""
+      }
+    ,
+    },
+    {
+      dataLabelType: "PERCENTAGE",
+      description: "",
+      graphStyle: "donut",
+      layout: {
+  h: 16,
+  w: 20,
+  x: 20,
+  y: 16
+},
+      maxPieSlices: 10,
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification'\n| let os_ver = (os_ver = null || os_ver = \"\") ? \"Unknown\" : os_ver, os_name = (os_name = null) ? \"Unknown\" : os_name\n| let os_full = (os_ver != \"Unknown\") ? os_name + \" \" + os_ver : os_name\n| group \"unique_devices\"=estimate_distinct(mac) by os_full\n| sort - unique_devices",
+      title: "Operating System Versions By Unique MAC Addresses",
+      totalNumberConfig: {
+        enabled: false,
+        label: ""
+      }
+    ,
+    },
+    {
+      dataLabelType: "PERCENTAGE",
+      description: "",
+      graphStyle: "donut",
+      layout: {
+  h: 16,
+  w: 20,
+  x: 40,
+  y: 16
+},
+      maxPieSlices: 10,
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification'\n| let str_to_arr_sources = sources.extract_matches('[a-z]+'), is_contain_http = str_to_arr_sources.contains(\"http\"), is_contain_dhcp = str_to_arr_sources.contains(\"dhcp\"), both_arr = array(\"both\")\n| let updated_sources = (is_contain_http AND is_contain_dhcp) ? str_to_arr_sources.concat(both_arr) : str_to_arr_sources\n| let expanded_sources = updated_sources.expand()\n| group \"Devices\"=estimate_distinct(ip) by expanded_sources \n| sort - Devices\n| limit 10",
+      title: "Discovery Sources By Unique IP Addresses",
+      totalNumberConfig: {
+        enabled: false,
+        label: ""
+      }
+    ,
+    },
+    {
+      graphStyle: "",
+      query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| filter service != null service != \"\"\n| columns src_ip=src_endpoint.ip , app=service),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification' \n| columns ip, os_name, device_type) on src_ip = ip\n| group \"Weight\"=count() by \"OS Name\"=os_name, \"App\"=app\n| sort - Weight\n| limit 10",
+      title: "Top Applications by Operating System",
+      layout: {
+  h: 14,
+  w: 27,
+  x: 0,
+  y: 32
+},
+    },
+    {
+      graphStyle: "line",
+      title: "Device Types Over Time By Unique MAC Addresses",
+      layout: {
+  h: 14,
+  w: 33,
+  x: 27,
+  y: 32
+},
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification' AND type_name = *\n| group \"Active Assets\"=estimate_distinct(mac) by timestamp=timebucket(\"1h\"), type_name\n| transpose type_name on timestamp",
+      lineSmoothing: "straightLines"
+    },
+    {
+      graphStyle: "line",
+      layout: {
+  h: 13,
+  w: 27,
+  x: 0,
+  y: 46
+},
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification' AND model = *\n| group \"Active Assets\"=estimate_distinct(ip) by timestamp=timebucket(\"1h\"), model\n| transpose model on timestamp",
+      title: "Top Models Over Time By Unique IP Addresses"
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification'\n| let type_name = (type_name = null  OR type_name = \"\")  ? \"Unknown\" : type_name, os_name = (os_name = null OR os_name = \"\") ? \"Unknown\" : os_name, type_group = (type_group = null OR type_group = \"\") ? \"Unknown\" : type_group\n| group \"OS Name\"=(array_agg_distinct(os_name)).to_string(), \"Type Name\"=(array_agg_distinct(type_name)).to_string(), \"Type Group\"=(array_agg_distinct(type_group)).to_string() by \"IP\"=ip\n| sort - IP\n| limit 100",
+      title: "Classification Details per Host",
+      layout: {
+  h: 14,
+  w: 33,
+  x: 27,
+  y: 59
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification'\n| let brand = (brand = null OR brand = \"\") ? \"Unknown\" : brand, model = (model = null OR model = \"\") ? \"Unknown\" : model, device_type = (device_type = null OR device_type = \"\") ? \"Unknown\" : device_type\n| filter type_group = \"Audio & Video\" OR type_group = \"Smart Home\" OR device_type = \"GAME_CONSOLE\"\n| group \"Count\"=estimate_distinct(ip) by \"Device Type\"=device_type, \"Brand\"=brand, \"Model\"=model\n| sort - Count\n| limit 100",
+      title: "Detected IoT (Audio, Video, Gaming)",
+      layout: {
+  h: 14,
+  w: 27,
+  x: 0,
+  y: 59
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification'\n| let mac = (mac = null || mac = \"\")   ? \"Unknown\" : mac, os_name = (os_name = null || os_name = \"\") ? \"Unknown\" : os_name, os_ver = (os_ver = null || os_ver = \"\") ? \"Unknown\" : os_ver, type_name = (type_name = null || type_name = \"\") ? \"Unknown\" : type_name, type_group  = (type_group = null  || type_group = \"\")  ? \"Unknown\" : type_group, brand = (brand = null || brand = \"\") ? \"Unknown\" : brand, model = (model = null || model = \"\") ? \"Unknown\" : model, ip = (ip = null || ip = \"\") ? \"Unknown\" : ip\n| let confidence  = confidence >= 40 ? \"High\" :\n(confidence >= 20 && confidence <= 39) ? \"Medium\" :\n(confidence >= 1  && confidence <= 19) ? \"Low\" : \"Unknown\"\n| let ts = strftime(timestamp, \"%Y-%m-%d %H:%M:%S\")\n| group \"Mac\"=(array_agg_distinct(mac)).to_string(), \"OS Name\"=(array_agg_distinct(os_name)).to_string(), \"OS Version\"=(array_agg_distinct(os_ver)).to_string(), \"Type Name\"=(array_agg_distinct(type_name)).to_string(), \"Type Group\"=(array_agg_distinct(type_group)).to_string(), \"Brand\"=(array_agg_distinct(brand)).to_string(), \"Model\"=(array_agg_distinct(model)).to_string(), \"Sources\"=(array_agg_distinct(sources)).to_string() by \"Time\"=ts, \"IP\"=ip, \"Confidence\"=confidence\n| limit 100",
+      title: "Device Inventory with Classifications",
+      layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 73
+}
+    },
+    {
+      graphStyle: "line",
+      layout: {
+  h: 13,
+  w: 33,
+  x: 27,
+  y: 46
+},
+      lineSmoothing: "straightLines",
+      query: "| join\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| let total_bytes = orig_ip_bytes + resp_ip_bytes\n| columns src_ip=src_endpoint.ip, total_bytes, timestamp=timestamp),\n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'asset_classification' \n| columns ip, device_type) on src_ip = ip\n| group \"total_bytes\"=sum(total_bytes) by timestamp=timebucket(), device_type \n| transpose device_type on timestamp",
+      title: "Data Transferred by Device Type By IP Addresses"
+    },
+  ],
+  filters: [
+    {
+      facet: "_system_name",
+      name: "Sensor"
+    },
+    {
+      facet: "os_name",
+      name: "Operating System"
+    },
+    {
+      facet: "type_group",
+      name: "Device Type Group"
+    },
+    {
+      facet: "type_name",
+      name: "Device Type Name"
+    },
+    {
+      facet: "ip",
+      name: "IP Address"
+    }
+  ],
+  options: {layout: {locked: 1}}
+},
+{"tabName":"Connections",
  "parameters": [
     {
       "name": "Show Aggregation Logs",
@@ -217,9 +429,6 @@ graphs : [
   ,
   },
 ],
-options: {layout: {locked: 1}},
-options: {},
-options: {layout: {locked: 1}},
 filters: [
   {
     facet: "_system_name",
@@ -246,11 +455,6 @@ filters: [
     name: "Connection UID"
   },
 ],
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
 options: {layout: {locked: 1}}
 },
 {"tabName":"DNS",
@@ -426,7 +630,6 @@ options: {layout: {locked: 1}}
     description: "If \"No results\", DNS Agg Logs are not Available"
   },
 ],
-options: {layout: {locked: 1}},
 filters: [
   {
     facet: "_system_name",
@@ -442,7 +645,6 @@ filters: [
     name: "Record Type"
   },
 ],
-options: {layout: {locked: 0}},
 options: {layout: {locked: 1}}
 },
 {"tabName":"Files",
@@ -607,13 +809,6 @@ options: {layout: {locked: 1}}
 }
   }
 ],
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
 filters: [
   {
     facet: "_system_name",
@@ -624,11 +819,6 @@ filters: [
     name: "Mime Type"
   },
 ],
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
 options: {layout: {locked: 1}}
 },
 {"tabName":"HTTP",
@@ -960,53 +1150,6 @@ options: {layout: {locked: 1}}
           description: "If \"No results\", HTTP Agg Logs are not Available"
         },
     ],
- "options": {
-        "layout": {
-            "columns": 5
-        }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
     filters: [
       {
         facet: "_system_name",
@@ -1024,42 +1167,7 @@ options: {layout: {locked: 1}}
         name: "HTTP Status"
       },
     ],
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 0
-      }
-    },
-    options: {
-      layout: {
-        columns: 5,
-        locked: 1
-      }
-    }
+    options: {layout: {columns: 5, locked: 1}}
 },
 {"tabName":"Software",
  "graphs":[
@@ -1149,10 +1257,6 @@ filters: [
     name: "Software"
   }
 ],
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}},
 options: {layout: {locked: 1}}
 },
 {"tabName":"SSL",
@@ -1228,8 +1332,7 @@ filters: [
     name: "Corelight Sensor"
   },
 ],
-options: {layout: {locked: 1}},
-options: {layout: {locked: 0}}
+options: {layout: {locked: 1}}
 },
 {"tabName":"x509",
  "parameters": [
@@ -1288,13 +1391,13 @@ options: {layout: {locked: 0}}
     graphStyle: ""
   }
 ],
-options: {layout: {locked: 1}},
 filters: [
   {
     facet: "_system_name",
     name: "Corelight Sensor"
   }
-]
+],
+options: {layout: {locked: 1}}
 }],
   configType: "TABBED"
 }

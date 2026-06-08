@@ -1,0 +1,45 @@
+{
+    attributes: {
+      "dataSource.category": "security",
+      "dataSource.name": "Corelight",
+      "dataSource.vendor": "Corelight",
+      "class_uid": 5001,
+      "category_uid": 5,
+      "severity_id": 1,
+      "class_name": "Device Inventory Info",
+      "category_name": "Discovery",
+      "metadata.product.name": "Corelight",
+      "metadata.product.vendor_name": "Corelight",
+      "metadata.version": "28.2.0",
+      "app_name": "Corelight"
+    },
+    formats: [
+      {
+        format: "${parse=dottedJson}$",
+        repeat: true
+        rewrites: [
+          {
+            input: "_path",
+            output: "metadata.log_name",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "ts",
+            output: "timestamp",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "ts",
+            output: "time",
+            match: ".*",
+            replace: "$0"
+          }, {
+            input: "uid",
+            output: "metadata.uid",
+            match: ".*",
+            replace: "$0"
+          }
+        ]
+      }
+    ]
+  }
