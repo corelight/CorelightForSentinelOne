@@ -3,21 +3,60 @@
 ## Overview
 This guide will help you set up and utilize SentinelOne Dashboards, which offer powerful data insights for monitoring and analyzing your network traffic. Whether you're a security analyst, network administrator, or IT professional, these dashboards will help you easily visualize and track your network's security status.
 
+Corelight data can be brought into the SentinelOne Singularity Data Lake in two ways, and this repository provides a matching set of dashboards for each:
+
+- **Option A: Observo Pipeline (OCSF) (Recommended)** – Corelight logs are sent through an Observo pipeline, which converts them to OCSF format with the Lua script before forwarding them to SentinelOne.
+- **Option B: Native Parsers** – Corelight logs are ingested directly into SentinelOne and parsed by the SentinelOne native parsers present in this repository.
+
+---
+
+## Choose Your Ingestion Path
+
+| | Option A: Observo Pipeline (OCSF) (Recommended) | Option B: Native Parsers |
+|---|---|---|
+| **How data flows** | Corelight → Observo (Lua script converts to OCSF 1.8.0) → SentinelOne | Corelight → SentinelOne (parsed by SentinelOne native parsers) |
+| **What you need** | Singularity Operations Center access; an Observo pipeline | Singularity Operations Center access; the parsers in [`parsers/`](parsers/) |
+| **Dashboards to import** | [`dashboards/observo-ocsf/`](dashboards/observo-ocsf/) | [`dashboards/native-legacy/`](dashboards/native-legacy/) |
+| **Lookup files** | Required – [`lookups/`](lookups/) | Required – [`lookups/`](lookups/) |
+| **Data Ingestion Setup steps** | [Option A: Observo Pipeline (OCSF)](#option-a-observo-pipeline-ocsf-recommended) | [Option B: Native Parsers](#option-b-native-parsers) |
+
+---
+
+## Repository Contents
+
+| Folder | Used by | Description |
+|---|---|---|
+| [`observo-lua-script/`](observo-lua-script/) | Option A | `corelight_sentinelone_observo_lua_script.lua` – converts Corelight events to OCSF 1.8.0. |
+| [`parsers/`](parsers/) | Option B | SentinelOne native parsers for each Corelight log type, plus the `corelight-generic` parser to parse common fields from different types of logs. |
+| [`dashboards/observo-ocsf/`](dashboards/observo-ocsf/) | Option A | The same dashboards, built on the OCSF fields produced by the Lua script. |
+| [`dashboards/native-legacy/`](dashboards/native-legacy/) | Option B | Dashboard files built on the native parser fields. |
+| [`lookups/`](lookups/) | Both | Lookup (configuration) files used by the dashboards. |
+
+
 ---
 
 ## Installation and Configuration
 
-### Parser Configuration
+Complete the steps for **one** of the options below for data parsing and ingestion, then [configure the lookup files](#configure-lookup-files) and [set up the dashboards](#step-by-step-guide-for-using-sentinelone-dashboards).
 
-#### Installing Parsers through Marketplace
+### Option A: Observo Pipeline (OCSF) (Recommended)
 
+**Note:** Follow these steps only if you are using the Observo pipeline. The native parsers from Option B are not required for this option.
+
+#### Setting up Observo Pipeline
 -- TBD --
 
+#### Data Collection
+
+-- TBD -- 
+
+---
+
+### Option B: Native Parsers
 
 #### Installing Parsers through Github Repository
 
-**Note:** Follow these steps if you prefer to use the GitHub repository for installation instead of [marketplace](https://github.com/corelight/CorelightForSentinelOne/blob/main/README.md#installing-parsers-through-marketplace). If you have already installed the parsers, please skip these steps.
-
+For installing the parsers through github repository, please follow the below steps:
 
 **Step 1:** In the Singularity Operations Center, go to Policy and Settings Section from the bottom left corner.
 
@@ -37,7 +76,7 @@ This guide will help you set up and utilize SentinelOne Dashboards, which offer 
 
 ![image](https://github.com/user-attachments/assets/3818b586-1d2a-4008-b320-1b56d2b9d8f9)
 
-**Step 5:** After adding a new parser with log name head over to the parsers folder in github repo and search for that specific log file and copy the code from that file and paste it in below highlighted section.
+**Step 5:** After adding a new parser with log name head over to the [parsers](parsers/) folder in github repo and search for that specific log file and copy the code from that file and paste it in below highlighted section.
 
 ![image](https://github.com/user-attachments/assets/bc6a4d58-0e23-4b89-9593-2a59671616a5)
 
@@ -47,7 +86,6 @@ This guide will help you set up and utilize SentinelOne Dashboards, which offer 
 
 ![image](https://github.com/user-attachments/assets/85210de1-2c97-4b8b-a586-857f9d05894c)
 
-&nbsp;
 
 #### Configuring and Adding a generic parser
 
@@ -55,20 +93,22 @@ This guide will help you set up and utilize SentinelOne Dashboards, which offer 
 
 **How to use generic parser?**
 
-To use the generic parser, first complete steps 1 to 4 from the [Installing Parsers Through GitHub Repository](https://github.com/corelight/CorelightForSentinelOne/blob/feature/add-generic-parser/README.md#installing-parsers-through-github-repository) section, and then proceed with the following steps.
+To use the generic parser, first complete steps 1 to 4 from the [Installing Parsers Through GitHub Repository](#installing-parsers-through-github-repository) section, and then proceed with the following steps.
 
-After creating the parser, copy the code from the [corelight-generic parser](https://github.com/corelight/CorelightForSentinelOne/blob/feature/add-generic-parser/parsers/corelight-generic) and paste it in the parser which you have created and add more details as per your requirement and then save the parser.
+After creating the parser, copy the code from the [corelight-generic parser](parsers/corelight-generic) and paste it in the parser which you have created and add more details as per your requirement and then save the parser.
 
 ![image](https://github.com/user-attachments/assets/8a022840-4463-4c8b-9f37-f3a371ca1c56)
 
-### Data Collection
+#### Data Collection
 
 To ingest data into SentinelOne Singularity Data Lake, follow the steps provided in the SentinelOne documentation under (Singularity Marketplace → Marketplace Ingestion Integrations → Corelight Zeek Network Security Parser Integration with SentinelOne).
 
-**Note:** If you are installing the parsers from [GitHub repo](https://github.com/corelight/CorelightForSentinelOne/blob/main/README.md#installing-parsers-through-github-repository) make sure to update the sourcetype template as **"corelight-$LOG-dev"**
+**Note:** If you are installing the parsers from [GitHub repo](#installing-parsers-through-github-repository) make sure to update the sourcetype template as **"corelight-$LOG-dev"**
+
+---
 
 ### Configure Lookup Files
-For populating dashboards, we need some of the configurations files (i.e Lookup files), which we need to add.
+For populating dashboards, we need some of the configurations files (i.e Lookup files), which we need to add. These steps are the same for Option A and Option B.
 
 **Step 1:** In the Singularity Operations Center, go to Policy and Settings Section from the bottom left corner.
 
@@ -82,7 +122,7 @@ For populating dashboards, we need some of the configurations files (i.e Lookup 
 
 ![image](https://github.com/user-attachments/assets/47df9ea5-3062-40cb-a144-b9dd6a02434b)
 
-**Step 4:** In that click on New File and add create all the files with the same names as mentioned in the lookups folder in github repository.
+**Step 4:** In that click on New File and add create all the files with the same names as mentioned in the [lookups](lookups/) folder in github repository.
 
 <img width="659" height="372" alt="Create Lookup Files step 4" src="https://github.com/user-attachments/assets/d272b6c0-f60a-4bc7-acc8-bf91cde79b30" />
 
@@ -148,7 +188,11 @@ Once this is done, all the lookup files will be created.
    
    ![image](https://github.com/user-attachments/assets/5df4ce4f-0126-4d0d-a62b-94d7505ddff8)
 
-3. Replace JSON Code: A window will open where you can modify the JSON configuration. Replace the existing code with the pre-provided dashboard file from the [github repository](https://github.com/corelight/CorelightForSentinelOne/tree/main/dashboards). This will populate your dashboard with the correct widgets and data sources.
+3. Replace JSON Code: A window will open where you can modify the JSON configuration. Replace the existing code with the pre-provided dashboard file for the option you selected in [Installation and Configuration](#installation-and-configuration) for ingestion and parsing:
+   - **Option A: Observo Pipeline (OCSF)** – use the dashboard files from [`dashboards/observo-ocsf`](https://github.com/corelight/CorelightForSentinelOne/tree/main/dashboards/observo-ocsf).
+   - **Option B: Native Parsers** – use the dashboard files from [`dashboards/native-legacy`](https://github.com/corelight/CorelightForSentinelOne/tree/main/dashboards/native-legacy).
+
+   This will populate your dashboard with the correct widgets and data sources.
 
    ![image](https://github.com/user-attachments/assets/d880d249-4a4a-40e2-8a5b-878ecccff0cc)
 

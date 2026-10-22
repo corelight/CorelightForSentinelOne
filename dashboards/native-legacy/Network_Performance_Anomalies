@@ -1,0 +1,505 @@
+{
+  duration: "24h",
+  description: "Detects and tracks network performance anomalies",
+  tabs: [{"tabName":"Overview",
+graphs : [
+  {
+    graphStyle: "markdown",
+    markdown: "This dashboard answers practical questions about network performance \u2014 which DNS resolvers are slow?, which TLS handshakes are degraded?, which hosts are eating the most bandwidth? \u2014 and separates issues by whether the affected entity is **inside your network** (something you can usually fix) or **outside your network** (something to track but typically can't control).\n\nUse **Performance Question** to focus on a single metric.\n\nMethodology: rows are scored by **crossings** (how many windows exceeded the per-metric threshold), **crossing rate** = `crossings / total` (severity normalized by activity), and **worst observed latency** (`max_val`, in seconds for latency questions).\n\nSupport: This dashboard requires enabling the [Network Performance Monitoring](https://docs.corelight.cloud/sensor/packages/core/network-performance-monitoring.html#) package; Contact your Corelight Representative for more details.",
+    title: "Overview",
+    layout: {
+  h: 10,
+  w: 60,
+  x: 0,
+  y: 0
+}
+  },
+  {
+    graphStyle: "number",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger=*\n| group TotalCrossings = sum(crossings)",
+    sparklineConfig: {enabled: false},
+    title: "Total threshold crossings",
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    },
+    layout: {
+  h: 10,
+  w: 12,
+  x: 0,
+  y: 10
+}
+  },
+  {
+    graphStyle: "number",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger=* AND local_entity=true AND number(crossings) > 0\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let entity = (extracted_host != \"-\" && !isempty(extracted_host)) ? extracted_host : ((domain != \"-\" && !isempty(domain)) ? domain : \"unknown\")\n| group InternalEntities = estimate_distinct(entity)",
+    sparklineConfig: {enabled: false},
+    title: "Internal entities with anomalies",
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    },
+    layout: {
+  h: 10,
+  w: 12,
+  x: 12,
+  y: 10
+}
+  },
+  {
+    graphStyle: "number",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger=* AND (local_entity=false OR trigger in ('DD','TH','QH','HH'))\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let entity = (domain != \"-\" && !isempty(domain)) ? domain : ((extracted_host != \"-\" && !isempty(extracted_host)) ? extracted_host : \"unknown\")\n| group ExternalEntities = estimate_distinct(entity)",
+    sparklineConfig: {enabled: false},
+    title: "External entities with anomalies",
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    },
+    layout: {
+  h: 10,
+  w: 12,
+  x: 24,
+  y: 10
+}
+  },
+  {
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger=* \n| let question = trigger in ('RS','RC') ? \"Path latency\" : (trigger in ('DS','DD') ? \"DNS response time\" : (trigger in ('TS','TH') ? \"TLS handshake time\" : (trigger in ('QS','QH') ? \"QUIC handshake time\" : (trigger in ('HS','HH') ? \"HTTP request/response time\" : (trigger == 'B' ? \"Byte volume\" : \"Other\")))))\n| group c = sum(number(crossings)) by question\n| sort -c\n| limit 1\n| let TopQuestion = question + \" (\" + string(floor(c + 0.5)) + \")\"\n| columns TopQuestion",
+    title: "Top performance question",
+    layout: {
+  h: 10,
+  w: 12,
+  x: 36,
+  y: 10
+}
+  },
+  {
+    description: "Average worker-reply coverage parsed from reply_rate (received/sent). 100% means full cluster coverage; lower values mean partial aggregation.",
+    graphStyle: "number",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND reply_rate=*\n| let rep_r = number(reply_rate.extract_matches('^(\\\\d+)/\\\\d+', 1).get(0))\n| let sent_r = number(reply_rate.extract_matches('^\\\\d+/(\\\\d+)', 1).get(0))\n| let reply_ratio = (rep_r != null && sent_r > 0) ? rep_r / sent_r : null\n| group avg_reply_ratio = avg(reply_ratio)\n| let rounded_reply_ratio = floor(avg_reply_ratio * 1000 + 0.5) / 10\n| columns rounded_reply_ratio",
+    sparklineConfig: {enabled: false},
+    title: "Pipeline / cluster reply coverage",
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    },
+    layout: {
+  h: 10,
+  w: 12,
+  x: 48,
+  y: 10
+},
+    options: {suffix: "%"}
+  },
+  {
+    graphStyle: "stacked",
+    lineSmoothing: "straightLines",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger=*\n| let question = trigger in ('RS','RC') ? \"Path latency\" : (trigger in ('DS','DD') ? \"DNS response time\" : (trigger in ('TS','TH') ? \"TLS handshake time\" : (trigger in ('QS','QH') ? \"QUIC handshake time\" : (trigger in ('HS','HH') ? \"HTTP request/response time\" : (trigger == 'B' ? \"Byte volume\" : \"Other\")))))\n| group c = sum(number(crossings)) by timestamp = timebucket(timestamp, '15m'), question\n| transpose question on timestamp",
+    title: "Where are crossings concentrating, by performance question?",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 20
+}
+  },
+  {
+    graphStyle: "stacked_bar",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger=*\n| let question = trigger in ('RS','RC') ? \"Path latency\" : (trigger in ('DS','DD') ? \"DNS response time\" : (trigger in ('TS','TH') ? \"TLS handshake time\" : (trigger in ('QS','QH') ? \"QUIC handshake time\" : (trigger in ('HS','HH') ? \"HTTP request/response time\" : (trigger == 'B' ? \"Byte volume\" : \"Other\")))))\n| let scope = local_entity == true ? \"Internal Entity\" : (local_entity == false ? \"External Entity\" : (trigger in ('DD','TH','QH','HH') ? \"External Entity\" : \"Unknown\"))\n| group\n    int = sum(number(crossings) where scope == 'Internal Entity'),\n    ext = sum(number(crossings) where scope == 'External Entity'),\n    unk = sum(number(crossings) where scope == 'Unknown')\n  by question\n| let internal = int == null ? 0 : int, external = ext == null ? 0 : ext, unknown = unk == null ? 0 : unk\n| columns question, \"Internal Entity\" = internal, \"External Entity\" = external, \"Unknown\" = unknown",
+    title: "Internal vs external: where are crossings happening?",
+    xAxis: "grouped_data",
+    yScale: "linear",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 34
+},
+    numBars: "24"
+  },
+  {
+    description: "100% = all worker replies received in the window. Sustained dips indicate cluster / pipeline issues \u2014 interpret crossings with caution while reply coverage is low.",
+    graphStyle: "line",
+    lineSmoothing: "straightLines",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND reply_rate=*\n| let rep_r = number(reply_rate.extract_matches('^(\\\\d+)/\\\\d+', 1).get(0))\n| let sent_r = number(reply_rate.extract_matches('^\\\\d+/(\\\\d+)', 1).get(0))\n| let reply_ratio = (rep_r != null && sent_r > 0) ? rep_r / sent_r : null\n| group avg_reply_coverage = avg(reply_ratio) by timestamp = timebucket(timestamp, '15m')",
+    title: "Is the aggregation pipeline healthy?",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 48
+}
+  },
+],
+filters: [
+  {
+    facet: "_system_name",
+    name: "Corelight Sensor"
+  },
+  {
+  name: "Performance Question",
+  values: [
+    {
+      label: "All performance questions",
+      value: "trigger=*"
+    },
+    {
+      label: "Path latency (Server/Client RTT)",
+      value: "trigger in ('RS', 'RC')"
+    },
+    {
+      label: "DNS response time",
+      value: "trigger in ('DS', 'DD')"
+    },
+    {
+      label: "TLS handshake time",
+      value: "trigger in ('TS', 'TH')"
+    },
+    {
+      label: "QUIC handshake time",
+      value: "trigger in ('QS', 'QH')"
+    },
+    {
+      label: "HTTP request/response time",
+      value: "trigger in ('HS', 'HH')"
+    },
+    {
+      label: "Byte volume",
+      value: "trigger = 'B'"
+    }
+  ]
+}
+]
+},
+{"tabName":"Inside your network (what you control)","graphs":[
+  {
+    graphStyle: "markdown",
+    markdown: "These tables show **internal entities** (Corelight observed them as a local host) that exceeded performance thresholds. These are systems where you likely have purview: your DNS resolvers, your TLS / HTTP servers, your clients, your high-volume hosts.\n\nRanking is by **crossings**; **crossing rate** normalizes by activity; **worst latency (s)** shows the worst single-window observation.",
+    title: "Inside your network \u2014 what you can fix",
+    layout: {
+  h: 7,
+  w: 60,
+  x: 0,
+  y: 0
+}
+  },
+  {
+    description: "DNS response time aggregated by resolver IP (trigger DS, local_entity=true).",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' metadata.log_name = 'net_perf' _system_name=* trigger = 'DS' local_entity = 'true'\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let resolver_ip = (!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\"\n| let max_val_num = (isempty(max_val) || max_val == \"-\") ? null : number(max_val)\n| group crossings_sum=sum(crossings), total_obs=sum(total), worst_resp=max(max_val_num), latest_ts=max(timestamp) by resolver_ip\n| let crossing_rate = floor(crossings_sum / max(total_obs, 1) * 1000 + 0.5) / 1000\n| let worst_resp_sec = floor(worst_resp * 1000 + 0.5) / 1000\n| let last_seen = simpledateformat(latest_ts, \"yyyy-MM-dd HH:mm:ss\")\n| sort -crossings_sum\n| limit 25\n| columns \"Internal DNS resolver\"=resolver_ip, \"Slow-response windows\"=crossings_sum, \"Total observations\"=total_obs, \"Worst response (s)\"=worst_resp_sec, \"Crossing rate\"=crossing_rate, \"Last seen\"=last_seen",
+    title: "Which internal DNS resolvers are under-performing?",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 7
+}
+  },
+  {
+    description: "TLS handshake time aggregated by server IP (trigger TS, local_entity=true).",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger = 'TS' AND local_entity = 'true'\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let server_ip = (!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\"\n| let max_val_num = (isempty(max_val) || max_val == \"-\") ? null : number(max_val)\n| group crossings_sum=sum(crossings), total_obs=sum(total), worst_hs=max(max_val_num), latest_ts=max(timestamp) by server_ip\n| let crossing_rate = floor(crossings_sum / max(total_obs, 1) * 1000 + 0.5) / 1000\n| let worst_handshake_sec = floor(worst_hs * 1000 + 0.5) / 1000\n| let last_seen = simpledateformat(latest_ts, \"yyyy-MM-dd HH:mm:ss\")\n| sort -crossings_sum\n| limit 100\n| columns \"Internal TLS server\"=server_ip, \"Slow-handshake windows\"=crossings_sum, \"Total observations\"=total_obs, \"Worst handshake (s)\"=worst_handshake_sec, \"Crossing rate\"=crossing_rate, \"Last seen\"=last_seen",
+    title: "Which internal TLS servers have consistently slow handshakes?",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 7
+}
+  },
+  {
+    description: "HTTP request-to-response time aggregated by server IP (trigger HS, local_entity=true).",
+    graphStyle: "",
+    query: "metadata.log_name = 'net_perf' AND _system_name=* AND trigger = 'HS' AND local_entity = 'true'\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let server_ip = (!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\"\n| let max_val_num = (isempty(max_val) || max_val == \"-\") ? null : number(max_val)\n| group crossings_sum=sum(crossings), total_obs=sum(total), worst_resp=max(max_val_num), latest_ts=max(timestamp) by server_ip\n| let crossing_rate = floor(crossings_sum / max(total_obs, 1) * 1000 + 0.5) / 1000\n| let worst_resp_sec = floor(worst_resp * 1000 + 0.5) / 1000\n| let last_seen = simpledateformat(latest_ts, \"yyyy-MM-dd HH:mm:ss\")\n| sort -crossings_sum\n| limit 100\n| columns \"Internal HTTP server\"=server_ip, \"Slow-response windows\"=crossings_sum, \"Total observations\"=total_obs, \"Worst request/response (s)\"=worst_resp_sec, \"Crossing rate\"=crossing_rate, \"Last seen\"=last_seen",
+    title: "Which internal HTTP servers have slow request/response times?",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 21
+}
+  },
+  {
+    description: "QUIC handshake time aggregated by server IP (trigger QS, local_entity=true).",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger = 'QS' AND local_entity = 'true'\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let server_ip = (!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\"\n| let max_val_num = (isempty(max_val) || max_val == \"-\") ? null : number(max_val)\n| group crossings_sum=sum(crossings), total_obs=sum(total), worst_hs=max(max_val_num), latest_ts=max(timestamp) by server_ip\n| let crossing_rate = floor(crossings_sum / max(total_obs, 1) * 1000 + 0.5) / 1000\n| let worst_handshake_sec = floor(worst_hs * 1000 + 0.5) / 1000\n| let last_seen = simpledateformat(latest_ts, \"yyyy-MM-dd HH:mm:ss\")\n| sort -crossings_sum\n| limit 100\n| columns \"Internal QUIC server\"=server_ip, \"Slow-handshake windows\"=crossings_sum, \"Total observations\"=total_obs, \"Worst handshake (s)\"=worst_handshake_sec, \"Crossing rate\"=crossing_rate, \"Last seen\"=last_seen",
+    title: "Which internal QUIC servers have slow handshakes?",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 21
+}
+  },
+  {
+    description: "Server-side and client-side RTT measured from the monitor (triggers RS/RC, local_entity=true).",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger in ('RS', 'RC') AND local_entity = 'true'\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let host_ip = (!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\"\n| let role = trigger == \"RS\" ? \"Server (RS)\" : \"Client (RC)\"\n| let max_val_num = (isempty(max_val) || max_val == \"-\") ? null : number(max_val)\n| group crossings_sum=sum(crossings), total_obs=sum(total), worst_rtt=max(max_val_num), latest_ts=max(timestamp) by host_ip, role\n| let crossing_rate = floor(crossings_sum / max(total_obs, 1) * 1000 + 0.5) / 1000\n| let worst_rtt_sec = floor(worst_rtt * 1000 + 0.5) / 1000\n| let last_seen = simpledateformat(latest_ts, \"yyyy-MM-dd HH:mm:ss\")\n| sort -crossings_sum\n| limit 100\n| columns \"Internal host\"=host_ip, \"Measured as\"=role, \"High-RTT windows\"=crossings_sum, \"Total observations\"=total_obs, \"Worst RTT (s)\"=worst_rtt_sec, \"Crossing rate\"=crossing_rate, \"Last seen\"=last_seen",
+    title: "Which internal hosts show degraded path RTT (monitor-to-host)?",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 35
+}
+  },
+  {
+    description: "IP-level byte volume above threshold (trigger B, local_entity=true).",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger = 'B' AND local_entity = 'true'\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let host_ip = (!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\"\n| let sent_b = (isempty(sent_bytes) || sent_bytes == \"-\") ? null : number(sent_bytes)\n| let recv_b = (isempty(recv_bytes) || recv_bytes == \"-\") ? null : number(recv_bytes)\n| group crossings_sum=sum(crossings), total_obs=sum(total), sent_sum=sum(sent_b), recv_sum=sum(recv_b), latest_ts=max(timestamp) by host_ip\n| let crossing_rate = floor(crossings_sum / max(total_obs, 1) * 1000 + 0.5) / 1000\n| let last_seen = simpledateformat(latest_ts, \"yyyy-MM-dd HH:mm:ss\")\n| let formatted_sent_bytes = sent_sum >= 1099511627776 ? string(floor(sent_sum / 1099511627776 * 100 + 0.5) / 100) + \" TB\" : sent_sum >= 1073741824 ? string(floor(sent_sum / 1073741824 * 100 + 0.5) / 100) + \" GB\" : sent_sum >= 1048576 ? string(floor(sent_sum / 1048576 * 100 + 0.5) / 100) + \" MB\" : sent_sum >= 1024 ? string(floor(sent_sum / 1024 * 100 + 0.5) / 100) + \" KB\" : string(sent_sum) + \" B\"\n| let formatted_recv_bytes = recv_sum >= 1099511627776 ? string(floor(recv_sum / 1099511627776 * 100 + 0.5) / 100) + \" TB\" : recv_sum >= 1073741824 ? string(floor(recv_sum / 1073741824 * 100 + 0.5) / 100) + \" GB\" : recv_sum >= 1048576 ? string(floor(recv_sum / 1048576 * 100 + 0.5) / 100) + \" MB\" : recv_sum >= 1024 ? string(floor(recv_sum / 1024 * 100 + 0.5) / 100) + \" KB\" : string(recv_sum) + \" B\"\n| sort -sent_sum\n| limit 100\n| columns \"Internal host\"=host_ip, \"Heavy-volume windows\"=crossings_sum, \"Total observations\"=total_obs, \"Sent\"=formatted_sent_bytes, \"Received\"=formatted_recv_bytes, \"Crossing rate\"=crossing_rate, \"Last seen\"=last_seen",
+    title: "Which internal hosts are driving the most byte volume?",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 49
+}
+  }
+],
+filters: [
+  {
+    facet: "_system_name",
+    name: "Corelight Sensor"
+  },
+  {
+  name: "Performance Question",
+  values: [
+    {
+      label: "All performance questions",
+      value: "trigger=*"
+    },
+    {
+      label: "Path latency (Server/Client RTT)",
+      value: "trigger in ('RS', 'RC')"
+    },
+    {
+      label: "DNS response time",
+      value: "trigger in ('DS', 'DD')"
+    },
+    {
+      label: "TLS handshake time",
+      value: "trigger in ('TS', 'TH')"
+    },
+    {
+      label: "QUIC handshake time",
+      value: "trigger in ('QS', 'QH')"
+    },
+    {
+      label: "HTTP request/response time",
+      value: "trigger in ('HS', 'HH')"
+    },
+    {
+      label: "Byte volume",
+      value: "trigger = 'B'"
+    }
+  ]
+}
+]
+},
+{"tabName":"Outside your network (what you can't)","graphs":[
+  {
+    graphStyle: "markdown",
+    markdown: "These tables show **external entities** \u2014 remote server IPs and the name-based identities customers can't usually tune (DNS query names, TLS SNIs, HTTP Host headers, QUIC SNIs). These help with **vendor** / **SaaS** / **partner conversations** and confirm the issue isn't on your side.\n\nName-based identities (`DD / TH / QH / HH`) are listed here because the affected entity is always a remote service. Address-based externals (`local_entity=false`) are included too.",
+    title: "Outside your network \u2014 what to track",
+    layout: {
+  h: 7,
+  w: 60,
+  x: 0,
+  y: 0
+}
+  },
+  {
+    description: "DNS response time by query name, plus external resolver IPs (triggers DD and DS where local_entity=false).",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND ((trigger = 'DS' AND local_entity = 'false') OR trigger = 'DD')\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let external_entity = trigger == \"DD\" ? ((!isempty(domain) && domain != \"-\") ? domain : \"unknown\") : ((!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\")\n| let identified_by = trigger == \"DD\" ? \"Query name\" : \"External resolver IP\"\n| let max_val_num = (isempty(max_val) || max_val == \"-\") ? null : number(max_val)\n| group crossings_sum=sum(crossings), total_obs=sum(total), worst_resp=max(max_val_num), latest_ts=max(timestamp) by external_entity, identified_by\n| let crossing_rate = floor(crossings_sum / max(total_obs, 1) * 1000 + 0.5) / 1000\n| let worst_resp_sec = floor(worst_resp * 1000 + 0.5) / 1000\n| let last_seen = simpledateformat(latest_ts, \"yyyy-MM-dd HH:mm:ss\")\n| sort -crossings_sum\n| limit 100\n| columns \"External DNS entity\"=external_entity, \"Identified by\"=identified_by, \"Slow-response windows\"=crossings_sum, \"Total observations\"=total_obs, \"Worst response (s)\"=worst_resp_sec, \"Crossing rate\"=crossing_rate, \"Last seen\"=last_seen",
+    title: "Which external domains are slow to resolve?",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 7
+}
+  },
+  {
+    description: "TLS handshake time by SNI, plus external server IPs (triggers TH and TS where local_entity=false).",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND ((trigger = 'TS' AND local_entity = 'false') OR trigger = 'TH')\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let external_entity = trigger == \"TH\" ? ((!isempty(domain) && domain != \"-\") ? domain : \"unknown\") : ((!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\")\n| let identified_by = trigger == \"TH\" ? \"SNI\" : \"External server IP\"\n| let max_val_num = (isempty(max_val) || max_val == \"-\") ? null : number(max_val)\n| group crossings_sum=sum(crossings), total_obs=sum(total), worst_hs=max(max_val_num), latest_ts=max(timestamp) by external_entity, identified_by\n| let crossing_rate = floor(crossings_sum / max(total_obs, 1) * 1000 + 0.5) / 1000\n| let worst_handshake_sec = floor(worst_hs * 1000 + 0.5) / 1000\n| let last_seen = simpledateformat(latest_ts, \"yyyy-MM-dd HH:mm:ss\")\n| sort -crossings_sum\n| limit 100\n| columns \"External TLS entity\"=external_entity, \"Identified by\"=identified_by, \"Slow-handshake windows\"=crossings_sum, \"Total observations\"=total_obs, \"Worst handshake (s)\"=worst_handshake_sec, \"Crossing rate\"=crossing_rate, \"Last seen\"=last_seen",
+    title: "Which external TLS services have slow handshakes?",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 7
+}
+  },
+  {
+    description: "HTTP request-to-response time by Host header, plus external server IPs (triggers HH and HS where local_entity=false).",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND ((trigger = 'HS' AND local_entity = 'false') OR trigger = 'HH')\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let external_entity = trigger == \"HH\" ? ((!isempty(domain) && domain != \"-\") ? domain : \"unknown\") : ((!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\")\n| let identified_by = trigger == \"HH\" ? \"Host header\" : \"External server IP\"\n| let max_val_num = (isempty(max_val) || max_val == \"-\") ? null : number(max_val)\n| group crossings_sum=sum(crossings), total_obs=sum(total), worst_resp=max(max_val_num), latest_ts=max(timestamp) by external_entity, identified_by\n| let crossing_rate = floor(crossings_sum / max(total_obs, 1) * 1000 + 0.5) / 1000\n| let worst_resp_sec = floor(worst_resp * 1000 + 0.5) / 1000\n| let last_seen = simpledateformat(latest_ts, \"yyyy-MM-dd HH:mm:ss\")\n| sort -crossings_sum\n| limit 100\n| columns \"External HTTP entity\"=external_entity, \"Identified by\"=identified_by, \"Slow-response windows\"=crossings_sum, \"Total observations\"=total_obs, \"Worst request/response (s)\"=worst_resp_sec, \"Crossing rate\"=crossing_rate, \"Last seen\"=last_seen",
+    title: "Which external web hosts are slow (by Host header / server)?",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 21
+}
+  },
+  {
+    description: "QUIC handshake time by SNI, plus external server IPs (triggers QH and QS where local_entity=false).",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND ((trigger = 'QS' AND local_entity = 'false') OR trigger = 'QH')\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let external_entity = trigger == \"QH\" ? ((!isempty(domain) && domain != \"-\") ? domain : \"unknown\") : ((!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\")\n| let identified_by = trigger == \"QH\" ? \"SNI\" : \"External server IP\"\n| let max_val_num = (isempty(max_val) || max_val == \"-\") ? null : number(max_val)\n| group crossings_sum=sum(crossings), total_obs=sum(total), worst_hs=max(max_val_num), latest_ts=max(timestamp) by external_entity, identified_by\n| let crossing_rate = floor(crossings_sum / max(total_obs, 1) * 1000 + 0.5) / 1000\n| let worst_handshake_sec = floor(worst_hs * 1000 + 0.5) / 1000\n| let last_seen = simpledateformat(latest_ts, \"yyyy-MM-dd HH:mm:ss\")\n| sort -crossings_sum\n| limit 100\n| columns \"External QUIC entity\"=external_entity, \"Identified by\"=identified_by, \"Slow-handshake windows\"=crossings_sum, \"Total observations\"=total_obs, \"Worst handshake (s)\"=worst_handshake_sec, \"Crossing rate\"=crossing_rate, \"Last seen\"=last_seen",
+    title: "Which external QUIC services have slow handshakes?",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 21
+}
+  },
+  {
+    description: "IP-level byte volume above threshold (trigger B, local_entity=false).",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger = 'B' AND local_entity = 'false'\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let host_ip = (!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\"\n| let sent_b = (isempty(sent_bytes) || sent_bytes == \"-\") ? null : number(sent_bytes)\n| let recv_b = (isempty(recv_bytes) || recv_bytes == \"-\") ? null : number(recv_bytes)\n| group crossings_sum=sum(crossings), total_obs=sum(total), sent_sum=sum(sent_b), recv_sum=sum(recv_b), latest_ts=max(timestamp) by host_ip\n| let crossing_rate = floor(crossings_sum / max(total_obs, 1) * 1000 + 0.5) / 1000\n| let last_seen = simpledateformat(latest_ts, \"yyyy-MM-dd HH:mm:ss\")\n| let formatted_sent_bytes = sent_sum >= 1099511627776 ? string(floor(sent_sum / 1099511627776 * 100 + 0.5) / 100) + \" TB\" : sent_sum >= 1073741824 ? string(floor(sent_sum / 1073741824 * 100 + 0.5) / 100) + \" GB\" : sent_sum >= 1048576 ? string(floor(sent_sum / 1048576 * 100 + 0.5) / 100) + \" MB\" : sent_sum >= 1024 ? string(floor(sent_sum / 1024 * 100 + 0.5) / 100) + \" KB\" : string(sent_sum) + \" B\"\n| let formatted_recv_bytes = recv_sum >= 1099511627776 ? string(floor(recv_sum / 1099511627776 * 100 + 0.5) / 100) + \" TB\" : recv_sum >= 1073741824 ? string(floor(recv_sum / 1073741824 * 100 + 0.5) / 100) + \" GB\" : recv_sum >= 1048576 ? string(floor(recv_sum / 1048576 * 100 + 0.5) / 100) + \" MB\" : recv_sum >= 1024 ? string(floor(recv_sum / 1024 * 100 + 0.5) / 100) + \" KB\" : string(recv_sum) + \" B\"\n| sort -recv_sum\n| limit 100\n| columns \"External host\"=host_ip, \"Heavy-volume windows\"=crossings_sum, \"Total observations\"=total_obs, \"Sent\"=formatted_sent_bytes, \"Received\"=formatted_recv_bytes, \"Crossing rate\"=crossing_rate, \"Last seen\"=last_seen",
+    title: "Which external destinations are consuming the most bandwidth?",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 35
+}
+  }
+],
+filters: [
+  {
+    facet: "_system_name",
+    name: "Corelight Sensor"
+  },
+  {
+  name: "Performance Question",
+  values: [
+    {
+      label: "All performance questions",
+      value: "trigger=*"
+    },
+    {
+      label: "Path latency (Server/Client RTT)",
+      value: "trigger in ('RS', 'RC')"
+    },
+    {
+      label: "DNS response time",
+      value: "trigger in ('DS', 'DD')"
+    },
+    {
+      label: "TLS handshake time",
+      value: "trigger in ('TS', 'TH')"
+    },
+    {
+      label: "QUIC handshake time",
+      value: "trigger in ('QS', 'QH')"
+    },
+    {
+      label: "HTTP request/response time",
+      value: "trigger in ('HS', 'HH')"
+    },
+    {
+      label: "Byte volume",
+      value: "trigger = 'B'"
+    }
+  ]
+}
+]
+},
+{"tabName":"Connection-level evidence","graphs":[
+  {
+    graphStyle: "markdown",
+    markdown: "Use `uid` to pivot from an aggregated anomaly to **the connection that first triggered tracking**, then to `ssl`, `quic`, `http` as needed.\n\nIf `NetPerf::enrich_logs` is enabled, validate aggregates against the ground-truth fields on those logs: `svr_rtt`, `cli_rtt`, `hs_delay`, `tx_delay`.",
+    title: "Connection-level evidence",
+    layout: {
+  h: 7,
+  w: 60,
+  x: 0,
+  y: 0
+}
+  },
+  {
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'net_perf' AND _system_name=* AND trigger=*\n| let host_arr = message.extract_matches_matchcase('\"host\"\\\\s*:\\\\s*\"([^\"]+)\"', 1)\n| let extracted_host = host_arr.get(0)\n| let performance_question = trigger == \"RS\" ? \"Server RTT (path latency)\" : trigger == \"RC\" ? \"Client RTT (path latency)\" : trigger == \"DS\" ? \"DNS response time (by resolver)\" : trigger == \"DD\" ? \"DNS response time (by domain)\" : trigger == \"TS\" ? \"TLS handshake (by server IP)\" : trigger == \"TH\" ? \"TLS handshake (by SNI)\" : trigger == \"QS\" ? \"QUIC handshake (by server IP)\" : trigger == \"QH\" ? \"QUIC handshake (by SNI)\" : trigger == \"HS\" ? \"HTTP request/response (by server IP)\" : trigger == \"HH\" ? \"HTTP request/response (by Host header)\" : trigger == \"B\" ? \"IP byte volume\" : \"Unknown\"\n| let _target_dashboard = performance_question starts_with:matchcase \"DNS\" ? \"corelight_data_dns\" : performance_question starts_with:matchcase \"HTTP\" ? \"corelight_data_http\" : performance_question starts_with:matchcase \"TLS\" ? \"corelight_data_ssl\" : (performance_question starts_with:matchcase \"QUIC\" || performance_question starts_with:matchcase \"IP\") ? \"corelight_data_connections\" : null\n| let entity = (!isempty(domain) && domain != \"-\") ? domain : (!isempty(extracted_host) && extracted_host != \"-\") ? extracted_host : \"unknown\"\n| let scope = local_entity == true ? \"Internal\" : local_entity == false ? \"External\" : trigger in (\"DD\", \"TH\", \"QH\", \"HH\") ? \"External (name-based)\" : \"Unknown\"\n| let max_val_num = (isempty(max_val) || max_val == \"-\") ? null : floor(number(max_val) * 1000 + 0.5) / 1000\n| let when = simpledateformat(timestamp, \"yyyy-MM-dd HH:mm:ss\")\n| sort -timestamp\n| limit 500\n| columns \"When\"=when, \"Performance question\"=performance_question, \"Scope\"=scope, \"Entity\"=entity, \"Crossings\"=crossings, \"Observations\"=total, \"Worst value\"=max_val_num, \"Window (s)\"=window, \"Reply rate\"=reply_rate, \"UID\"=uid, \"Sensor\"=_system_name",
+    title: "Recent anomaly events",
+    layout: {
+  h: 23,
+  w: 60,
+  x: 0,
+  y: 7
+}
+  }
+],
+filters: [
+  {
+    facet: "_system_name",
+    name: "Corelight Sensor"
+  },
+  {
+  name: "Performance Question",
+  values: [
+    {
+      label: "All performance questions",
+      value: "trigger=*"
+    },
+    {
+      label: "Path latency (Server/Client RTT)",
+      value: "trigger in ('RS', 'RC')"
+    },
+    {
+      label: "DNS response time",
+      value: "trigger in ('DS', 'DD')"
+    },
+    {
+      label: "TLS handshake time",
+      value: "trigger in ('TS', 'TH')"
+    },
+    {
+      label: "QUIC handshake time",
+      value: "trigger in ('QS', 'QH')"
+    },
+    {
+      label: "HTTP request/response time",
+      value: "trigger in ('HS', 'HH')"
+    },
+    {
+      label: "Byte volume",
+      value: "trigger = 'B'"
+    }
+  ]
+}
+]
+}],
+  configType: "TABBED"
+}

@@ -1,0 +1,309 @@
+{
+  duration: "24h",
+  graphs: [
+    {
+      graphStyle: "markdown",
+      markdown: " ",
+      title: "Detection Summary",
+      layout: {
+  h: 5,
+  w: 46,
+  x: 0,
+  y: 0
+}
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+  h: 3,
+  w: 60,
+  x: 0,
+  y: 23
+},
+      markdown: "  ",
+      title: "Alert Summary"
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| sort time\n| group \"Alert Category\" = last(finding_info.desc)",
+      title: "Alert Category",
+      layout: {
+  h: 9,
+  w: 30,
+  x: 0,
+  y: 5
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n| let use_case = finding_info.title==\"server_ns_services\" ? \"ns_servers_services\" : (finding_info.title==\"server_ns_http\" ? \"http_user_agents\" : finding_info.title)\n| lookup description from corelight_use_cases.csv by use_case=use_case\n| sort time\n| group \"Description\"=last(description)",
+      title: "Description",
+      layout: {
+  h: 9,
+  w: 30,
+  x: 0,
+  y: 14
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n| let use_case = finding_info.title==\"server_ns_services\" ? \"ns_servers_services\" : (finding_info.title==\"server_ns_http\" ? \"http_user_agents\" : finding_info.title)\n| lookup significance from corelight_use_cases.csv by use_case=use_case\n| sort time \n| group \"Significance\"=last(significance)",
+      title: "Significance",
+      layout: {
+  h: 9,
+  w: 30,
+  x: 30,
+  y: 14
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n| let original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\"), use_case = finding_info.title==\"server_ns_services\" ? \"ns_servers_services\" : (finding_info.title==\"server_ns_http\" ? \"http_user_agents\" : finding_info.title)\n| let item = use_case=\"admin_shares\" ? replace(unmapped.item, \"\\\\\\\\\", \"\\\\\\\\\") : unmapped.item\n| lookup anomalous_behavior from corelight_use_cases.csv by use_case=use_case\n| let splitted_anomalous_behavior = anomalous_behavior.split(\":original_entity: | :item:\").filter(func(x) -> x != \"\")\n| let array_len = len(splitted_anomalous_behavior)\n| let first_part =  (array_len > 0) ? splitted_anomalous_behavior.get(0) : \" \" , second_part = (array_len > 1) ? splitted_anomalous_behavior.get(1) : \"\"\n| let anomalous_behavior_replaced = original_entity + \" \" + first_part + \" \" + item + \" \" + second_part\n| sort time\n| group \"Anomalous Behavior\" = last(anomalous_behavior_replaced.replace(\" ,\", \",\"))",
+      title: "Anomalous Behavior",
+      layout: {
+  h: 9,
+  w: 30,
+  x: 0,
+  y: 26
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n| let use_case = finding_info.title==\"server_ns_services\" ? \"ns_servers_services\" : (finding_info.title==\"server_ns_http\" ? \"http_user_agents\" : finding_info.title), entity_training_items_combined = unmapped.entity_training_items.trim(\"[]\")\n| lookup baseline_behavior from corelight_use_cases.csv by use_case=use_case\n| let splitted_baseline_behavior = baseline_behavior.split(\":entity: | :entity_training_items_combined:\").filter(func(x) -> x != \"\")\n| let array_len = len(splitted_baseline_behavior)\n| let first_part =  (array_len > 0) ? splitted_baseline_behavior.get(0) : \" \" , second_part = (array_len > 1) ? splitted_baseline_behavior.get(1) : \"\"\n| let baseline_behavior_replaced = unmapped.entity + \" \" + first_part + \" \" + entity_training_items_combined + \" \" + second_part\n| sort time\n| group \"Baseline Behavior\" = last(baseline_behavior_replaced.replace(\" ,\", \",\"))",
+      title: "Baseline Behavior",
+      layout: {
+  h: 9,
+  w: 30,
+  x: 30,
+  y: 26
+}
+    },
+    {
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n| group count(connection_info.uid)",
+      sparklineConfig: {enabled: false},
+      title: "Number of Alerts",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+  h: 9,
+  w: 10,
+  x: 30,
+  y: 5
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n| sort time\n| group first_alert_time = first(time)\n| columns \"First Alert Time\" = strftime(first_alert_time*1000000, \"%B %d, %I:%M:%S %p\")",
+      title: "First Alert Time",
+      layout: {
+  h: 9,
+  w: 10,
+  x: 40,
+  y: 5
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n| sort time\n| group last_alert_time = last(time)\n| columns \"Last Alert Time\" = strftime(last_alert_time*1000000, \"%B %d, %I:%M:%S %p\")",
+      title: "Last Alert Time",
+      layout: {
+  h: 9,
+  w: 10,
+  x: 50,
+  y: 5
+}
+    },
+    {
+      description: "Number of Anomaly Logs (Alerts) during Global Time Restriction",
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n| let item = finding_info.title=\"admin_shares\" ? replace(unmapped.item, \"\\\\\\\\\", \"\\\\\\\\\") : unmapped.item\n| group count(connection_info.uid) by timestamp = timebucket(time, \"auto\"), item\n| transpose item on timestamp",
+      title: "Alerts per Anomalous Item over Time",
+      layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 35
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n| let original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\"), item = finding_info.title==\"admin_shares\" ? replace(unmapped.item, \"\\\\\\\\\", \"\\\\\\\\\") : unmapped.item, entity_training_items_array = replace(unmapped.entity_training_items, \"[\\\\[\\\\]\\\"]\", \"\").split(\",\"), item_score = floor((confidence_score * 100) + 0.5) / 100\n| let timestamp = strftime(time*1000000, \"%B %d, %I:%M:%S %p\")\n| columns \"Timestamp\"=timestamp, \"Source IP\"=original_entity, \"Anomalous Service\"=item, \"Normal Service\"=entity_training_items_array.distinct().to_string(\"\\n\"), \"Target Subnet\"=unmapped.entity, \"Engine Confidence\"=item_score, \"UID\" = connection_info.uid",
+      title: "Anomaly details for entity",
+      layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 49
+}
+    },
+    {
+      graphStyle: "markdown",
+      markdown: "## How anomaly detection works\n* The anomaly engine learns baseline behavior of entities, grouping together entities with similar usage patterns\n",
+      title: "Baseline Data",
+      layout: {
+  h: 7,
+  w: 60,
+  x: 0,
+  y: 63
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' \n| let original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\")\n| let entity_training_items = replace(unmapped.entity_training_items, \"\\\\[|\\\\]|\\\"\", \"\")\n| let Timestamp = strftime(time*1000000, \"%B %d, %I:%M:%S %p\")\n| group items_during_baseline_period = array_agg_distinct(entity_training_items), anomalous_entities = array_agg_distinct(original_entity) by Timestamp\n| columns Timestamp, \"Items during baseline period\"=items_during_baseline_period.to_string(\"\\n\"), \"Anomalous entities\"=anomalous_entities.to_string(\"\\n\")",
+      title: "Items seen during baselining period for anomalous entity",
+      layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 70
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' \n| let anomalous_item = finding_info.title==\"admin_shares\" ? replace(unmapped.item, \"\\\\\\\\\", \"\\\\\\\\\") : unmapped.item\n| let entities_baseline = replace(unmapped.item_assoc_entities, \"\\\\[|\\\\]|\\\"\", \"\")\n| let Timestamp = strftime(time*1000000, \"%B %d, %I:%M:%S %p\")\n| columns Timestamp, \"UID\"=connection_info.uid, \"Anomalous item\"=anomalous_item, \"Entities during baseline period\"=entities_baseline",
+      title: "Entities seen during baselining period for anomalous item",
+      layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 70
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' \n| let original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\")\n| let item = finding_info.title == 'admin_shares' ? replace(unmapped.item, \"\\\\\\\\\", \"\\\\\\\\\\\\\\\\\") : unmapped.item\n| let item_assoc_entities = replace(unmapped.item_assoc_entities || \"\", \"\\\\[|\\\\]|\\\"\", \"\")\n| let entArr = unmapped.raw_message.extract_matches('\"nn\\\\d+_entities\"\\\\s*:\\\\s*\\\\[([^\\\\]]*)\\\\]')\n| let trainArr = unmapped.raw_message.extract_matches('\"nn\\\\d+_train_items\"\\\\s*:\\\\s*\\\\[([^\\\\]]*)\\\\]')\n| let base = trainArr.map(func(x) -> replace(x, \"\\\"\\\\s*|\\\\\\\\\", \"\")).to_string(\",\").split(\",\").distinct().filter(func(x) -> x != \"\").to_string(\",\")\n| let nnRows = entArr.zip(trainArr, func(e, t) -> (isempty(e) || isempty(t)) ? \"\" : format(\"%s#####%s#####\", replace(e, \"\\\"\\\\s*|\\\\\\\\\", \"\"), replace(t, \"\\\"\\\\s*|\\\\\\\\\", \"\")))\n| let basePacket = isempty(base) ? \"\" : format(\"%s#####%s#####\", original_entity, base)\n| let assocPacket = isempty(item_assoc_entities) ? \"\" : format(\"#####%s#####%s\", item, item_assoc_entities)\n| let packets = array(format(\"%s#####%s#####\", original_entity, item), basePacket, assocPacket).concat(nnRows).filter(func(r) -> r != \"\")\n| let packet = packets.expand()\n| let Entities = packet.extract_matches('^([^#]*)#####', 1).get(0)\n| let Items = packet.extract_matches('^[^#]*#####([^#]*)#####', 1).get(0)\n| let Item_Associated_Entities = packet.extract_matches('#####([^#]*)$', 1).get(0)\n| columns Entities, Items, Item_Associated_Entities",
+      title: "Similar Entities During Baseline Period",
+      layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 84
+}
+    },
+    {
+      graphStyle: "",
+      query: "dst_endpoint.ip in (\n    metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n    | let original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\")\n    | let dst_endpoint.ip = unmapped.item matches \"^server_.*\" ? original_entity : (unmapped.item matches \"^client_.*\" ? null : original_entity)\n    | filter !isempty(dst_endpoint.ip)\n    | group 1 by dst_endpoint.ip\n)\nmetadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| let direction = (unmapped.local_orig == true && unmapped.local_resp == true) ? \"internal\" : ((unmapped.local_orig == true && unmapped.local_resp == false) ? \"outbound\" : ((unmapped.local_orig == false && unmapped.local_resp == false) ? \"external\" : ((unmapped.local_orig == false && unmapped.local_resp == true) ? \"inbound\" : \"unknown\")))\n| filter direction == 'inbound'\n| group first_ts = min(time), last_ts = max(time), bytes_sent = sum(unmapped.orig_ip_bytes), bytes_received = sum(unmapped.resp_ip_bytes), bytes_diff = sum(unmapped.resp_ip_bytes - unmapped.orig_ip_bytes), svc = array_agg_distinct(app_protocol_name), Connections = count() by src_endpoint.ip\n| sort -bytes_diff\n| let service = svc.filter(func(x) -> !isempty(x)).sort().to_string(\"\\n\")\n| let First_Alert = simpledateformat(first_ts*1000000, \"MMMM dd, hh:mm:ss a\")\n| let Last_Alert = simpledateformat(last_ts*1000000, \"MMMM dd, hh:mm:ss a\")\n| let sent_fmt = bytes_sent >= 1099511627776 ? format(\"%s TB\", string(floor(bytes_sent / 1099511627776 * 100 + 0.5) / 100)) : (bytes_sent >= 1073741824 ? format(\"%s GB\", string(floor(bytes_sent / 1073741824 * 100 + 0.5) / 100)) : (bytes_sent >= 1048576 ? format(\"%s MB\", string(floor(bytes_sent / 1048576 * 100 + 0.5) / 100)) : (bytes_sent >= 1024 ? format(\"%s KB\", string(floor(bytes_sent / 1024 * 100 + 0.5) / 100)) : format(\"%s B\", string(bytes_sent)))))\n| let recv_fmt = bytes_received >= 1099511627776 ? format(\"%s TB\", string(floor(bytes_received / 1099511627776 * 100 + 0.5) / 100)) : (bytes_received >= 1073741824 ? format(\"%s GB\", string(floor(bytes_received / 1073741824 * 100 + 0.5) / 100)) : (bytes_received >= 1048576 ? format(\"%s MB\", string(floor(bytes_received / 1048576 * 100 + 0.5) / 100)) : (bytes_received >= 1024 ? format(\"%s KB\", string(floor(bytes_received / 1024 * 100 + 0.5) / 100)) : format(\"%s B\", string(bytes_received)))))\n| let diff_fmt = bytes_diff >= 1099511627776 ? format(\"%s TB\", string(floor(bytes_diff / 1099511627776 * 100 + 0.5) / 100)) : (bytes_diff >= 1073741824 ? format(\"%s GB\", string(floor(bytes_diff / 1073741824 * 100 + 0.5) / 100)) : (bytes_diff >= 1048576 ? format(\"%s MB\", string(floor(bytes_diff / 1048576 * 100 + 0.5) / 100)) : (bytes_diff >= 1024 ? format(\"%s KB\", string(floor(bytes_diff / 1024 * 100 + 0.5) / 100)) : format(\"%s B\", string(bytes_diff)))))\n| columns \"External Originating Host\" = src_endpoint.ip, \"First Alert\" = First_Alert, \"Last Alert\" = Last_Alert, \"Service\"=service, Connections, \"Bytes Diff\" = diff_fmt, \"Bytes Received\" = recv_fmt, \"Bytes Sent\" = sent_fmt",
+      title: "Inbound Connection Details to selected Anomalous Entity Host",
+      layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 110
+}
+    },
+    {
+      graphStyle: "",
+      query: "src_endpoint.ip in (\n    metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n    | let original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\")\n    | let src_endpoint.ip = unmapped.item matches \"^client_.*\" ? original_entity : (unmapped.item matches \"^server_.*\" ? null : original_entity)\n    | filter !isempty(src_endpoint.ip)\n    | group 1 by src_endpoint.ip\n)\nmetadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn'\n| let direction = (unmapped.local_orig == true && unmapped.local_resp == true) ? \"internal\" : ((unmapped.local_orig == true && unmapped.local_resp == false) ? \"outbound\" : ((unmapped.local_orig == false && unmapped.local_resp == false) ? \"external\" : ((unmapped.local_orig == false && unmapped.local_resp == true) ? \"inbound\" : \"unknown\")))\n| filter direction == 'outbound'\n| group first_ts = min(time), last_ts = max(time), bytes_sent = sum(unmapped.orig_ip_bytes), bytes_received = sum(unmapped.resp_ip_bytes), bytes_diff = sum(unmapped.resp_ip_bytes - unmapped.orig_ip_bytes), svc = array_agg_distinct(app_protocol_name), Connections = count() by dst_endpoint.ip\n| sort -bytes_diff\n| let service = svc.filter(func(x) -> !isempty(x)).sort().to_string(\"\\n\")\n| let First_Alert = simpledateformat(first_ts*1000000, \"MMMM dd, hh:mm:ss a\")\n| let Last_Alert = simpledateformat(last_ts*1000000, \"MMMM dd, hh:mm:ss a\")\n| let sent_fmt = bytes_sent >= 1099511627776 ? format(\"%s TB\", string(floor(bytes_sent / 1099511627776 * 100 + 0.5) / 100)) : (bytes_sent >= 1073741824 ? format(\"%s GB\", string(floor(bytes_sent / 1073741824 * 100 + 0.5) / 100)) : (bytes_sent >= 1048576 ? format(\"%s MB\", string(floor(bytes_sent / 1048576 * 100 + 0.5) / 100)) : (bytes_sent >= 1024 ? format(\"%s KB\", string(floor(bytes_sent / 1024 * 100 + 0.5) / 100)) : format(\"%s B\", string(bytes_sent)))))\n| let recv_fmt = bytes_received >= 1099511627776 ? format(\"%s TB\", string(floor(bytes_received / 1099511627776 * 100 + 0.5) / 100)) : (bytes_received >= 1073741824 ? format(\"%s GB\", string(floor(bytes_received / 1073741824 * 100 + 0.5) / 100)) : (bytes_received >= 1048576 ? format(\"%s MB\", string(floor(bytes_received / 1048576 * 100 + 0.5) / 100)) : (bytes_received >= 1024 ? format(\"%s KB\", string(floor(bytes_received / 1024 * 100 + 0.5) / 100)) : format(\"%s B\", string(bytes_received)))))\n| let diff_fmt = bytes_diff >= 1099511627776 ? format(\"%s TB\", string(floor(bytes_diff / 1099511627776 * 100 + 0.5) / 100)) : (bytes_diff >= 1073741824 ? format(\"%s GB\", string(floor(bytes_diff / 1073741824 * 100 + 0.5) / 100)) : (bytes_diff >= 1048576 ? format(\"%s MB\", string(floor(bytes_diff / 1048576 * 100 + 0.5) / 100)) : (bytes_diff >= 1024 ? format(\"%s KB\", string(floor(bytes_diff / 1024 * 100 + 0.5) / 100)) : format(\"%s B\", string(bytes_diff)))))\n| columns \"External Responding Host\" = dst_endpoint.ip, \"First Alert\" = First_Alert, \"Last Alert\" = Last_Alert, \"Service\"=service, Connections, \"Bytes Diff\" = diff_fmt, \"Bytes Received\" = recv_fmt, \"Bytes Sent\" = sent_fmt",
+      title: "Outbound Connection Details from selected Anomalous Entity Host",
+      layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 124
+}
+    },
+    {
+      graphStyle: "",
+      query: "(\n    src_endpoint.ip in (\n        metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n        | let anomaly_detection = format(\"%s | %s | %s\", finding_info.desc, unmapped.original_entity, unmapped.item), original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\")\n        | let src_endpoint.ip = unmapped.item matches \"^client_.*\" ? original_entity : null\n        | filter !isempty(src_endpoint.ip)\n        | group 1 by src_endpoint.ip\n    )\n    OR\n    dst_endpoint.ip in (\n        metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n        | let anomaly_detection = format(\"%s | %s | %s\", finding_info.desc, unmapped.original_entity, unmapped.item), original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\")\n        | let dst_endpoint.ip = unmapped.item matches \"^server_.*\" ? original_entity : (unmapped.item matches \"^client_.*\" ? null : original_entity)\n        | filter !isempty(dst_endpoint.ip)\n        | group 1 by dst_endpoint.ip\n    )\n)\nmetadata.product.vendor_name = 'Corelight' AND src_endpoint.ip=* AND dst_endpoint.ip=* AND dst_endpoint.port=*\n| group count = count(!isempty(connection_info.uid)) by sourcetype = metadata.log_name, src_ip = src_endpoint.ip, dest_ip = dst_endpoint.ip, dest_port = dst_endpoint.port\n| sort sourcetype, src_ip, dest_ip, dest_port\n| columns \"Source Type\" = sourcetype, \"Source IP\" = src_ip, \"Destination IP\" = dest_ip, \"Destination Port\" = dest_port",
+      title: "Corelight Dynamic Path Search",
+      layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 138
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight'\nAND metadata.log_name in ('notice', 'suricata_corelight', 'yara_corelight', 'corelight_ml_results')\nAND metadata.log_provider=*\nAND src_endpoint.ip=* AND dst_endpoint.ip=*\n| let signature = metadata.log_name == 'notice' ? unmapped.note : (metadata.log_name == 'suricata_corelight' ? finding_info.title : (metadata.log_name == 'yara_corelight' ? finding_info.title : (metadata.log_name == 'corelight_ml_results' ? unmapped.alert_info.alert_name : null)))\n| filter !isempty(signature)\n| group first_ts = min(time), last_ts = max(time), Connections = count(!isempty(connection_info.uid)), sev = array_agg_distinct(severity) by signature, src_ip = src_endpoint.ip, dest_ip = dst_endpoint.ip, sourcetype = metadata.log_name\n| sort first_ts\n| let corelight_detection = format(\"%s | %s\", signature, src_ip)\n| let first_alert_time = simpledateformat(first_ts*1000000, \"MMMM dd, hh:mm:ss a\")\n| let last_alert_time = simpledateformat(last_ts*1000000, \"MMMM dd, hh:mm:ss a\")\n| let severity = sev.filter(func(x) -> !isempty(x)).sort().to_string(\"\\n\")\n| columns \"First Alert Time\"=first_alert_time, \"Last Alert Time\"=last_alert_time, \"Source Type\"=sourcetype, \"Severity\"=severity, \"Corelight Detection\"=corelight_detection, \"Signature\" = signature, \"Destination IP\"=dest_ip, Connections",
+      title: "Detection Activity from Source IP to Destination IP",
+      layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 152
+},
+      description: "Suricata, Notice, Yara, and Machine Learning Detection logs"
+    },
+    {
+      graphStyle: "markdown",
+      markdown: " ",
+      title: "Additional Activity to support Investigation Next Steps",
+      layout: {
+  h: 3,
+  w: 60,
+  x: 0,
+  y: 107
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly'\n| let anomaly_detection = finding_info.desc + \" | \" + unmapped.original_entity + \" | \" + unmapped.item\n| let original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\")\n| let direction_label = unmapped.item matches \".*.ns..*\" ? \"North/South\" : (unmapped.item matches \".*.ew..*\" ? \"East/West\" : \"Other\")\n| let item_score = isempty(confidence_score) ? null : floor(confidence_score * 100 + 0.5) / 100\n| let entArr = unmapped.raw_message.extract_matches('\"nn\\\\d+_entities\"\\\\s*:\\\\s*\\\\[([^\\\\]]*)\\\\]').map(func(x) -> replace(x, \"\\\\s*\\\"\\\\s*|\\\\\\\\\", \"\")).to_string(\",\").split(\",\").distinct().filter(func(x) -> x != \"\").to_string(\", \")\n| let entity_training_items = replace(replace((unmapped.raw_message.extract_matches('\"entity_training_items\"\\\\s*:\\\\s*\\\\[([^\\\\]]*)\\\\]').get(0) || \"\"), \"\\\\s*\\\"\\\\s*|\\\\\\\\\", \"\"), \",\", \", \")\n| let item_assoc_entities = replace(replace(unmapped.item_assoc_entities || \"\", \"\\\\[|\\\\]|\\\\s*\\\"\\\\s*\", \"\"), \",\", \", \")\n| let formatted_logged_time = simpledateformat(metadata.logged_time*1000000, \"yyyy-MM-dd'T'HH:mm:ss'Z'\")\n| group use_case_description_a = any(finding_info.desc), original_entity_a = any(original_entity), direction_label_a = any(direction_label), item_a = any(unmapped.item), write_ts_a = any(formatted_logged_time), item_score_a = any(item_score), entity_training_items_a = any(entity_training_items), entArr_a = any(entArr), item_assoc_entities_a = any(item_assoc_entities) by connection_info.uid\n| let description = \"1. **\" + use_case_description_a + \"**: Entity **\" + original_entity_a + \"** established \" + direction_label_a + \" connections over service **\" + item_a + \"**\\n\\n\"\n  + \"2. The connection uid is **\" + connection_info.uid + \"**, and the anomaly was identified at **\" + string(write_ts_a) + \"**\\n\\n\"\n  + \"3. The anomaly score is **\" + string(item_score_a) + \"**. The score ranges from zero (expected activities) to one (completely unexpected).\\n\\n\"\n  + \"4. During the baselining period, the modeled entity **\" + original_entity_a + \"** was associated with **\" + (entity_training_items_a || \"\") + \"**.\\n\\n\"\n  + \"5. The following entities were similar to **\" + original_entity_a + \"** during the baselining period: **\" + (entArr_a || \"\") + \"**\\n\\n\"\n  + \"6. Other entities associated with **\" + item_a + \"** include **\" + (item_assoc_entities_a || \"\") + \"**\"\n| columns description\n| limit 1",
+      title: " ",
+      layout: {
+  h: 9,
+  w: 60,
+  x: 0,
+  y: 98
+}
+    },
+    {
+      graphStyle: "markdown",
+      markdown: "[ ← Click Here](https://usea1-partners.sentinelone.net/dashboards/id/27728463207288832/Anomaly%20Detection%20Insights)",
+      title: "Back to Anomaly Detection Insights Dashboard",
+      layout: {
+  h: 5,
+  i: "22",
+  minH: 3,
+  minW: 6,
+  w: 14,
+  x: 46,
+  y: 0
+},
+      description: ""
+    }
+  ],
+  description: "Detailed insights of an anomalous item used by an anomalous entity",
+  filters: [
+    {
+      facet: "metadata.log_provider",
+      name: "Corelight Sensor"
+    },
+    {
+      facet: "finding_info.desc",
+      name: "Anomaly Type",
+      defaultValue: "Not Selected"
+    },
+    {
+      facet: "unmapped.original_entity",
+      name: "Anomalous Entity"
+    },
+    {
+      facet: "unmapped.item",
+      name: "Anomalous Item"
+    },
+    {
+      facet: "connection_info.uid",
+      name: "Connection UID"
+    },
+    {
+      facet: "src_endpoint.ip",
+      name: "Source IP"
+    },
+    {
+      facet: "dst_endpoint.ip",
+      name: "Destination IP"
+    }
+  ]
+}
