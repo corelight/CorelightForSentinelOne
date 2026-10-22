@@ -1,0 +1,1128 @@
+{
+  duration: "24h",
+  description: "",
+  tabs: [{
+      "tabName": "Intel",
+      "graphs": [
+        {
+          graphStyle: "stacked",
+          lineSmoothing: "straightLines",
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'intel'\n| group count=count() by timebucket(time, 'auto')",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "Intel Logs Over Time",
+          yScale: "linear",
+          layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 0
+}
+        },
+        {
+          graphStyle: "pie",
+          maxPieSlices: 10,
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'intel'\n| group \"Total\"=count() by osint\\[0\\].type\n| sort -Total",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "Indicators",
+          layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 0
+},
+          dataLabelType: "PERCENTAGE"
+        },
+        {
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'intel'\n| group \"Total_Events\"=count() by \"Source_IP\"=src_endpoint.ip, \"Destination_IP\"=dst_endpoint.ip, \"Port\"=dst_endpoint.port , \"Indicator_Type\"=osint\\[0\\].type, \"Indicator\"=osint\\[0\\].value, \"Where\"=unmapped.seen.where, \"Confidence_Score\"=confidence_score\n| sort -Total_Events\n| limit 5\n| columns \"Source IP\"=Source_IP, \"Destination IP\"=Destination_IP, \"Port\"=Port, \"Indicator Type\"=Indicator_Type, \"Indicator\"=Indicator, \"Where\"=Where, \"Confidence Score\"=Confidence_Score, \"Total Events\"=Total_Events",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "Intel Details",
+          layout: {
+  h: 15,
+  w: 60,
+  x: 0,
+  y: 14
+},
+          graphStyle: ""
+        },
+        {
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'intel'\n| columns Time=strftime(time*1000000, \"%Y-%m-%d %H:%M:%S\"), \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Destionation Port\"=dst_endpoint.port, \"Confidence Score\"=confidence_score, \"Raw Log\"=unmapped.raw_message \n| sort -Time\n| limit 100000",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "Log Data",
+          layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 29
+},
+          graphStyle: ""
+        }
+      ],
+      filters: [
+        {
+          facet: "src_endpoint.ip",
+          name: "Source IP"
+        },
+        {
+          facet: "dst_endpoint.ip",
+          name: "Destination IP"
+        },
+        {
+          facet: "dst_endpoint.port",
+          name: "Destination Port"
+        },
+        {
+          facet: "osint[0].type",
+          name: "Indicator Type"
+        },
+        {
+          facet: "osint[0].value",
+          name: "Indicator"
+        },
+        {
+          facet: "unmapped.sources",
+          name: "Intel Source"
+        }
+      ]
+    },
+{
+      "tabName": "IP Interrogation",
+      "graphs": [
+        {
+          graphStyle: "stacked_bar",
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name matches '^conn.*' AND !(dst_endpoint.port in (80, 8080, 443))\n| let tp = connection_info.protocol_name + '/' + dst_endpoint.port\n| group count=count() by tp\n| sort -count\n| limit 10",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "Connections : Top Non-Web Protocol Usage",
+          xAxis: "grouped_data",
+          yScale: "linear",
+          layout: {
+h: 14,
+w: 30,
+x: 0,
+y: 0
+},
+          barWidth: "auto"
+        },
+        {
+          graphStyle: "pie",
+          maxPieSlices: 11,
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'conn' \n| let ie = (unmapped.local_orig=true && unmapped.local_resp=true) ? \"Internal\" : (unmapped.local_orig=false && unmapped.local_resp=false) ? \"External\" : (unmapped.local_orig=false && unmapped.local_resp=true) ? \"Inbound\" : (unmapped.local_orig=true && unmapped.local_resp=false) ? \"Outbound\" : \"Unknown\"\n| group count=count() by ie",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "Connections : Internal vs External",
+          layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 0
+}
+        },
+        {
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name matches '^conn.*' AND dst_endpoint.ip != '192.168.0.255'\n| let pr = connection_info.protocol_name + '/' + dst_endpoint.port, is_broadcast =  (src_endpoint.ip = \"0.0.0.0\" OR src_endpoint.ip = \"255.255.255.255\" OR dst_endpoint.ip = \"0.0.0.0\" OR dst_endpoint.ip = \"255.255.255.255\") ? true : false, tbytes = unmapped.resp_ip_bytes + unmapped.orig_ip_bytes\n| filter is_broadcast = false\n| group \"Service\"=array_agg_distinct(pr).to_string(), \"Bytes\"=sum(tbytes) by src_endpoint.ip, dst_endpoint.ip, connection_info.uid\n| sort -Bytes\n| limit 10\n| columns \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, Service, \"UID\"=connection_info.uid, \"Country\"=geo_ip_country(dst_endpoint.ip), Bytes",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "Connections : Top Connections/Services by Bytes Transferred",
+          layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 14
+},
+          graphStyle: ""
+        },
+        {
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name matches '^http.*'\n| group \"Count\"=count() by \"Destination IP\"=dst_endpoint.ip, \"Source IP\"=src_endpoint.ip, \"Method\"=http_request.http_method, \"URI\"=http_request.url.path\n| sort -Count\n| limit 10",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "HTTP : Top Destination IP, Method, & URI",
+          layout: {
+h: 14,
+w: 30,
+x: 30,
+y: 14
+},
+          graphStyle: ""
+        },
+        {
+          graphStyle: "pie",
+          maxPieSlices: 10,
+          query: "metadata.product.vendor_name = 'Corelight' AND !(metadata.log_name matches '^conn.*') AND metadata.log_name != 'http' AND metadata.log_name != 'asoc:nba:event' AND (metadata.log_name != 'notice' OR (unmapped.src =* OR unmapped.dst=*)) \n| group \"Total\"=count() by metadata.log_name\n| sort -Total",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "Corelight Data Sets : Corelight supporting data sources for source",
+          layout: {
+  h: 14,
+  w: 20,
+  x: 0,
+  y: 28
+}
+        },
+        {
+          graphStyle: "pie",
+          maxPieSlices: 10,
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name matches '^http.*'\n| group count=count() by http_request.user_agent\n| sort count\n| limit 10",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "HTTP : Rare User Agents",
+          layout: {
+  h: 14,
+  w: 20,
+  x: 20,
+  y: 28
+}
+        },
+        {
+          graphStyle: "pie",
+          maxPieSlices: 10,
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'http' AND (src_endpoint.ip=* OR dst_endpoint.ip=*) AND dst_endpoint.port in (80, 8080, 443)\n| group count=count() by dst_endpoint.port\n| sort -count",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "HTTP : Web Ports Breakdown",
+          layout: {
+  h: 14,
+  w: 20,
+  x: 40,
+  y: 28
+}
+        }
+      ],
+      options: {layout: {locked: 1}},
+      filters: [
+        {
+          facet: "src_endpoint.ip",
+          name: "Source IP"
+        },
+        {
+          facet: "dst_endpoint.ip",
+          name: "Destination IP"
+        }
+      ],
+      options: {layout: {locked: 0}},
+      options: {layout: {locked: 1}}
+    },
+{"tabName":"Log Hunting","graphs":[
+  {
+    graphStyle: "pie",
+    maxPieSlices: 10,
+    query: "metadata.product.vendor_name = 'Corelight' AND !(metadata.log_name matches '^corelight.*') AND (metadata.log_name != 'notice' OR (unmapped.src =* OR unmapped.dst=*))\n| group \"Total\"=count() by metadata.log_name\n| sort -Total",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Filtered Corelight data for this unique entity",
+    layout: {
+h: 14,
+w: 29,
+x: 0,
+y: 0
+}
+  },
+  {
+    graphStyle: "stacked_bar",
+    query: "metadata.product.vendor_name = 'Corelight' AND !(metadata.log_name matches '^corelight.*') AND (metadata.log_name != 'notice' OR (unmapped.src =* OR unmapped.dst=*))\n| group count=count() by metadata.log_name\n| sort -count",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "All Corelight data for this unique entity",
+    xAxis: "grouped_data",
+    yScale: "linear",
+    layout: {
+h: 14,
+w: 31,
+x: 29,
+y: 0
+},
+    barWidth: "auto"
+  },
+  {
+    query: "metadata.product.vendor_name = 'Corelight' AND !(metadata.log_name matches '^corelight.*')\n| columns \"Time\"=strftime(time*1000000, \"%Y-%m-%d %H:%M:%S\"), \"Event Type\"=metadata.log_name, \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Destination Port\"=dst_endpoint.port, \"UID\"=connection_info.uid, \"Raw Log\"=unmapped.raw_message \n| sort -\"Time\"\n| limit 100",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Log Data",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 14
+},
+    graphStyle: ""
+  }
+],
+options: {layout: {locked: 1}},
+filters: [
+  {
+    facet: "metadata.log_name",
+    name: "Event Type"
+  },
+  {
+    facet: "src_endpoint.ip",
+    name: "Source IP"
+  },
+  {
+    facet: "dst_endpoint.ip",
+    name: "Destination IP"
+  },
+  {
+    facet: "connection_info.uid",
+    name: "UID"
+  },
+]
+},
+{"tabName":"Notices","graphs":[
+  {
+    graphStyle: "stacked",
+    lineSmoothing: "straightLines",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice'\n| group count=count() by timebucket(time, 'auto')",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Notices Over Time ",
+    yScale: "linear",
+    layout: {
+  h: 14,
+  w: 20,
+  x: 0,
+  y: 0
+}
+  },
+  {
+    graphStyle: "pie",
+    maxPieSlices: 10,
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice'\n| group \"Total\"=count() by unmapped.note\n| sort -Total",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Notices",
+    layout: {
+  h: 14,
+  w: 20,
+  x: 20,
+  y: 0
+}
+  },
+  {
+    graphStyle: "pie",
+    maxPieSlices: 10,
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice'\n| let severity_display= unmapped.severity.name + \" (\" + unmapped.severity.level + \")\"\n| group \"Total\"=count() by severity_display\n| sort -Total",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Severities",
+    layout: {
+  h: 14,
+  w: 20,
+  x: 40,
+  y: 0
+},
+    dataLabelType: "PERCENTAGE"
+  },
+  {
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice' AND unmapped.severity.level=* AND unmapped.note=* AND unmapped.p=*\n| let pp=evidences\\[0\\].connection_info.protocol_name + \"/\"+ unmapped.p, severity_display= unmapped.severity.name + \" (\" + unmapped.severity.level + \")\"\n| group \"Protocol/Port\"=array_agg_distinct(pp).to_string() by \"Notes\"=unmapped.note, \"Severity\"=severity_display\n| limit 100000",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Notice Details",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 14
+},
+    graphStyle: ""
+  },
+  {
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'notice' AND unmapped.severity.level=* AND unmapped.note=* AND evidences\\[0\\].dst_endpoint.port=*\n| let severity_display= unmapped.severity.name + \" (\" + unmapped.severity.level + \")\"\n| columns \"Time\"=strftime(time*1000000, \"%Y-%m-%d %H:%M:%S\"), \"Source IP\"=evidences\\[0\\].src_endpoint.ip, \"Severity\"=severity_display, \"Raw Log\"=unmapped.raw_message\n| sort -Time\n| limit 500",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Log Data",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 28
+},
+    graphStyle: ""
+  }
+],
+options: {layout: {locked: 1}},
+filters: [
+  {
+    name: "Severity",
+    facet: "unmapped.severity.name"
+  },
+  {
+    facet: "message_",
+    name: "Message"
+  },
+  {
+    facet: "evidences[0].src_endpoint.ip",
+    name: "Source IP"
+  },
+  {
+    facet: "unmapped.note",
+    name: "Notes"
+  },
+  {
+    facet: "evidences[0].connection_info.protocol_name",
+    name: "Protocol"
+  },
+  {
+    facet: "evidences[0].dst_endpoint.port",
+    name: "Port"
+  }
+]
+},
+{"tabName":"RDP Inferences Overview","graphs":[
+  {
+    graphStyle: "pie",
+    maxPieSlices: 10,
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp' AND unmapped.inferences=*\n| let stoa_inferences=unmapped.inferences.extract_matches('[A-Z]+'), expanded_inference= stoa_inferences.expand()\n| group count() by expanded_inference",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Name",
+    layout: {
+  h: 14,
+  w: 31,
+  x: 0,
+  y: 0
+}
+  },
+  {
+    graphStyle: "stacked",
+    lineSmoothing: "straightLines",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp' AND unmapped.inferences=*\n| let stoa_inferences=unmapped.inferences.extract_matches('[A-Z]+'), expanded_inference= stoa_inferences.expand()\n| group count() by timestamp=timebucket(time, 'auto'), expanded_inference\n| transpose expanded_inference on timestamp",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Inferences Over Time",
+    yScale: "linear",
+    layout: {
+  h: 14,
+  w: 29,
+  x: 31,
+  y: 0
+}
+  },
+  {
+    graphStyle: "number",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp' AND status=\"Success\"\n| group count()",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Successful Connections",
+    yScale: "linear",
+    layout: {
+  h: 13,
+  w: 15,
+  x: 0,
+  y: 14
+},
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    },
+    sparklineConfig: {enabled: false}
+  },
+  {
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp' AND status=\"Failure\"\n| group count()",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Failed Connections",
+    graphStyle: "number",
+    trendConfig: {
+      enabled: false,
+      indicators: {
+        arrow: {enabled: true},
+        number: {
+          calculationType: "ABSOLUTE",
+          enabled: true
+        },
+        upwardsMeaning: "POSITIVE"
+      }
+    },
+    layout: {
+  h: 13,
+  w: 16,
+  x: 15,
+  y: 14
+},
+    sparklineConfig: {enabled: false}
+  },
+  {
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp' AND identifier_cookie=*\n| let \"Connecting_User\"=identifier_cookie, auth_success = (status=null) ? \"No Value\" : (status=\"Success\") ? \"true\": \"false\"\n| group \"Count\"=count() by \"Connecting User\"=Connecting_User, \"Auth Success\"=auth_success\n| sort -Count\n| limit 20",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Connecting Users",
+    layout: {
+  h: 13,
+  w: 29,
+  x: 31,
+  y: 14
+},
+    graphStyle: ""
+  },
+  {
+    graphStyle: "pie",
+    maxPieSlices: 10,
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp'\n| group count() by tls.version",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Security Protocols Used",
+    layout: {
+  h: 10,
+  w: 60,
+  x: 0,
+  y: 27
+}
+  },
+  {
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'rdp'\n| let \"Connecting_User\"=identifier_cookie, stoa_inferences=unmapped.inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand(), auth_success = (status=null) ? \"No Value\" : (status=\"Success\") ? \"true\": \"false\"\n| lookup InferenceName from rdp_inference_lookup.csv by Code=expanded_inferences\n| columns \"Time\"=strftime(time*1000000, \"%Y-%m-%d %H:%M:%S\"), \"Connecting User\"=Connecting_User, \"Corelight Sensor\"=metadata.log_provider, \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Destination Port\"=dst_endpoint.port, \"Auth Success\"=auth_success, \"Inferences\"=expanded_inferences, \"Inferences Name\"=InferenceName, \"Raw Log\" = unmapped.raw_message",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "RDP Connection Detail",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 37
+},
+    graphStyle: ""
+  }
+],
+options: {layout: {locked: 1}},
+filters: [
+  {
+    facet: "metadata.log_provider",
+    name: "Corelight Sensor"
+  }
+],
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}},
+options: {layout: {locked: 0}},
+options: {layout: {locked: 1}}
+},
+{"tabName":"SSH Inferences Overview","graphs":[
+  {
+    graphStyle: "pie",
+    maxPieSlices: 10,
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=unmapped.inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| lookup InferenceName from ssh_inference_lookup.csv by inferences=expanded_inferences\n| group count=count() by InferenceName\n| sort -count",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "SSH Inferences",
+    layout: {
+h: 14,
+w: 31,
+x: 0,
+y: 0
+}
+  },
+  {
+    graphStyle: "stacked",
+    lineSmoothing: "straightLines",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "SSH Inferences Over Time",
+    yScale: "linear",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let stoa_inferences=unmapped.inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| lookup InferenceName from ssh_inference_lookup.csv by inferences=expanded_inferences\n| group count=count() by timestamp=timebucket(time, 'auto'), InferenceName\n| transpose InferenceName on timestamp",
+    layout: {
+  h: 14,
+  w: 29,
+  x: 31,
+  y: 0
+}
+  },
+  {
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| let src= (src_endpoint.ip = null) ? \"Unknown\" : src_endpoint.ip, hassh= (client_hassh.fingerprint.value = null) ? \"Unknown\" : client_hassh.fingerprint.value, dest= (dst_endpoint.ip = null) ? \"Unknown\" : dst_endpoint.ip, hasshServer= (server_hassh.fingerprint.value = null) ? \"Unknown\" : server_hassh.fingerprint.value\n| group \"Total_Events\"=count() by \"Source_IP\"=src, \"HASSH_Client\"=hassh, \"Destination_IP\"=dest, \"HASSH_Server\"=hasshServer\n| sort -Total_Events\n| columns \"Source IP\"=Source_IP, \"HASSH Client\"=HASSH_Client, \"Destination IP\"=Destination_IP, \"HASSH Server\"=HASSH_Server, \"Total Events\"=Total_Events\n| limit 5",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "HASSH Fingerprint Details",
+    layout: {
+  h: 14,
+  w: 31,
+  x: 0,
+  y: 14
+},
+    graphStyle: ""
+  },
+  {
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| group \"Inferences\"=((array_agg_distinct(unmapped.inferences).to_string()).extract_matches('[A-Z]+')).distinct().to_string(), \"Count\"=count() by \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip\n| sort -Count\n| limit 5",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "SSH Host Details",
+    graphStyle: "",
+    layout: {
+h: 14,
+w: 29,
+x: 31,
+y: 14
+}
+  },
+  {
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| group \"Host Key\"=array_agg_distinct(unmapped.host_key).to_string(), \"Inferences\"=((array_agg_distinct(unmapped.inferences).to_string()).extract_matches('[A-Z]+')).distinct().to_string(), \"Count\"=count() by \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip\n| sort -Count\n| limit 100000",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "Inferences for Hosts with Host Key",
+    layout: {
+h: 17,
+w: 60,
+x: 0,
+y: 28
+},
+    graphStyle: ""
+  },
+  {
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'ssh'\n| columns \"Time\"=strftime(time*1000000, \"%Y-%m-%d %H:%M:%S\"), \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Inferences\"=unmapped.inferences, \"Raw Logs\"=unmapped.raw_message\n| limit 100000",
+    teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+    title: "SSH Inference Log Data",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 45
+},
+    graphStyle: ""
+  }
+],
+options: {layout: {locked: 1}},
+filters: [
+  {
+    facet: "unmapped.inferences",
+    name: "SSH Inferences"
+  }
+]
+},
+{
+      "tabName": "Corelight Suricata IDS Alert Overview",
+      "graphs": [
+        {
+          graphStyle: "number",
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight' \n| group count()",
+          title: "Total IDS Hits",
+          layout: {
+  h: 8,
+  w: 20,
+  x: 0,
+  y: 12
+},
+          trendConfig: {
+            enabled: false,
+            indicators: {
+              arrow: {enabled: true},
+              number: {
+                calculationType: "ABSOLUTE",
+                enabled: true
+              },
+              upwardsMeaning: "POSITIVE"
+            }
+          }
+        }, {
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight'\n| group count=count() by timestamp=timebucket(time, 'auto')",
+          teamEmails: [
+            "19488_1342074829499534781@s1.oem",
+            "19488_1@s1.oem"
+          ],
+          title: "IDS Hits Over Time",
+          graphStyle: "line",
+          layout: {
+  h: 12,
+  w: 60,
+  x: 0,
+  y: 0
+},
+          lineSmoothing: "straightLines",
+          yScale: "linear"
+        }, {
+          graphStyle: "number",
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight'\n| group estimate_distinct(finding_info.title)",
+          title: "Unique Rules Alerting",
+          layout: {
+  h: 8,
+  w: 20,
+  x: 20,
+  y: 12
+},
+          trendConfig: {
+            enabled: false,
+            indicators: {
+              arrow: {enabled: true},
+              number: {
+                calculationType: "ABSOLUTE",
+                enabled: true
+              },
+              upwardsMeaning: "POSITIVE"
+            }
+          }
+        }, {
+          graphStyle: "",
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight' AND src_endpoint.ip=*\n| group \"Rules\"=estimate_distinct(finding_info.title), \"Hits\"=count() by \"Source_IP\"=src_endpoint.ip\n| sort -Rules, -Hits\n| columns \"Source IP\"=Source_IP, \"# Rules\"=Rules, \"# Hits\"=Hits",
+          showBarsColumn: "true",
+          title: "Origin Summary",
+          layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 20
+}
+        }, {
+          graphStyle: "",
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns category = unmapped.alert.category\n| group \"Count\"= count() by \"Category\"=category",
+          showBarsColumn: "true",
+          title: "Category Analysis",
+          layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 20
+}
+        }, {
+          graphStyle: "",
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight'\n| let \"Severity\" = (unmapped.alert.severity = 0) ? \"informational\" : (unmapped.alert.severity = 1) ? \"critical\" : (unmapped.alert.severity = 2) ? \"medium\" : (unmapped.alert.severity = 3) ? \"low\" : \"unknown\"\n| group no_of_sources=estimate_distinct(src_endpoint.ip), Count=count() by Severity, \"Signature\"=finding_info.title, \"SID\"=finding_info.uid \n| sort -no_of_sources, -Count\n| columns Severity, Signature, SID, \"# Sources\"=no_of_sources, Count",
+          showBarsColumn: "false",
+          title: "Signature Analysis",
+          layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 34
+}
+        }, {
+          graphStyle: "",
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight'\n| let severity = (unmapped.alert.severity = 0) ? \"informational\" : (unmapped.alert.severity = 1) ? \"critical\" : (unmapped.alert.severity = 2) ? \"medium\" : (unmapped.alert.severity = 3) ? \"low\" : \"unknown\"\n| columns \"Time\"=strftime(time*1000000, \"%Y-%m-%d %H:%M:%S\"), \"Source IP\" = src_endpoint.ip, \"Destination IP\" = dst_endpoint.ip, \"Destination Port\" = dst_endpoint.port, \"Service\"=connection_info.protocol_name, \"Severity\"=severity, \"Signature\" = finding_info.title, \"Signature ID\" = finding_info.uid, \"UID\" = connection_info.uid, \"Raw Logs\"=unmapped.raw_message\n| sort -Time\n| limit 100000",
+          showBarsColumn: "false",
+          title: "Log Details",
+          layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 48
+}
+        }, {
+          graphStyle: "number",
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'suricata_corelight' AND (finding_info.title contains 'CVE' OR unmapped.alert.metadata contains 'CVE')\n| group count()",
+          title: "Alert with CVEs",
+          layout: {
+  h: 8,
+  w: 20,
+  x: 40,
+  y: 12
+},
+          trendConfig: {
+            enabled: false,
+            indicators: {
+              arrow: {enabled: true},
+              number: {
+                calculationType: "ABSOLUTE",
+                enabled: true
+              },
+              upwardsMeaning: "POSITIVE"
+            }
+          }
+        },
+      ],
+      options: {
+        layout: {
+          columns: 1
+        }
+      },
+      options: {
+        layout: {
+          columns: 2
+        }
+      },
+      options: {
+        layout: {
+          columns: 3
+        }
+      },
+      options: {
+        layout: {
+          columns: 3,
+          locked: 1
+        }
+      },
+      options: {
+        layout: {
+          columns: 3
+        }
+      },
+      options: {
+        layout: {
+          columns: 2
+        }
+      },
+      options: {
+        layout: {
+          columns: 3
+        }
+      },
+      options: {
+        layout: {
+          columns: 3,
+          locked: 1
+        }
+      },
+      options: {
+        layout: {
+          columns: 3
+        }
+      },
+      options: {
+        layout: {
+          columns: 3,
+          locked: 1
+        }
+      },
+      filters: [
+        {
+          facet: "src_endpoint.ip",
+          name: "Source IP"
+        },
+        {
+          name: "Severity",
+          values: [
+  {
+    label: "All",
+    value: "metadata.log_name = 'suricata_corelight'"
+  },
+  {
+    label: "0 (Informational)",
+    value: "unmapped.alert.severity = 0"
+  },
+  {
+    label: "1 (Critical)",
+    value: "unmapped.alert.severity = 1"
+  },
+  {
+    label: "2 (Medium)",
+    value: "unmapped.alert.severity = 2"
+  },
+  {
+    label: "3 (Low)",
+    value: "unmapped.alert.severity = 3"
+  }
+]
+        },
+        {
+          facet: "unmapped.alert.category",
+          name: "Category"
+        }
+      ],
+      options: {
+        layout: {
+          columns: 3
+        }
+      },
+      options: {
+        layout: {
+          columns: 3
+        }
+      },
+      options: {
+        layout: {
+          columns: 3,
+          locked: 1
+        }
+      }
+    },
+{"tabName": "VPN Insights","graphs": [
+  {
+          graphStyle: "pie",
+          maxPieSlices: 10,
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn' AND unmapped.inferences = *\n| let stoa_inferences=unmapped.inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| group count() by expanded_inferences",
+          title: "Inference Type",
+          layout: {
+h: 11,
+w: 19,
+x: 0,
+y: 0
+}
+        },
+        {
+          graphStyle: "pie",
+          maxPieSlices: 20,
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn' AND unmapped.vpn_type = * AND unmapped.inferences = *\n| group count() by src_endpoint.ip, unmapped.vpn_type, dst_endpoint.location.country\n| group count=count() by src_endpoint.ip\n| sort -count\n| limit 20",
+          title: "Top VPN Users",
+          layout: {
+  h: 11,
+  w: 20,
+  x: 19,
+  y: 0
+}
+        },
+        {
+          graphStyle: "pie",
+          maxPieSlices: 10,
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn' AND unmapped.vpn_type = *\n| group count() by unmapped.vpn_type",
+          title: "VPN Type",
+          layout: {
+  h: 11,
+  w: 20,
+  x: 39,
+  y: 0
+}
+        },
+        {
+          graphStyle: "stacked",
+          lineSmoothing: "straightLines",
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn' AND unmapped.inferences = *\n| let stoa_inferences=unmapped.inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| group count=count() by timestamp=timebucket(time, 'auto'), expanded_inferences\n| transpose expanded_inferences on timestamp",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "Inferences Over Time",
+          yScale: "linear",
+          layout: {
+  h: 12,
+  w: 59,
+  x: 0,
+  y: 11
+}
+        },
+        {
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn' AND unmapped.inferences=* \n| let ja3 = (unmapped.ja3 = null) ? \"Unknown\" : unmapped.ja3, ja3s = (unmapped.ja3s = null) ? \"Unknown\" : unmapped.ja3s\n| filter ja3!='Unknown' ja3s!='Unknown'\n| group count = count() by ja3, ja3s\n| limit 100000",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "VPN JA3 Finger Prints",
+          layout: {
+h: 14,
+w: 59,
+x: 0,
+y: 37
+},
+          graphStyle: ""
+        },
+        {
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn'\n| let stoa_inferences=unmapped.inferences.extract_matches('[A-Z]+'), expanded_inferences= stoa_inferences.expand()\n| columns \"Time\"=strftime(time*1000000, \"%Y-%m-%d %H:%M:%S\"), \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Inferences\"=expanded_inferences, \"Raw Logs\"=unmapped.raw_message",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "VPN Inference Log Data",
+          layout: {
+  h: 17,
+  w: 59,
+  x: 0,
+  y: 51
+},
+          graphStyle: ""
+        },
+        {
+          query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'vpn' AND unmapped.inferences = * AND app_protocol_name matches '^spicy.*'\n| let Country=geo_ip_country(dst_endpoint.ip)\n| group  resp_bytes_sum = sum(traffic.bytes_in), orig_bytes_sum = sum(traffic.bytes_out), number_of_conns=count() by src_endpoint.ip, dst_endpoint.ip, dst_endpoint.port, connection_info.protocol_name, Country, app_protocol_name\n| let  Gigabytes=((((orig_bytes_sum + resp_bytes_sum)/1024)/1024)/1024)\n| columns \"Source IP\"=src_endpoint.ip, \"Destination IP\"=dst_endpoint.ip, \"Destination Port\"=dst_endpoint.port, \"Protocol\"=connection_info.protocol_name, \"Destination Country\"=Country, \"Serivce\"=app_protocol_name, \"Sum of Destination Bytes\"=resp_bytes_sum, \"Sum of Source Bytes\"=orig_bytes_sum, \"Gigabytes\"=Gigabytes, \"Number of Connections\"=number_of_conns\n| sort -Gigabytes \n| limit 20",
+          teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+          title: "Largest Transfers Between Host Pairs Over VPN",
+          layout: {
+h: 14,
+w: 59,
+x: 0,
+y: 23
+},
+          graphStyle: ""
+        }
+],
+filters: [
+  {
+    facet: "metadata.log_provider",
+    name: "Corelight Sensor"
+  },
+  {
+    facet: "unmapped.vpn_type",
+    name: "VPN Type"
+  },
+  {
+    name: "Inferences",
+    facet: "unmapped.inferences"
+  }
+]
+},
+{"tabName":"Alert Aggregations","graphs":[
+{
+  graphStyle: "number",
+  query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=connection_info.uid, signature_id=string(finding_info.uid)\n| lookup sid, impact_score, category from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' category=* category!='' impact_score=* impact_score!='' number(impact_score) > 3\n| group sids_sorted=array_agg_distinct(number(signature_id)).sort() by uid\n| let did = sids_sorted\n| group \"Detections\"=estimate_distinct(did)",
+  title: "Alert Grouping",
+  trendConfig: {
+    enabled: false,
+    indicators: {
+      arrow: {enabled: true},
+      number: {
+        calculationType: "ABSOLUTE",
+        enabled: true
+      },
+      upwardsMeaning: "POSITIVE"
+    }
+  },
+  layout: {
+h: 9,
+w: 12,
+x: 0,
+y: 0
+}
+},
+{
+  graphStyle: "number",
+  layout: {
+h: 9,
+w: 12,
+x: 24,
+y: 0
+},
+  query: "| join\n(metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=connection_info.uid, signature_id=string(finding_info.uid)\n| lookup sid, impact_score, category from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' category=* category!='' impact_score=* impact_score!='' number(impact_score) > 3 \n| group count() by uid\n| columns uid),\n(metadata.product.vendor_name='Corelight' AND metadata.log_name=\"conn\" AND unmapped.local_resp=true | columns uid=connection_info.uid) on uid\n| group count()",
+  title: "Impacted Internal Hosts",
+  trendConfig: {
+    enabled: false,
+    indicators: {
+      arrow: {enabled: true},
+      number: {
+        calculationType: "ABSOLUTE",
+        enabled: true
+      },
+      upwardsMeaning: "POSITIVE"
+    }
+  }
+},
+{
+  graphStyle: "number",
+  layout: {
+h: 9,
+w: 12,
+x: 12,
+y: 0
+},
+  query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=connection_info.uid, signature_id=string(finding_info.uid)\n| lookup sid, impact_score, category from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' category=* category!='' impact_score=* impact_score!='' number(impact_score) > 3\n| group \"Impacted_UIDs\"=estimate_distinct(uid)",
+  title: "Impacted Connections",
+  trendConfig: {
+    enabled: false,
+    indicators: {
+      arrow: {enabled: true},
+      number: {
+        calculationType: "ABSOLUTE",
+        enabled: true
+      },
+      upwardsMeaning: "POSITIVE"
+    }
+  }
+},
+{
+  graphStyle: "number",
+  layout: {
+h: 9,
+w: 12,
+x: 36,
+y: 0
+},
+  query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=connection_info.uid, signature_id=string(finding_info.uid)\n| lookup sid, impact_score, category, technique_number from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' category=* category!='' impact_score=* impact_score!='' number(impact_score) > 3\n| group estimate_distinct(technique_number)",
+  title: "MITRE Techniques",
+  trendConfig: {
+    enabled: false,
+    indicators: {
+      arrow: {enabled: true},
+      number: {
+        calculationType: "ABSOLUTE",
+        enabled: true
+      },
+      upwardsMeaning: "POSITIVE"
+    }
+  }
+},
+{
+  graphStyle: "number",
+  layout: {
+h: 9,
+w: 12,
+x: 48,
+y: 0
+},
+  query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=connection_info.uid, signature_id=string(finding_info.uid)\n| lookup sid, impact_score, category from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' category=* category!='' impact_score=* impact_score!='' number(impact_score) > 3\n| group max(number(impact_score))",
+  title: "Highest Impact Score",
+  trendConfig: {
+    enabled: false,
+    indicators: {
+      arrow: {enabled: true},
+      number: {
+        calculationType: "ABSOLUTE",
+        enabled: true
+      },
+      upwardsMeaning: "POSITIVE"
+    }
+  }
+},
+{
+  graphStyle: "",
+  layout: {
+h: 9,
+w: 12,
+x: 0,
+y: 9
+},
+  query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=connection_info.uid, signature_id=string(finding_info.uid)\n| lookup sid, impact_score, category from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' category=* category!='' impact_score=* impact_score!='' number(impact_score) > 3\n| group count=count() by category\n| group \"Most Seen Category\"=max_by(category, count)",
+  title: "Most Seen Category",
+},
+{
+  graphStyle: "number",
+  layout: {
+h: 9,
+w: 12,
+x: 12,
+y: 9
+},
+  query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=connection_info.uid, signature_id=string(finding_info.uid)\n| lookup sid, impact_score, category from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' category=* category!='' impact_score=* impact_score!='' number(impact_score) > 3\n| group count(sid)",
+  title: "Alerts/ Signatures",
+  trendConfig: {
+    enabled: false,
+    indicators: {
+      arrow: {enabled: true},
+      number: {
+        calculationType: "ABSOLUTE",
+        enabled: true
+      },
+      upwardsMeaning: "POSITIVE"
+    }
+  }
+},
+{
+  graphStyle: "number",
+  layout: {
+h: 9,
+w: 12,
+x: 24,
+y: 9
+},
+  query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=connection_info.uid, signature_id=string(finding_info.uid)\n| lookup sid, impact_score, category, cve_number from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' category=* category!='' cve_number=* cve_number != '' impact_score=* impact_score!='' number(impact_score) > 3\n| group sids=array_agg_distinct(sid) by uid\n| group count()",
+  title: "Alerts With CVEs",
+  trendConfig: {
+    enabled: false,
+    indicators: {
+      arrow: {enabled: true},
+      number: {
+        calculationType: "ABSOLUTE",
+        enabled: true
+      },
+      upwardsMeaning: "POSITIVE"
+    }
+  }
+},
+{
+  graphStyle: "",
+  layout: {
+h: 9,
+w: 12,
+x: 36,
+y: 9
+},
+  query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=connection_info.uid, signature_id=string(finding_info.uid)\n| lookup sid, impact_score, category, cve_creation_date from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' category=* category!='' impact_score=* impact_score!='' number(impact_score) > 3\n| columns cve_creation_date = strptime(cve_creation_date, \"%m/%d/%y %H:%M\")\n| filter cve_creation_date >= 0\n| group oldest_cve = min(cve_creation_date)\n| columns \"Oldest CVE Date\" = (oldest_cve != null) ? strftime(oldest_cve, \"%Y-%m-%d\") : \"N/A\"",
+  title: "Oldest CVE Date",
+},
+{
+  graphStyle: "gauge",
+  layout: {
+h: 9,
+w: 12,
+x: 48,
+y: 9
+},
+  query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=connection_info.uid, signature_id=string(finding_info.uid)\n| lookup sid, impact_score, category from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' category=* category!='' impact_score=* impact_score!='' number(impact_score) > 3\n| group \"Average_Impact_Score\"=avg(number(impact_score))",
+  title: "Average Impact Score",
+  colorRangeConfig: {
+    ranges: [
+      {
+        color: "#1CAA5D",
+        range: {
+          max: 4,
+          min: 0
+        }
+      },
+      {
+        color: "#C58922",
+        range: {
+          max: 7,
+          min: 4
+        }
+      },
+      {
+        color: "#E0483C",
+        range: {
+          max: 10,
+          min: 7
+        }
+      }
+    ]
+  }
+},
+{
+  query: "metadata.product.vendor_name='Corelight' AND metadata.log_name = 'suricata_corelight'\n| columns uid=connection_info.uid, signature_id=string(finding_info.uid), signature = finding_info.title\n| lookup sid, impact_score, technique_name, category from corelight_alert_aggregations_enrichment.csv by sid=signature_id\n| filter sid=* sid!='' category=* category!='' impact_score=* impact_score!='' number(impact_score) > 3\n| group technique_names=array_agg_distinct(technique_name).to_string(), categories=array_agg_distinct(category).to_string(), signatures=array_agg_distinct(signature).to_string(), impact_scores=array_agg_distinct(impact_score).to_string(), did=array_agg_distinct(number(sid)).sort() by uid\n| group \"MIRE Techniques\"=array_agg_distinct(technique_names).to_string(), \"Categories\"=array_agg_distinct(categories).to_string(), \"Signatures\"=array_agg_distinct(signatures).to_string(), \"Impact Scores\"=array_agg_distinct(impact_scores).to_string(), \"Connections\"=estimate_distinct(uid) by \"Signature IDs\"=did",
+  teamEmails: ["19488_1342074829499534781@s1.oem", "19488_1@s1.oem"],
+  title: "Aggregation Details",
+  layout: {
+h: 17,
+w: 60,
+x: 0,
+y: 18
+},
+  graphStyle: ""
+}
+]}],
+  configType: "TABBED"
+}

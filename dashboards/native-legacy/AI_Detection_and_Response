@@ -1,0 +1,275 @@
+{
+  duration: "24h",
+  description: "Visibility into GenAI adoption, shadow AI usage, and associated risks across the enterprise.",
+  tabs: [{"tabName":"AI Governance  & Adoption",
+filters : [
+    {
+      facet: "_system_name",
+      name: "Corelight Sensor"
+    },
+    {
+    name: "Risk Tier",
+    values: [
+  {
+    label: "All",
+    value: "metadata.log_name=*"
+  },
+  {
+    label: "High",
+    value: "app matches \"(^|[\\\\[\\\\s,\\\"])(moonshot|zhipu-ai|alibaba-qwen|baidu-ernie|bytedance-doubao|minimax|01ai-yi|sensetime|iflytek-spark|baichuan-ai|stepfun|openrouter|litellm|braintrust|portkey|helicone)([\\\\]\\\\s,\\\"]|$)\""
+  },
+  {
+    label: "Medium",
+    value: "app matches \"(^|[\\\\[\\\\s,\\\"])(github-copilot|codeium|tabnine|sourcegraph-cody|amazon-q|crewai|zapier-ai|mistral|cohere|deepseek|groq|together-ai|fireworks-ai|replicate|ai21|inflection-pi|lepton-ai|octoai|meta-ai|deepl|forefront-ai|adept-ai|chatgpt|google-gemini|claude|anthropic|openai|midjourney|stability-ai|runwayml|elevenlabs|pika|synthesia|suno|udio|langsmith|pinecone|chroma|wandb|baseten|modal|weaviate)([\\\\]\\\\s,\\\"]|$)\""
+  },
+  {
+    label: "Low",
+    value: "app matches \"(^|[\\\\[\\\\s,\\\"])(otter-ai|fireflies-ai|notion-ai|krisp|tldv|fathom|read-ai|mem-ai|microsoft-copilot|you-ai|phind|character-ai|kagi|nvidia-ngc|gpt4all|scale-ai|datarobot|adobe-firefly|poe|leonardo-ai|lakera|arthur-ai)([\\\\]\\\\s,\\\"]|$)\""
+  }
+]
+  }
+  ],
+graphs : [
+    {
+      graphStyle: "markdown",
+      markdown: "This dashboard provides visibility into **GenAI tool adoption** across your network. It identifies shadow AI usage, classifies tools by risk tier (High/Medium/Low), and tracks data transfer volumes to help security teams enforce acceptable-use policies and detect unauthorized AI tool usage.",
+      title: "AI Governance & Shadow AI Risk",
+      layout: {
+  h: 5,
+  w: 60,
+  x: 0,
+  y: 0
+}
+    },
+    {
+      description: "Total number of connections to known GenAI services within the selected time window.",
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let keep = array_app.match_any(func(x) -> allowed_tools.contains(x))\n| filter keep=true\n| group \"Count\" = count()",
+      sparklineConfig: {enabled: false},
+      title: "Total GenAI Connections",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+  h: 6,
+  w: 20,
+  x: 0,
+  y: 5
+}
+    },
+    {
+      description: "Count of distinct GenAI application identifiers observed in network traffic.",
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let filtered_app = array_app.filter(func(x) -> allowed_tools.contains(x))\n| let expanded_app = filtered_app.expand()\n| filter expanded_app=*\n| group unique_tools = estimate_distinct(expanded_app)",
+      sparklineConfig: {enabled: false},
+      title: "Unique GenAI Tools",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+  h: 6,
+  w: 20,
+  x: 20,
+  y: 5
+}
+    },
+    {
+      description: "Count of distinct internal source IPs communicating with GenAI services.",
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let keep = array_app.match_any(func(x) -> allowed_tools.contains(x))\n| filter keep=true local_orig=true\n| group active_hosts = estimate_distinct(src_endpoint.ip)",
+      sparklineConfig: {enabled: false},
+      title: "Active Internal Hosts",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+  h: 6,
+  w: 20,
+  x: 40,
+  y: 5
+}
+    },
+    {
+      description: "Stacked area chart showing connection volume over time broken down by GenAI application, revealing adoption trends and usage spikes.",
+      graphStyle: "stacked",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let filtered_app = array_app.filter(func(x) -> allowed_tools.contains(x))\n| let expanded_app = filtered_app.expand()\n| filter expanded_app=*\n| group count = count() by timestamp = timebucket(timestamp, 'auto'), expanded_app\n| sort - count\n| limit 25\n| transpose expanded_app on timestamp",
+      title: "GenAI Connections Over Time",
+      layout: {
+  h: 14,
+  w: 40,
+  x: 0,
+  y: 11
+}
+    },
+    {
+      dataLabelType: "PERCENTAGE",
+      description: "Pie chart showing the proportion of GenAI connections by application.",
+      graphStyle: "pie",
+      maxPieSlices: 25,
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let filtered_app = array_app.filter(func(x) -> allowed_tools.contains(x))\n| let expanded_app = filtered_app.expand()\n| filter expanded_app=*\n| group Count = count() by \"App\" = expanded_app\n| sort - Count\n| limit 25",
+      title: "GenAI Distribution",
+      layout: {
+  h: 14,
+  w: 20,
+  x: 40,
+  y: 11
+}
+    },
+    {
+      description: "Scatter plot of bytes sent vs connection duration per GenAI application, useful for spotting unusually large uploads or long-lived sessions.",
+      graphStyle: "scattered_bubble",
+      query: "metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let filtered_app = array_app.filter(func(x) -> allowed_tools.contains(x))\n| let keep = filtered_app.match_any(func(x) -> allowed_tools.contains(x))\n| filter keep=true\n| let MBytes = (floor((orig_ip_bytes/ (1024 * 1024))* 100 + 0.5) / 100)\n| sort -MBytes\n| columns \"Duration (Seconds)\" = duration, \"Bytes (MB)\" = MBytes, \"Size\" = 1, app=filtered_app.to_string(\"\\n\")\n| limit 10000",
+      scatteredBubbleConfig: {showLabel: true},
+      title: "Outbound GenAI Outliers (Avg Bytes vs Duration)",
+      layout: {
+  h: 16,
+  w: 60,
+  x: 0,
+  y: 25
+}
+    },
+    {
+      graphStyle: "stacked_bar",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let filtered_app = array_app.filter(func(x) -> allowed_tools.contains(x))\n| let expanded_app = filtered_app.expand()\n| filter expanded_app=*\n| group orig_bytes_sum=sum(orig_bytes), resp_bytes_sum=sum(resp_bytes) by app=expanded_app\n| sort -orig_bytes_sum\n| columns \"AppID\"= app, \"Bytes Sent\"=orig_bytes_sum, \"Bytes Received\"=resp_bytes_sum",
+      title: "Top GenAI Tools by Bytes Transferred",
+      xAxis: "grouped_data",
+      yScale: "linear",
+      description: "Stacked bar chart ranking GenAI applications by total bytes sent and received, identifying the highest-volume data transfer targets.",
+      numBars: "24",
+      layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 41
+}
+    },
+    {
+      description: "Mapping internal /24 subnets to GenAI applications they connect to, revealing adoption patterns by network segment.",
+      graphStyle: "sankey",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let filtered_app = array_app.filter(func(x) -> allowed_tools.contains(x))\n| let expanded_app = filtered_app.expand()\n| filter expanded_app=*\n| let octets = src_endpoint.ip.split('\\\\.')\n| let segment = octets.slice(0,3).to_string(\".\") + \".0/24\"\n| group count=count() by segment, app=expanded_app\n| sort -count\n| columns source=segment, target=app, c=count\n| limit 50",
+      title: "Usage by Network Segment",
+      layout: {
+  h: 14,
+  i: "8",
+  minH: 3,
+  minW: 6,
+  w: 30,
+  x: 30,
+  y: 41
+},
+      colorMatching: "automatic",
+      sankeyColorScheme: "default",
+      showNodeValues: "true"
+    }
+  ]},
+{"tabName":"Shadow AI & Risk Anomalies","graphs":[
+  {
+    description: "Scatter plot correlating GenAI connection volume with anomaly scores from Corelight's app_id use case. Points with high item_score indicate statistically unusual activity for that application.",
+    graphStyle: "scattered_bubble",
+    query: "| join \n(metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let filtered_app = array_app.filter(func(x) -> allowed_tools.contains(x))\n| filter filtered_app.len() > 0\n| let total_bytes_kb = floor(((orig_bytes + resp_bytes) / 1024) * 100 + 0.5) / 100\n| columns app=filtered_app.to_string(\", \"), total_bytes_kb, timestamp, src_endpoint.ip, uid), (metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND _system_name=*\n| columns uid, item_score) on uid\n| columns \"Time\"=floor(number(timestamp) / 1000000000), \"Item Score\" =number(floor(number(item_score) * 100 + 0.5) / 100), \"Total Bytes (KB)\" =number(total_bytes_kb), \"Label\"=string(app)",
+    scatteredBubbleConfig: {showLabel: true},
+    title: "Anomalous GenAI Activity Timeline",
+    layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 0
+}
+  },
+  {
+    dataLabelType: "PERCENTAGE",
+    description: "Top internal host IPs ranked by number of connections to GenAI services, highlighting the heaviest users.",
+    graphStyle: "pie",
+    maxPieSlices: 25,
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let keep = array_app.match_any(func(x) -> allowed_tools.contains(x))\n| filter keep=true local_orig=true\n| group count=count() by src_endpoint.ip\n| sort -count\n| limit 25",
+    title: "Top Internal Users (GenAI Connections)",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 0,
+  y: 14
+}
+  },
+  {
+    graphStyle: "stacked_bar",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let filtered_app = array_app.filter(func(x) -> allowed_tools.contains(x))\n| let expanded_app = filtered_app.expand()\n| filter expanded_app=*\n| let risk_tier = expanded_app matches \"^(moonshot|zhipu-ai|alibaba-qwen|baidu-ernie|bytedance-doubao|minimax|01ai-yi|sensetime|iflytek-spark|baichuan-ai|stepfun|openrouter|litellm|braintrust|portkey|helicone)$\" ? \"High\" : expanded_app matches \"^(github-copilot|codeium|tabnine|sourcegraph-cody|amazon-q|crewai|zapier-ai|mistral|cohere|deepseek|groq|together-ai|fireworks-ai|replicate|ai21|inflection-pi|lepton-ai|octoai|meta-ai|deepl|forefront-ai|adept-ai|chatgpt|google-gemini|claude|anthropic|openai|midjourney|stability-ai|runwayml|elevenlabs|pika|synthesia|suno|udio|langsmith|pinecone|chroma|wandb|baseten|modal|weaviate)$\" ? \"Medium\" : expanded_app matches \"^(otter-ai|fireflies-ai|notion-ai|krisp|tldv|fathom|read-ai|mem-ai|microsoft-copilot|you-ai|phind|character-ai|kagi|nvidia-ngc|gpt4all|scale-ai|datarobot|adobe-firefly|poe|leonardo-ai|lakera|arthur-ai)$\" ? \"Low\" : \"Unknown\"\n| let corporate_origin = expanded_app matches \"^(moonshot|zhipu-ai|alibaba-qwen|baidu-ernie|bytedance-doubao|minimax|01ai-yi|sensetime|iflytek-spark|baichuan-ai|stepfun)$\" ? \"Chinese AI Providers\" : expanded_app matches \"^(openrouter|litellm|braintrust|portkey|helicone)$\" ? \"AI Proxy/Aggregators\" : expanded_app matches \"^(github-copilot|codeium|tabnine|sourcegraph-cody|amazon-q)$\" ? \"AI Coding Assistants\" : expanded_app matches \"^(crewai|zapier-ai)$\" ? \"AI Agents\" : expanded_app matches \"^(mistral|cohere|deepseek|groq|together-ai|fireworks-ai|replicate|ai21|inflection-pi|lepton-ai|octoai|meta-ai|deepl|forefront-ai|adept-ai)$\" ? \"Commercial LLM APIs\" : expanded_app matches \"^(otter-ai|fireflies-ai|notion-ai|krisp|tldv|fathom|read-ai|mem-ai)$\" ? \"Meeting/Productivity\" : expanded_app matches \"^(chatgpt|google-gemini|claude|anthropic|openai)$\" ? \"Major Commercial AI\" : expanded_app matches \"^(midjourney|stability-ai|runwayml|elevenlabs|pika|synthesia|suno|udio)$\" ? \"AI Image/Video/Audio\" : expanded_app matches \"^(microsoft-copilot|you-ai|phind|character-ai|kagi)$\" ? \"AI Search/Assistants\" : expanded_app matches \"^(nvidia-ngc|gpt4all)$\" ? \"Model Hubs\" : expanded_app matches \"^(langsmith|pinecone|chroma|wandb|baseten|modal|weaviate)$\" ? \"ML Platforms/Vector DBs\" : expanded_app matches \"^(scale-ai|datarobot|adobe-firefly|poe|leonardo-ai)$\" ? \"Enterprise AI\" : expanded_app matches \"^(lakera|arthur-ai)$\" ? \"AI Security/Guardrails\" : \"Other AI\"\n| group Connections=count(uid) by risk_tier, corporate_origin\n| transpose corporate_origin on risk_tier",
+    title: "Vendor Risk by Corporate Origin",
+    xAxis: "grouped_data",
+    yScale: "linear",
+    description: "Stacked bar chart showing connection volume grouped by risk tier and corporate origin category.",
+    numBars: "24",
+    layout: {
+  h: 14,
+  w: 30,
+  x: 30,
+  y: 14
+}
+  },
+  {
+    description: "Detailed table of GenAI usage ranked by risk tier and bytes sent. Shows source, destination, protocol, and volume for each application and internal host pair.",
+    graphStyle: "",
+    query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name in ('conn', 'conn_red') AND _system_name=* AND app=*\n| let array_app = app.trim('[]').split(',')\n| let allowed_tools = array_from_json('[\"chatgpt\", \"google-gemini\", \"claude\", \"anthropic\", \"openai\", \"cursor\", \"ollama\", \"github\", \"grok\", \"huggingface\", \"perplexity\", \"sora\", \"moonshot\", \"zhipu-ai\", \"alibaba-qwen\", \"baidu-ernie\", \"bytedance-doubao\", \"minimax\", \"01ai-yi\", \"sensetime\", \"iflytek-spark\", \"baichuan-ai\", \"stepfun\", \"openrouter\", \"litellm\", \"braintrust\", \"portkey\", \"helicone\", \"github-copilot\", \"codeium\", \"tabnine\", \"sourcegraph-cody\", \"amazon-q\", \"mistral\", \"cohere\", \"deepseek\", \"groq\", \"together-ai\", \"fireworks-ai\", \"replicate\", \"ai21\", \"inflection-pi\", \"lepton-ai\", \"octoai\", \"meta-ai\", \"deepl\", \"forefront-ai\", \"adept-ai\", \"otter-ai\", \"fireflies-ai\", \"notion-ai\", \"krisp\", \"tldv\", \"fathom\", \"read-ai\", \"mem-ai\", \"crewai\", \"zapier-ai\", \"midjourney\", \"stability-ai\", \"runwayml\", \"elevenlabs\", \"pika\", \"synthesia\", \"suno\", \"udio\", \"microsoft-copilot\", \"you-ai\", \"phind\", \"character-ai\", \"kagi\", \"nvidia-ngc\", \"gpt4all\", \"langsmith\", \"pinecone\", \"chroma\", \"wandb\", \"baseten\", \"modal\", \"weaviate\", \"scale-ai\", \"datarobot\", \"adobe-firefly\", \"poe\", \"leonardo-ai\", \"lakera\", \"arthur-ai\"]')\n| let filtered_app = array_app.filter(func(x) -> allowed_tools.contains(x))\n| let expanded_app = filtered_app.expand()\n| filter expanded_app=*\n| let risk_tier = expanded_app matches \"^(moonshot|zhipu-ai|alibaba-qwen|baidu-ernie|bytedance-doubao|minimax|01ai-yi|sensetime|iflytek-spark|baichuan-ai|stepfun|openrouter|litellm|braintrust|portkey|helicone)$\" ? \"High\" : expanded_app matches \"^(github-copilot|codeium|tabnine|sourcegraph-cody|amazon-q|crewai|zapier-ai|mistral|cohere|deepseek|groq|together-ai|fireworks-ai|replicate|ai21|inflection-pi|lepton-ai|octoai|meta-ai|deepl|forefront-ai|adept-ai|chatgpt|google-gemini|claude|anthropic|openai|midjourney|stability-ai|runwayml|elevenlabs|pika|synthesia|suno|udio|langsmith|pinecone|chroma|wandb|baseten|modal|weaviate)$\" ? \"Medium\" : expanded_app matches \"^(otter-ai|fireflies-ai|notion-ai|krisp|tldv|fathom|read-ai|mem-ai|microsoft-copilot|you-ai|phind|character-ai|kagi|nvidia-ngc|gpt4all|scale-ai|datarobot|adobe-firefly|poe|leonardo-ai|lakera|arthur-ai)$\" ? \"Low\" : \"Unknown\"\n| let corporate_origin = expanded_app matches \"^(moonshot|zhipu-ai|alibaba-qwen|baidu-ernie|bytedance-doubao|minimax|01ai-yi|sensetime|iflytek-spark|baichuan-ai|stepfun)$\" ? \"Chinese AI Providers\" : expanded_app matches \"^(openrouter|litellm|braintrust|portkey|helicone)$\" ? \"AI Proxy/Aggregators\" : expanded_app matches \"^(github-copilot|codeium|tabnine|sourcegraph-cody|amazon-q)$\" ? \"AI Coding Assistants\" : expanded_app matches \"^(crewai|zapier-ai)$\" ? \"AI Agents\" : expanded_app matches \"^(mistral|cohere|deepseek|groq|together-ai|fireworks-ai|replicate|ai21|inflection-pi|lepton-ai|octoai|meta-ai|deepl|forefront-ai|adept-ai)$\" ? \"Commercial LLM APIs\" : expanded_app matches \"^(otter-ai|fireflies-ai|notion-ai|krisp|tldv|fathom|read-ai|mem-ai)$\" ? \"Meeting/Productivity\" : expanded_app matches \"^(chatgpt|google-gemini|claude|anthropic|openai)$\" ? \"Major Commercial AI\" : expanded_app matches \"^(midjourney|stability-ai|runwayml|elevenlabs|pika|synthesia|suno|udio)$\" ? \"AI Image/Video/Audio\" : expanded_app matches \"^(microsoft-copilot|you-ai|phind|character-ai|kagi)$\" ? \"AI Search/Assistants\" : expanded_app matches \"^(nvidia-ngc|gpt4all)$\" ? \"Model Hubs\" : expanded_app matches \"^(langsmith|pinecone|chroma|wandb|baseten|modal|weaviate)$\" ? \"ML Platforms/Vector DBs\" : expanded_app matches \"^(scale-ai|datarobot|adobe-firefly|poe|leonardo-ai)$\" ? \"Enterprise AI\" : expanded_app matches \"^(lakera|arthur-ai)$\" ? \"AI Security/Guardrails\" : \"Other AI\"\n| let transport = (proto=\"icmp\" AND src_endpoint.ip matches \".*:.*\") ? \"icmp6\" : proto\n| let proto_port = transport + \"/\" + string(dst_endpoint.port)\n| let directionality = (local_orig=true AND local_resp=true) ? \"Internal\" : (local_orig=true AND local_resp=false) ? \"Outbound\" : (local_orig=false AND local_resp=true) ? \"Inbound\" : (local_orig=false AND local_resp=false) ? \"External\" : \"Unknown\"\n| let dest_country = geo_ip_country(dst_endpoint.ip)\n| group distinct_connections=estimate_distinct(uid), total_bytes_sent=sum(orig_ip_bytes), total_bytes_recv=sum(resp_ip_bytes), sum_of_duration=sum(duration), destinations=array_agg_distinct(dst_endpoint.ip), directionality=array_agg_distinct(directionality), transport=array_agg_distinct(proto_port), service=array_agg_distinct(service), dest_country=array_agg_distinct(dest_country) by AppID=expanded_app, risk_tier, corporate_origin, src_endpoint.ip\n| let formatted_total_bytes_sent = total_bytes_sent >= 1099511627776 ? string(floor(total_bytes_sent / 1099511627776 * 100 + 0.5) / 100) + \" TB\" : total_bytes_sent >= 1073741824 ? string(floor(total_bytes_sent / 1073741824 * 100 + 0.5) / 100) + \" GB\" : total_bytes_sent >= 1048576 ? string(floor(total_bytes_sent / 1048576 * 100 + 0.5) / 100) + \" MB\" : total_bytes_sent >= 1024 ? string(floor(total_bytes_sent / 1024 * 100 + 0.5) / 100) + \" KB\" : string(total_bytes_sent) + \" B\"\n| let formatted_total_bytes_recv = total_bytes_recv >= 1099511627776 ? string(floor(total_bytes_recv / 1099511627776 * 100 + 0.5) / 100) + \" TB\" : total_bytes_recv >= 1073741824 ? string(floor(total_bytes_recv / 1073741824 * 100 + 0.5) / 100) + \" GB\" : total_bytes_recv >= 1048576 ? string(floor(total_bytes_recv / 1048576 * 100 + 0.5) / 100) + \" MB\" : total_bytes_recv >= 1024 ? string(floor(total_bytes_recv / 1024 * 100 + 0.5) / 100) + \" KB\" : string(total_bytes_recv) + \" B\"\n| let total_duration = sum_of_duration / 1000\n| columns \"Risk Tier\"=risk_tier, \"GenAI Application\"=AppID, \"Corporate Origin\"=corporate_origin, \"Source IP\"=src_endpoint.ip, \"Bytes Sent\"=formatted_total_bytes_sent, \"Direction\"=directionality.to_string(\"\\n\"), \"Destination IP\"=destinations.to_string(\"\\n\"), \"Destination Country\"=dest_country.to_string(\"\\n\"), \"Destination Port\"=transport.to_string(\"\\n\"), \"Service\"=service.to_string(\"\\n\"),\"Bytes Received\"=formatted_total_bytes_recv, \"Total Duration\"=total_duration, \"Total Connections\"=distinct_connections",
+    title: "Shadow AI Stack Rank",
+    layout: {
+  h: 17,
+  w: 60,
+  x: 0,
+  y: 28
+}
+  }
+],
+filters: [
+  {
+    facet: "_system_name",
+    name: "Corelight Sensor"
+  },
+  {
+    name: "Risk Tier",
+    values: [
+      {
+        label: "All",
+        value: "metadata.log_name=*"
+      },
+      {
+        label: "High",
+        value: "app matches \"(^|[\\\\[\\\\s,\\\"])(moonshot|zhipu-ai|alibaba-qwen|baidu-ernie|bytedance-doubao|minimax|01ai-yi|sensetime|iflytek-spark|baichuan-ai|stepfun|openrouter|litellm|braintrust|portkey|helicone)([\\\\]\\\\s,\\\"]|$)\""
+      },
+      {
+        label: "Medium",
+        value: "app matches \"(^|[\\\\[\\\\s,\\\"])(github-copilot|codeium|tabnine|sourcegraph-cody|amazon-q|crewai|zapier-ai|mistral|cohere|deepseek|groq|together-ai|fireworks-ai|replicate|ai21|inflection-pi|lepton-ai|octoai|meta-ai|deepl|forefront-ai|adept-ai|chatgpt|google-gemini|claude|anthropic|openai|midjourney|stability-ai|runwayml|elevenlabs|pika|synthesia|suno|udio|langsmith|pinecone|chroma|wandb|baseten|modal|weaviate)([\\\\]\\\\s,\\\"]|$)\""
+      },
+      {
+        label: "Low",
+        value: "app matches \"(^|[\\\\[\\\\s,\\\"])(otter-ai|fireflies-ai|notion-ai|krisp|tldv|fathom|read-ai|mem-ai|microsoft-copilot|you-ai|phind|character-ai|kagi|nvidia-ngc|gpt4all|scale-ai|datarobot|adobe-firefly|poe|leonardo-ai|lakera|arthur-ai)([\\\\]\\\\s,\\\"]|$)\""
+      }
+    ]
+  },
+]
+}],
+  configType: "TABBED"
+}

@@ -1,0 +1,252 @@
+{
+  duration: "24h",
+  graphs: [
+    {
+      graphStyle: "markdown",
+      markdown: " ",
+      title: " Anomaly Notables",
+      layout: {
+  h: 3,
+  w: 43,
+  x: 0,
+  y: 0
+}
+    },
+    {
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| group estimate_distinct(finding_info.title)",
+      sparklineConfig: {enabled: false},
+      title: "Anomaly Types",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+  h: 6,
+  w: 14,
+  x: 0,
+  y: 3
+}
+    },
+    {
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| let original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\")\n| let anomaly_detection = finding_info.desc + \" | \" + original_entity + \" | \" + unmapped.item\n| group estimate_distinct(anomaly_detection)",
+      sparklineConfig: {enabled: false},
+      title: "Detections",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+  h: 6,
+  w: 14,
+  x: 14,
+  y: 3
+}
+    },
+    {
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| group count(connection_info.uid)",
+      sparklineConfig: {enabled: false},
+      title: "Alerts",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+  h: 6,
+  w: 15,
+  x: 28,
+  y: 3
+}
+    },
+    {
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| group estimate_distinct(unmapped.original_entity)",
+      sparklineConfig: {enabled: false},
+      title: "Anomalous Entity Hosts",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+  h: 6,
+  w: 21,
+  x: 0,
+  y: 9
+}
+    },
+    {
+      graphStyle: "number",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| group estimate_distinct(unmapped.item)",
+      sparklineConfig: {enabled: false},
+      title: "Anomalous Items",
+      trendConfig: {
+        enabled: false,
+        indicators: {
+          arrow: {enabled: true},
+          number: {
+            calculationType: "ABSOLUTE",
+            enabled: true
+          },
+          upwardsMeaning: "POSITIVE"
+        }
+      },
+      layout: {
+  h: 6,
+  w: 22,
+  x: 21,
+  y: 9
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| group Average_Score = floor((average(confidence_score) * 100) + 0.5) / 100",
+      title: "Average Item Score",
+      layout: {
+  h: 10,
+  w: 17,
+  x: 43,
+  y: 5
+}
+    },
+    {
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| let anomaly_detection=finding_info.desc + \" | \" + unmapped.original_entity\n| sort time\n| group total_alerts=count(connection_info.uid), epoch_first_alert_time=first(time), epoch_last_alert_time=last(time)  by anomaly_detection, unmapped.item\n| let first_alert_time = strftime(epoch_first_alert_time*1000000, \"%B %d, %I:%M:%S %p\"), last_alert_time = strftime(epoch_last_alert_time*1000000, \"%B %d, %I:%M:%S %p\")\n| sort - last_alert_time\n| let anomaly_summary=total_alerts + \" alerts for \" + unmapped.item + \" from \" + first_alert_time + \" to \" + last_alert_time\n| columns \"Detections (Detections grouped by Anomaly Type and Source IP)\" = anomaly_detection, \"Summary (Number of Alerts per Detection during the time restriction)\" = anomaly_summary",
+      title: "Anomalies Observed",
+      layout: {
+  h: 14,
+  w: 43,
+  x: 0,
+  y: 15
+}
+    },
+    {
+      dataLabelType: "PERCENTAGE",
+      description: "Number of Alerts per Anomaly Type during time restriction",
+      graphStyle: "pie",
+      maxPieSlices: 10,
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| group count() by finding_info.desc",
+      title: "Alerts per Anomaly Type",
+      layout: {
+  h: 14,
+  w: 20,
+  x: 0,
+  y: 29
+}
+    },
+    {
+      description: "Detections grouped by Anomaly Type, Anomalous Entity Host, and Anomalous Item during time restriction",
+      graphStyle: "line",
+      lineSmoothing: "straightLines",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| let anomaly_detection=finding_info.desc + \" | \" + unmapped.original_entity\n| sort time\n| group epoch_last_alert_time=last(time) by finding_info.desc, anomaly_detection, unmapped.item\n| group count() by timestamp = timebucket(epoch_last_alert_time, \"auto\"), finding_info.desc\n| transpose finding_info.desc on timestamp",
+      title: "Detections per Anomaly Type over Time",
+      layout: {
+  h: 14,
+  w: 40,
+  x: 20,
+  y: 29
+}
+    },
+    {
+      description: "",
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| let original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\"), item_score = floor((confidence_score * 100) + 0.5) / 100\n| group Anomalous_Entity_Host = array_agg_distinct(original_entity), Anomalous_Item = array_agg_distinct(unmapped.item), Anomalous_Item_Score = array_agg_distinct(item_score) by connection_info.uid, finding_info.desc\n| columns \"UID\" = connection_info.uid, \"Anomaly Type\" = finding_info.desc, \"Anomalous Entity Host\" = Anomalous_Entity_Host.to_string(\"\\n\"), \"Anomalous Item\" = Anomalous_Item.to_string(\"\\n\"), \"Anomalous Item Score\" = Anomalous_Item_Score.to_string(\"\\n\")",
+      title: "Alerts per Connection",
+      layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 43
+}
+    },
+    {
+      description: "Count of Anomalous Items per Anomaly Type",
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| let anomaly_detection=finding_info.desc + \" | \" + unmapped.original_entity\n| group Anomalous_Items_Count = count(unmapped.item) by anomaly_detection, unmapped.item, finding_info.desc\n| group Anomalous_Items = array_agg_distinct(unmapped.item), Anomalous_Items_Count = array_agg_distinct(Anomalous_Items_Count) by anomaly_detection, finding_info.desc\n| columns \"Anomaly Types\" = finding_info.desc, \"Anomalous Items\" = Anomalous_Items.to_string(\"\\n\"), \"Count of Anomalous Items\" = Anomalous_Items_Count.to_string(\"\\n\")",
+      title: "Anomaly Summary",
+      layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 57
+}
+    },
+    {
+      description: "Overview details of each observed Detection",
+      graphStyle: "",
+      query: "metadata.product.vendor_name = 'Corelight' AND metadata.log_name = 'anomaly' AND finding_info.desc=*\n| let original_entity = replace(unmapped.original_entity, \"/[0-9]{1,2}$\", \"\"), use_case = finding_info.title==\"server_ns_services\" ? \"ns_servers_services\" : (finding_info.title==\"server_ns_http\" ? \"http_user_agents\" : finding_info.title)\n| let item = use_case=\"admin_shares\" ? replace(unmapped.item, \"\\\\\\\\\", \"\\\\\\\\\") : unmapped.item\n| lookup anomalous_behavior from corelight_use_cases.csv by use_case=use_case\n| let splitted_anomalous_behavior = anomalous_behavior.split(\":original_entity: | :item:\").filter(func(x) -> x != \"\")\n| let array_len = len(splitted_anomalous_behavior)\n| let first_part =  (array_len > 0) ? splitted_anomalous_behavior.get(0) : \" \" , second_part = (array_len > 1) ? splitted_anomalous_behavior.get(1) : \"\"\n| let anomalous_behavior_replaced = original_entity + \" \" + first_part + \" \" + item + \" \" + second_part\n| group count = count(item) by finding_info.desc, original_entity, anomalous_behavior_replaced\n| sort - count\n| columns \"Anomaly Type\" = finding_info.desc, \"Anomalous Entity Host\" = original_entity, \"Anomaly Behavior\" = anomalous_behavior_replaced.replace(\" ,\", \",\"), \"Count of Alerts\" = count",
+      title: "Detection Breakdown by Anomaly Type and Source IP",
+      layout: {
+  h: 14,
+  w: 60,
+  x: 0,
+  y: 71
+}
+    },
+    {
+      graphStyle: "markdown",
+      layout: {
+  h: 5,
+  w: 17,
+  x: 43,
+  y: 0
+},
+      markdown: "[Corelight Docs](https://docs.corelight.com/docs/sensor/sensor/anomaly-detection/index.html)",
+      title: "Learn more about Anomaly Detection at"
+    },
+    {
+      graphStyle: "markdown",
+      markdown: "[Click here to open the Anomaly Detection Details dashboard](https://usea1-partners.sentinelone.net/dashboards/id/27728211614355456/Anomaly%20Detection%20Details)\n\nUse this dashboard to take a closer look at a specific anomaly. Once it opens:\n\n1. Select a value in the  **Anomaly Type**, **Anomalous Entity**, and **Anomalous Item** filters to see details for that anomaly.\n2. Use the other filters to narrow down your results further.",
+      title: "View Anomaly Details",
+      layout: {
+  h: 14,
+  i: "14",
+  minH: 3,
+  minW: 6,
+  w: 17,
+  x: 43,
+  y: 15
+}
+    }
+  ],
+  filters: [
+    {
+      facet: "metadata.log_provider",
+      name: "Corelight Sensor"
+    },
+    {
+      facet: "finding_info.desc",
+      name: "Anomaly Type"
+    }
+  ],
+  description: "Summary overview of Anomalies detected on your network."
+}
